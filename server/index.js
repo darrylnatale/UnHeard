@@ -2,14 +2,101 @@ const express = require('express')
 const port = 8888;
 const helmet = require("helmet")
 const morgan = require("morgan")
+const request = require('request-promise');
+
+var Discogs = require('disconnect').Client;
 
 const {
   getBowie
 } = require("./handlers");
 
 
+// var db = new Discogs().database();
+// // db.getArtist(605776, function(err, data){
+// //   console.log(data)
+// // })
+
+// // db.getArtistReleases(47843, function(err, data){
+  
+// // data.releases.forEach((release) => {
+// //   console.log(release.id)
+// // })
+    
+      
+// //     })
+  
+// const albumIds = [1391846,
+//   1524799,
+//   1400493,
+//   120588,
+//   130064,
+//   300512,
+//   151167,
+//   806242,
+//   1552533,
+//   12687120,
+//   5485057,
+//   12686958,
+//   12686990,
+//   2597180,
+//   2599059,
+//   10996649,
+//   665767,
+//   1269646,
+//   2584691,
+//   2786626,
+//   1626262,
+//   2991460,
+//   1283793,
+//   1772418,
+//   2520044,
+//   3541606,
+//   502497,
+//   273725,
+//   554167,
+//   10481381,
+//   7491406,
+//   10480291,
+//   10428310,
+//   1692119,
+//   6893591,
+//   273725]
+
+//   for(let i = 0; i < 10; i++){
+//     db.getRelease(albumIds[i], function(err, data){
+//         console.log(data.title)
+//   })
+// }
+  
+  
+    
+    
+
+
+// //       data.tracklist.forEach((tracklistItem) => {
+// //         tracklistItem.artists.forEach((artist) => {
+// //           if (artist.name === "Cicciolina"){
+// //             console.log(tracklistItem.title)
+// //           }
+// //         })
+// //       });
+// //     });
+    
+// //   })
+// // })
+
+
+
+
+
+
+
+// var dis = new Discogs('MyUserAgent/1.0');
+
+/// SPOTIFY
 
 var SpotifyWebApi = require('spotify-web-api-node');
+
 
 var spotifyApi = new SpotifyWebApi({
   clientId: '0e14701b078b4c3cb5bab549f7cf3c6a',
@@ -28,96 +115,113 @@ express()
 
 .get("/login", (req, res) => newToken())
 
-.get('/getAllAlbums/:artistId', (req, res) => {
-  const dataQueried = req.params.artistId
-  const albumIds = []
-  const trackNames = []
+.post('/getAllAlbums/:artistId', async (req, res) => {
+  const {artistId, artistName} = req.body
+  
 
-
-// 1. Get all albums by artist and push their ID to an albumIds array
-
-  spotifyApi.getArtistAlbums(`${dataQueried}`, { limit: 20, offset: 0 })
-    .then((data) => {
-      const {total, items} = data.body
-      
-      
+  try {
+    const trackNames = []
+    const albumIds = []
+    const firstPageAlbumResults = await spotifyApi.getArtistAlbums(`${artistId}`, { limit: 20, offset: 0 })
+    
+    if (firstPageAlbumResults){
+      const {total, items} = firstPageAlbumResults.body
       items.forEach((item) => {
-        albumIds.push(item.id)
+      albumIds.push(item.id)
       })
-
-    if (total > 20){
-      for (let i = 1; i < Math.ceil(total / 20); i++){
-        spotifyApi.getArtistAlbums(`${dataQueried}`, { limit: 20, offset: 20 * i })
-        .then((paginatedData) => {
-          paginatedData.body.items.forEach((item, index) => {
-            albumIds.push(item.id)
-          })
-        })
+      
+      if (total > 20){
+          for (let i = 1; i < Math.ceil(total / 20); i++){
+            const additionalResults = await spotifyApi.getArtistAlbums(`${artistId}`, { limit: 20, offset: 20 * i })
+            if (additionalResults){
+              const {items} = additionalResults.body
+              items.forEach((item) => {
+              albumIds.push(item.id)
+              }) 
+            }
+          }
       }
-    }
-    // console.log(albums)
-
-    
-    // 2. Using the array of albumIds, get details of all those albums by the artist 
-    // and get values
-    spotifyApi.getAlbums(albumIds)
-    .then((data) => {
       
-      const albums = data.body.albums
-    
-      // 3. Loop through each album and assign the array of track data to a const
-    
-      albums.forEach((album) => {
+      const totalAlbumsFound = albumIds.length
+      
+      if (totalAlbumsFound > 20){
+        for (let i = 0; i < Math.ceil(totalAlbumsFound / 20); i++){
+          const albumDetails = await spotifyApi.getAlbums(albumIds.slice(20 * i, (i+1) * 20))
+          if (albumDetails){
+        const {albums} = albumDetails.body
+        console.log(albumDetails.body)
         
+        albums.forEach((album) => {  
         const trackFullDetailsOnAlbums = album.tracks.items
-
         
-      // 4. Loop through all the full details and push the names of the tracks to an array
-      
-      trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
-        
-        let isByArtistSearched = false
-      
-        // 5. Check if artist is the right artist 
-        const artistsOnTrack = trackFullDetailOnAlbum.artists
-        
-        artistsOnTrack.forEach((artistOnTrack) => {
+        trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
+          let isByArtistSearched = false
+          const artistsOnTrack = trackFullDetailOnAlbum.artists 
           
-          if (artistOnTrack.name === "Cicciolina"){
-            isByArtistSearched = true
-          } 
-        })
-        // 6. If the correct artist, 
-
-        if (isByArtistSearched){
-          trackNames.push(trackFullDetailOnAlbum.name)
-         console.log(trackNames)
-        }
-   
-        
-        
-        
-        
-      })
-      
-      })
-      
-    })
-      
+          artistsOnTrack.forEach((artistOnTrack) => { 
+             if (artistOnTrack.name === artistName){isByArtistSearched = true} 
+          })
+            if (isByArtistSearched){trackNames.push(trackFullDetailOnAlbum.name)}
     
-      
-      res.status(200).json({status: 200, message: "Albums Found", data: albums})
+        })
       })
-    .catch((err) => {
-      res.status(400).json({status: 400, message: "Failed", data: err})
-    });
+      }
+        }
+
+      }
+
+      // const albumDetails = await spotifyApi.getAlbums(albumIds)
+      
+      // if (albumDetails){
+      //   const {albums} = albumDetails.body
+      //   console.log(albumDetails.body)
+        
+      //   albums.forEach((album) => {  
+      //   const trackFullDetailsOnAlbums = album.tracks.items
+        
+      //   trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
+      //     let isByArtistSearched = false
+      //     const artistsOnTrack = trackFullDetailOnAlbum.artists 
+          
+      //     artistsOnTrack.forEach((artistOnTrack) => { 
+      //        if (artistOnTrack.name === artistName){isByArtistSearched = true} 
+      //     })
+      //       if (isByArtistSearched){trackNames.push(trackFullDetailOnAlbum.name)}
+    
+      //   })
+      // })
+      // }
+      res.status(200).json({status: 200, message: "Tracks Found", data: trackNames})  
+    } else {
+      
+      res.status(400).json({status: 400, message: "Tracks Not Found" })
+    }
+  } catch (err) 
+  {
+    console.log(err)
+  }
+
   })
 
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
   .get('/searchArtist/:artistName', (req, res) => {
     const dataQueried = req.params.artistName
     
     spotifyApi.searchArtists(`${dataQueried}`)
+
       .then((data) => {
         res.status(200).json({status: 200, message: "Artists Found", data: data})
         })

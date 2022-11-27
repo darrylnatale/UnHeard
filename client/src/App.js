@@ -5,12 +5,18 @@ import styled from "styled-components"
 const App = () => {
   
 const [albums, setAlbums] = useState()
-const [artist, setArtist] = useState()
+const [artistSearchResults, setArtistSearchResults] = useState()
+const [selectedArtist, setSelectedArtist] = useState()
+
 const [formData, setFormData] = useState()
+const [allTracks, setAllTracks] = useState()
+const [submitted, setSubmitted] = useState(false)
+const [seconds, setSeconds] = useState(0)
+const [timedTracks, setTimedTracks] = useState([])
 
 // const { artistSearched } = useParams();
 
-const artistSearched = "Venise"
+
 
 useEffect(() => {
     fetch("/login")
@@ -21,22 +27,17 @@ useEffect(() => {
     .catch((err) => console.log(err));
 }, [])
 
-
 // useEffect(() => {
-  // fetch("/getTopAlbums") 
-  //   .then((res) => res.json())
-  //   .then((data) => {
-  //       setAlbums(data.data.body.Albums)
-  //    })
-  //    .catch((err) => console.log(err));
+//   const interval = setInterval(() => {
+//     setSeconds(seconds => seconds + 1);
+    
+//      setTimedTracks([...timedTracks, allTracks[seconds]])
+    
+//   }, 1000);
 
-//    fetch("/searchArtist") 
-//      .then((res) => res.json())
-//      .then((data) => {
-//          setAlbums(data.data.body.Albums)
-//       })
-//       .catch((err) => console.log(err));
-// }, [])
+//   return () => clearInterval(interval);
+// }, [timedTracks]);
+
 
 
 
@@ -51,54 +52,160 @@ const handleSubmit = (e, formData) => {
   fetch(`/searchArtist/${formData}`) 
   .then((res) => res.json())
   .then((data) => {
-      setArtist(data.data.body.artists.items)
-      console.log(data.data.body.artists.items)
-      console.log(data.data.body.artists.items[0].images[0].url)
+      setSubmitted(true)
+      setArtistSearchResults(data.data.body.artists.items)
       
    })
    .catch((err) => console.log(err));
 }
-const searchForAllAlbums = (artistId) => {
-  fetch(`/getAllAlbums/${artistId}`) 
+const getAllTracksFromAlbums = (artistId, artistName) => {
+  fetch(`/getAllAlbums/${artistId}`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({artistId, artistName}),
+  }) 
     .then((res) => res.json())
     .then((data) => {
-        setAlbums(data.data.body)
-        
+      console.log(data)
+      setSubmitted(false)
+      setSelectedArtist(artistName)
+      setAllTracks(data.data)
      })
-    
      .catch((err) => console.log(err));
 }
+
+const unique = [...new Set(allTracks)];
+
+const filterDuplicates = (allTracks) => {
+  console.log("allTracks", allTracks.length)
+  console.log("unique", unique.length)
+
+  let filtered = []
+  let remastered = []
+  let radioEdit = []
+  let liveVersion = []
+  let remix = []
+  
+  unique.forEach((track) => {
+      if (track.toLowerCase().includes("remaster")){
+        remastered.push(track)
+      } else {
+        filtered.push(track)
+        setAllTracks(filtered)
+      } 
+      })
+  
+
+  unique.forEach((track) => {
+      if (track.toLowerCase().includes("radio edit")){
+        radioEdit.push(track)} 
+      })
+
+  unique.forEach((track) => {
+      if (track.toLowerCase().includes("- live"  || "live at" )){
+        console.log(track)
+        liveVersion.push(track)} 
+      })
+
+  unique.forEach((track) => {
+      if (track.toLowerCase().includes("remix")){
+        remix.push(track)} 
+      })
+
+    console.log("remastered", remastered.length)
+    console.log("radio edit", radioEdit.length)
+    console.log("live", liveVersion.length)
+    console.log("remix", remix.length)
+    
+    const concatenatedFilters = remastered.concat(radioEdit,liveVersion,remix)
+
+    function Unique(array) {
+      var tmp = [];
+      var result = [];
+      
+      if (array !== undefined /* any additional error checking */ ) {
+        for (var i = 0; i < array.length; i++) {
+          var val = array[i];
+      
+          if (tmp[val] === undefined) {
+             tmp[val] = true;
+             result.push(val);
+           }
+      
+          }
+        }
+      
+        return result;
+      }
+      
+      Unique(unique)
+      
+
+
+    
+  }
+  
+  
+  
+
+
+
+
+
+
+
+
+
 
   return (
     <Page>
       <form onSubmit={(e) => handleSubmit(e, formData)}>
-      <input 
+      {seconds} seconds have elapsed since mounting.
+      <SearchBar 
           type="search" 
           placeholder={"Search For An Artist"}
           onChange={(e) => handleChange(e.target.value)}/>
       <button type="submit">Search Artist</button>
       </form>
-    <Results>
-    {artist ? 
-    <div><div>Artist Results</div>{artist.map((artist) => {
-      return <ArtistContainer onClick={() => {searchForAllAlbums(artist.id)}
-      }>
-        {artist.images[0] ? <Image src={artist.images[0].url}/> : ""}        
-        {artist.name} - {artist.id}
-        </ArtistContainer>
-    })}</div>
-    : <>loading</>
-    }
+      <Results>
+        {artistSearchResults && submitted ? 
+        <div>
+          <div>Artist Results</div>
+          {artistSearchResults.map((artistSearchResult) => {
+          return <ArtistContainer onClick={() => {getAllTracksFromAlbums(artistSearchResult.id, artistSearchResult.name)}
+          }>
+            {artistSearchResult.images[0] ? <Image src={artistSearchResult.images[0].url}/> : ""}        
+            {artistSearchResult.name}
+            </ArtistContainer>
+        })}</div>
+        : <>loading</>
+        }
 
-    {albums ? 
+    {allTracks ? 
     <div>
-      <div>Top Albums</div>
-      {albums.items.map((album, index) => {
+      {/* <h1>There are {allTracks.length} tracks by {selectedArtist} on Spotify</h1>
+      <button onClick={() => {filterDuplicates(allTracks)}}>Filter Out Remastered</button> */}
+      
+      
+      {timedTracks ? 
+      timedTracks.map((timedTrack) => {
+        return <div>{timedTrack}</div>
+      })
+    : <></>
+    }
+      
+      {/* {unique.sort().map((track, index) => {
       return <div>
-        {album.images[0] ? <Image src={album.images[0].url}/> : ""}        
-        {index + 1} - {album.name}
+        {track}
         </div>
-    })}</div>
+    })} */}
+    
+
+    
+    </div>
     : <>loading</>
     }
     </Results>
@@ -112,14 +219,26 @@ const searchForAllAlbums = (artistId) => {
 export default App;
 
 const Page = styled.div`
-display: block;
-margin: 0 200px;
+margin: 0 50px;
 `
 
+const SearchBar = styled.input`
+border: 1px solid black;
+border-radius: 3px;
+width: 500px;
+height: 50px;
+font-size: 30px;
+margin: 100px 100px 100px 300px;
+`
 const Results = styled.div`
 display: flex;`
+
 const ArtistContainer = styled.button`
 display: flex;
+width: 400px;
+border: 1 px solid lightblue;
+margin: 5px;
+padding: 5px;
 `
 
 const Image = styled.img`
