@@ -17,27 +17,11 @@ const {
 //     console.log(data)
 //   console.log(err)})
 
-// db.getArtist(605776, function(err, data){
-//   console.log(data)
-// })
 
-// db.getArtistReleases(47843, function(err, data){
-// data.releases.forEach((release) => {
-//   console.log(release.id)
-// })    
-//     })
-  
-//   for(let i = 0; i < 10; i++){
-//     db.getRelease(albumIds[i], function(err, data){
-//         console.log(data.title)
-//   })
-// }
   
   
     
-    
-
-
+  
 // //       data.tracklist.forEach((tracklistItem) => {
 // //         tracklistItem.artists.forEach((artist) => {
 // //           if (artist.name === "Cicciolina"){
@@ -52,21 +36,20 @@ const {
 
 
 
-
+let userToken = null
 
 
 
 var dis = new Discogs('MyUserAgent/1.0');
-var db = new Discogs({userToken: 'YOUR_USER_TOKEN'}).database();
+var db = new Discogs().database();
 
 
-// db.search("Cicciolina", function(err, data){
-//     console.log(data)
-//   console.log(err)})
 
-db.getArtistReleases(47843, function(err, data){
- console.log(data)  
-      })
+
+// db.getRelease("1105977", function(err, data){
+//   console.log(data)
+// })
+
 
 var SpotifyWebApi = require('spotify-web-api-node');
 const { access } = require('fs');
@@ -84,7 +67,7 @@ const newSpotifyToken = () => {
 const newDiscogsToken = (req, res) => {
   
     var oAuth = new Discogs().oauth();
-    
+
     oAuth.getRequestToken(
       'vlkJsprxTlbVtiVFhVMH', 
       'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
@@ -94,11 +77,13 @@ const newDiscogsToken = (req, res) => {
         // access it later after returning from the authorize url
         // res.redirect(requestData.authorizeUrl);
         console.log(requestData)
+        
+        
       }
-    ).then((data) => {
-      console.log(data)
-    })
-  }
+    )
+}
+   
+  
   
 
     
@@ -110,7 +95,71 @@ express()
 
 .get('/authorize', (req, res) => newDiscogsToken())
 
+.get("/getDiscogsContent", async (req, res) => {
+  
+  // try {
+  //   const discogsAlbums = []
+  //   const discogsTracks = []
 
+  //   const artistReleases = await db.getArtistReleases(605776)
+    
+  //   if (artistReleases){
+  //     discogsAlbums.push(artistReleases.releases)
+    
+  //   // if (discogsAlbums[0].length > 0){
+  //   //   for(let i = 0; i < discogsAlbums[0].length; i++){
+  //   //     const getReleases = await db.getRelease(discogsAlbums[0][i].id)
+  //   //       if (getReleases){
+  //   //         discogsTracks.push(getReleases)
+  //   //       }
+  //   //     } 
+  //   // }
+
+   
+  // } res.status(200).json({status: 200, message: " Found", data: 4})  
+  // {
+
+  // }
+  
+  
+  //   } catch (err) {
+  //   console.log(err)
+  //   }
+
+    try {
+      
+
+          const discogsAlbums = []
+    const discogsTracks = []
+
+    const artistReleases = await db.getArtistReleases(605776)
+    
+    if (artistReleases){
+      discogsAlbums.push(artistReleases.releases)
+
+        
+    //   for(let i = 0; i < discogsAlbums[0].length; i++){
+    //     const getReleases = await db.getRelease(discogsAlbums[0][i].id)
+    //       if (getReleases){
+    //         discogsTracks.push(getReleases)
+    //       }
+    //     } 
+    // 
+
+    
+      res.status(200).json({status: 200, message: "Discogs Data Found", data: discogsAlbums })
+    }
+      else { 
+        res.status(400).json({status: 400, message: "Not Found" })
+      }
+    } catch (err) 
+    {console.log(err)}
+    
+
+    })
+
+ 
+      
 
 .get("/login", (req, res) => newSpotifyToken())
 
@@ -151,7 +200,6 @@ express()
           const albumDetails = await spotifyApi.getAlbums(albumIds.slice(20 * i, (i+1) * 20))
           if (albumDetails){
         const {albums} = albumDetails.body
-        console.log(albumDetails.body)
         
         albums.forEach((album) => {  
         const trackFullDetailsOnAlbums = album.tracks.items
@@ -171,8 +219,7 @@ express()
         }
       }
       res.status(200).json({status: 200, message: "Tracks Found", data: {spotifyArtistName: artistName, spotifyAlbums: albums, spotifyTracks: tracks}})  
-    } else {
-      
+    } else { 
       res.status(400).json({status: 400, message: "Tracks Not Found" })
     }
   } catch (err) 

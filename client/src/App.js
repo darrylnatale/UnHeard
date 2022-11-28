@@ -14,7 +14,8 @@ const [submitted, setSubmitted] = useState(false)
 const [seconds, setSeconds] = useState(0)
 const [timedTracks, setTimedTracks] = useState([])
 
-// const { artistSearched } = useParams();
+
+const [discogsContent, setDiscogsContent] = useState([])
 
 
 
@@ -157,7 +158,16 @@ const filterDuplicates = (allTracks) => {
   }
   
   
+  const getDiscogsContent = () => {
+    fetch(`/getDiscogsContent/`) 
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data)
+    })
+    .catch((err) => console.log(err));
   
+  
+  }
 
 
 
@@ -170,6 +180,7 @@ const filterDuplicates = (allTracks) => {
 
   return (
     <Page>
+      <button onClick={() => {getDiscogsContent()}}>Get Discogs Albums</button>
       <form onSubmit={(e) => handleSubmit(e, formData)}>
       {seconds} seconds have elapsed since mounting.
       <SearchBar 
@@ -213,17 +224,27 @@ const filterDuplicates = (allTracks) => {
     })}
     </div>
     <div>
-    <h1>... and {spotifyAlbums.length} albums</h1>
-    {spotifyAlbums.map((spotifyAlbum) => {
+      
+      <h1>... and {spotifyAlbums.length} albums</h1>
+      {spotifyAlbums.map((spotifyAlbum) => {
       return <div>
         <Image src={spotifyAlbum.images[0].url} />
         <div>{spotifyAlbum.name}</div>
-        </div>
-    })}
+            </div>
+            })}
     </div>
     </>
-    : <>loading</>
+    : 
+    <>loading</>
     }
+    {discogsContent && 
+    <>
+    <ul>
+    {/* {discogsContent.discogsAlbums.map((discogsAlbum) => {
+      return <li>{discogsAlbum.artist} - {discogsAlbum.title}</li>  
+    })} */}
+    </ul>
+    </>}
     </Results>
     </Page>
   )
