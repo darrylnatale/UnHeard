@@ -11,57 +11,22 @@ const {
 } = require("./handlers");
 
 
-// var db = new Discogs().database();
-// // db.getArtist(605776, function(err, data){
-// //   console.log(data)
-// // })
 
-// // db.getArtistReleases(47843, function(err, data){
-  
-// // data.releases.forEach((release) => {
-// //   console.log(release.id)
-// // })
-    
-      
-// //     })
-  
-// const albumIds = [1391846,
-//   1524799,
-//   1400493,
-//   120588,
-//   130064,
-//   300512,
-//   151167,
-//   806242,
-//   1552533,
-//   12687120,
-//   5485057,
-//   12686958,
-//   12686990,
-//   2597180,
-//   2599059,
-//   10996649,
-//   665767,
-//   1269646,
-//   2584691,
-//   2786626,
-//   1626262,
-//   2991460,
-//   1283793,
-//   1772418,
-//   2520044,
-//   3541606,
-//   502497,
-//   273725,
-//   554167,
-//   10481381,
-//   7491406,
-//   10480291,
-//   10428310,
-//   1692119,
-//   6893591,
-//   273725]
 
+// db.search("Cicciolina", function(err, data){
+//     console.log(data)
+//   console.log(err)})
+
+// db.getArtist(605776, function(err, data){
+//   console.log(data)
+// })
+
+// db.getArtistReleases(47843, function(err, data){
+// data.releases.forEach((release) => {
+//   console.log(release.id)
+// })    
+//     })
+  
 //   for(let i = 0; i < 10; i++){
 //     db.getRelease(albumIds[i], function(err, data){
 //         console.log(data.title)
@@ -91,12 +56,20 @@ const {
 
 
 
-// var dis = new Discogs('MyUserAgent/1.0');
+var dis = new Discogs('MyUserAgent/1.0');
+var db = new Discogs({userToken: 'YOUR_USER_TOKEN'}).database();
 
-/// SPOTIFY
+
+// db.search("Cicciolina", function(err, data){
+//     console.log(data)
+//   console.log(err)})
+
+db.getArtistReleases(47843, function(err, data){
+ console.log(data)  
+      })
 
 var SpotifyWebApi = require('spotify-web-api-node');
-
+const { access } = require('fs');
 
 var spotifyApi = new SpotifyWebApi({
   clientId: '0e14701b078b4c3cb5bab549f7cf3c6a',
@@ -104,30 +77,58 @@ var spotifyApi = new SpotifyWebApi({
   redirectUri: 'http://localhost:8888/callback/'
 });
 
-const newToken = () => {
+const newSpotifyToken = () => {
   spotifyApi.clientCredentialsGrant().then((data) => spotifyApi.setAccessToken(data.body["access_token"]))
 }
 
+const newDiscogsToken = (req, res) => {
+  
+    var oAuth = new Discogs().oauth();
+    
+    oAuth.getRequestToken(
+      'vlkJsprxTlbVtiVFhVMH', 
+      'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
+      'http://localhost:8888/callback2/', 
+      function(err, requestData){
+        // Persist "requestData" here so that the callback handler can 
+        // access it later after returning from the authorize url
+        // res.redirect(requestData.authorizeUrl);
+        console.log(requestData)
+      }
+    ).then((data) => {
+      console.log(data)
+    })
+  }
+  
+
+    
 express()
 .use(express.json())
 .use(helmet())
 .use(morgan("tiny"))
 
-.get("/login", (req, res) => newToken())
+
+.get('/authorize', (req, res) => newDiscogsToken())
+
+
+
+.get("/login", (req, res) => newSpotifyToken())
 
 .post('/getAllAlbums/:artistId', async (req, res) => {
   const {artistId, artistName} = req.body
   
 
   try {
-    const trackNames = []
+    const tracks = []
+    const albums = []
     const albumIds = []
     const firstPageAlbumResults = await spotifyApi.getArtistAlbums(`${artistId}`, { limit: 20, offset: 0 })
     
     if (firstPageAlbumResults){
       const {total, items} = firstPageAlbumResults.body
       items.forEach((item) => {
-      albumIds.push(item.id)
+        albums.push(item)
+        albumIds.push(item.id)
       })
       
       if (total > 20){
@@ -136,7 +137,8 @@ express()
             if (additionalResults){
               const {items} = additionalResults.body
               items.forEach((item) => {
-              albumIds.push(item.id)
+                albums.push(item)
+                albumIds.push(item.id)
               }) 
             }
           }
@@ -144,7 +146,7 @@ express()
       
       const totalAlbumsFound = albumIds.length
       
-      if (totalAlbumsFound > 20){
+      if (totalAlbumsFound){
         for (let i = 0; i < Math.ceil(totalAlbumsFound / 20); i++){
           const albumDetails = await spotifyApi.getAlbums(albumIds.slice(20 * i, (i+1) * 20))
           if (albumDetails){
@@ -161,37 +163,14 @@ express()
           artistsOnTrack.forEach((artistOnTrack) => { 
              if (artistOnTrack.name === artistName){isByArtistSearched = true} 
           })
-            if (isByArtistSearched){trackNames.push(trackFullDetailOnAlbum.name)}
+            if (isByArtistSearched){tracks.push(trackFullDetailOnAlbum)}
     
         })
       })
       }
         }
-
       }
-
-      // const albumDetails = await spotifyApi.getAlbums(albumIds)
-      
-      // if (albumDetails){
-      //   const {albums} = albumDetails.body
-      //   console.log(albumDetails.body)
-        
-      //   albums.forEach((album) => {  
-      //   const trackFullDetailsOnAlbums = album.tracks.items
-        
-      //   trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
-      //     let isByArtistSearched = false
-      //     const artistsOnTrack = trackFullDetailOnAlbum.artists 
-          
-      //     artistsOnTrack.forEach((artistOnTrack) => { 
-      //        if (artistOnTrack.name === artistName){isByArtistSearched = true} 
-      //     })
-      //       if (isByArtistSearched){trackNames.push(trackFullDetailOnAlbum.name)}
-    
-      //   })
-      // })
-      // }
-      res.status(200).json({status: 200, message: "Tracks Found", data: trackNames})  
+      res.status(200).json({status: 200, message: "Tracks Found", data: {spotifyArtistName: artistName, spotifyAlbums: albums, spotifyTracks: tracks}})  
     } else {
       
       res.status(400).json({status: 400, message: "Tracks Not Found" })

@@ -7,9 +7,9 @@ const App = () => {
 const [albums, setAlbums] = useState()
 const [artistSearchResults, setArtistSearchResults] = useState()
 const [selectedArtist, setSelectedArtist] = useState()
-
+const [spotifyAlbums, setSpotifyAlbums] = useState()
 const [formData, setFormData] = useState()
-const [allTracks, setAllTracks] = useState()
+const [allTracks, setAllSpotifyTracks] = useState()
 const [submitted, setSubmitted] = useState(false)
 const [seconds, setSeconds] = useState(0)
 const [timedTracks, setTimedTracks] = useState([])
@@ -20,6 +20,13 @@ const [timedTracks, setTimedTracks] = useState([])
 
 useEffect(() => {
     fetch("/login")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data)
+    })
+    .catch((err) => console.log(err));
+
+    fetch("/authorize")
     .then((res) => res.json())
     .then((data) => {
       console.log(data)
@@ -71,12 +78,13 @@ const getAllTracksFromAlbums = (artistId, artistName) => {
     .then((data) => {
       console.log(data)
       setSubmitted(false)
-      setSelectedArtist(artistName)
-      setAllTracks(data.data)
+      setSelectedArtist(data.data.spotifyArtistName)
+      setAllSpotifyTracks(data.data.spotifyTracks)
+      setSpotifyAlbums(data.data.spotifyAlbums)
      })
      .catch((err) => console.log(err));
 }
-
+console.log(spotifyAlbums)
 const unique = [...new Set(allTracks)];
 
 const filterDuplicates = (allTracks) => {
@@ -94,7 +102,7 @@ const filterDuplicates = (allTracks) => {
         remastered.push(track)
       } else {
         filtered.push(track)
-        setAllTracks(filtered)
+        setAllSpotifyTracks(filtered)
       } 
       })
   
@@ -185,27 +193,35 @@ const filterDuplicates = (allTracks) => {
         }
 
     {allTracks ? 
+    <>
     <div>
-      {/* <h1>There are {allTracks.length} tracks by {selectedArtist} on Spotify</h1>
-      <button onClick={() => {filterDuplicates(allTracks)}}>Filter Out Remastered</button> */}
+      <h1>There are {allTracks.length} tracks by {selectedArtist} on Spotify</h1>
+      <button onClick={() => {filterDuplicates(allTracks)}}>Filter Out Remastered</button>
       
       
-      {timedTracks ? 
+      {/* {timedTracks ? 
       timedTracks.map((timedTrack) => {
         return <div>{timedTrack}</div>
       })
     : <></>
-    }
+    } */}
       
-      {/* {unique.sort().map((track, index) => {
+      {unique.map((track, index) => {
       return <div>
-        {track}
+        {track.name}
         </div>
-    })} */}
-    
-
-    
+    })}
     </div>
+    <div>
+    <h1>... and {spotifyAlbums.length} albums</h1>
+    {spotifyAlbums.map((spotifyAlbum) => {
+      return <div>
+        <Image src={spotifyAlbum.images[0].url} />
+        <div>{spotifyAlbum.name}</div>
+        </div>
+    })}
+    </div>
+    </>
     : <>loading</>
     }
     </Results>
