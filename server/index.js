@@ -3,11 +3,12 @@ const port = 8888;
 const helmet = require("helmet")
 const morgan = require("morgan")
 const request = require('request-promise');
-
-var Discogs = require('disconnect').Client;
+const Discogs = require('disconnect').Client;
+const SpotifyWebApi = require('spotify-web-api-node');
+const { access } = require('fs');
 
 const {
-  getBowie
+  
 } = require("./handlers");
 
 
@@ -35,11 +36,6 @@ const {
 // // })
 
 
-
-let userToken = null
-
-
-
 var dis = new Discogs('MyUserAgent/1.0');
 var db = new Discogs().database();
 
@@ -51,8 +47,7 @@ var db = new Discogs().database();
 // })
 
 
-var SpotifyWebApi = require('spotify-web-api-node');
-const { access } = require('fs');
+
 
 var spotifyApi = new SpotifyWebApi({
   clientId: '0e14701b078b4c3cb5bab549f7cf3c6a',
@@ -76,24 +71,35 @@ const newDiscogsToken = (req, res) => {
         // Persist "requestData" here so that the callback handler can 
         // access it later after returning from the authorize url
         // res.redirect(requestData.authorizeUrl);
-        console.log(requestData)
+        
         
         
       }
     )
 }
-   
-  
-  
-
-    
+       
 express()
 .use(express.json())
 .use(helmet())
 .use(morgan("tiny"))
 
-
 .get('/authorize', (req, res) => newDiscogsToken())
+
+// .get('/getDiscogsTracks', async (req, res) => {
+//   try {
+//     const discogsTracks = []
+//     // const albumDetails = await await db.getRelease(12468)
+
+//     if (albumDetails){
+//       discogsTracks.push(albumDetails)
+//       console.log(albumDetails)
+//       res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsAlbums })
+//     }
+//   }
+//   catch (err){
+//     console.log(err)
+//   }
+// })
 
 .get("/getDiscogsContent", async (req, res) => {
   
@@ -127,16 +133,31 @@ express()
   //   }
 
     try {
-      
-
-          const discogsAlbums = []
+    
+    let discogsAlbums = null
     const discogsTracks = []
 
-    const artistReleases = await db.getArtistReleases(605776)
+    const artistReleases = await db.getArtistReleases(86857)
     
     if (artistReleases){
-      discogsAlbums.push(artistReleases.releases)
-
+      
+      discogsAlbums = artistReleases.releases
+      
+      for (let i = 0; i < discogsAlbums.length; i++) {
+        const getReleases = await db.getRelease(discogsAlbums[i].id)
+        if (getReleases){
+            getReleases.artists.forEach((artist) => {
+              if (artist.id === 86857){
+                discogsTracks.push(getReleases)
+              }
+            })
+          
+          
+          console.log(discogsTracks)
+        }
+      }
+      
+      
         
     //   for(let i = 0; i < discogsAlbums[0].length; i++){
     //     const getReleases = await db.getRelease(discogsAlbums[0][i].id)
@@ -145,25 +166,19 @@ express()
     //       }
     //     } 
     // 
-
-    
-      res.status(200).json({status: 200, message: "Discogs Data Found", data: discogsAlbums })
-    }
+      res.status(200).json({status: 200, message: "Discogs Content Found", data: {discogsAlbums: discogsAlbums, discogsTracks: discogsTracks} })
+      }
       else { 
-        res.status(400).json({status: 400, message: "Not Found" })
+        res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
       }
     } catch (err) 
     {console.log(err)}
-    
-
     })
 
- 
-      
 
 .get("/login", (req, res) => newSpotifyToken())
 
-.post('/getAllAlbums/:artistId', async (req, res) => {
+.post('/getSpotifyContent/:artistId', async (req, res) => {
   const {artistId, artistName} = req.body
   
 
@@ -209,38 +224,30 @@ express()
           const artistsOnTrack = trackFullDetailOnAlbum.artists 
           
           artistsOnTrack.forEach((artistOnTrack) => { 
-             if (artistOnTrack.name === artistName){isByArtistSearched = true} 
-          })
-            if (isByArtistSearched){tracks.push(trackFullDetailOnAlbum)}
-    
+             if (artistOnTrack.name === artistName){
+                  isByArtistSearched = true
+                } 
+                })
+            
+          isByArtistSearched && tracks.push(trackFullDetailOnAlbum)
+                  
         })
       })
       }
         }
       }
-      res.status(200).json({status: 200, message: "Tracks Found", data: {spotifyArtistName: artistName, spotifyAlbums: albums, spotifyTracks: tracks}})  
+      res.status(200).json({status: 200, message: "Spotify Content Found", data: {spotifyArtistName: artistName, spotifyAlbums: albums, spotifyTracks: tracks}})  
     } else { 
-      res.status(400).json({status: 400, message: "Tracks Not Found" })
+      res.status(400).json({status: 400, message: "Error Finding Spotify Content" })
     }
   } catch (err) 
   {
     console.log(err)
   }
-
   })
 
 
-
-
-
-
-
-
-
-
-
-
-
+  
   
 
   .get('/searchArtist/:artistName', (req, res) => {
