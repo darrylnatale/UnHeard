@@ -102,59 +102,50 @@ express()
 // })
 
 .get("/getDiscogsContent", async (req, res) => {
-  
-  // try {
-  //   const discogsAlbums = []
-  //   const discogsTracks = []
-
-  //   const artistReleases = await db.getArtistReleases(605776)
-    
-  //   if (artistReleases){
-  //     discogsAlbums.push(artistReleases.releases)
-    
-  //   // if (discogsAlbums[0].length > 0){
-  //   //   for(let i = 0; i < discogsAlbums[0].length; i++){
-  //   //     const getReleases = await db.getRelease(discogsAlbums[0][i].id)
-  //   //       if (getReleases){
-  //   //         discogsTracks.push(getReleases)
-  //   //       }
-  //   //     } 
-  //   // }
-
-   
-  // } res.status(200).json({status: 200, message: " Found", data: 4})  
-  // {
-
-  // }
-  
-  
-  //   } catch (err) {
-  //   console.log(err)
-  //   }
 
     try {
     
-    let discogsAlbums = null
+    let discogsAlbums = []
     const discogsTracks = []
 
-    const artistReleases = await db.getArtistReleases(86857)
+    const artistReleases = await db.getArtistReleases(605776)
     
-    if (artistReleases){
-      
-      discogsAlbums = artistReleases.releases
-      
+    if (artistReleases){    
+      console.log(artistReleases)  
+      artistReleases.releases.forEach((release) => {
+        if (release.role === "Main"){
+          discogsAlbums.push(release)
+        }
+      })
+
       for (let i = 0; i < discogsAlbums.length; i++) {
         const getReleases = await db.getRelease(discogsAlbums[i].id)
         if (getReleases){
             getReleases.artists.forEach((artist) => {
-              if (artist.id === 86857){
-                discogsTracks.push(getReleases)
-              }
+              if (artist.id === 605776){
+                getReleases.tracklist.forEach((track) => {
+                  if (track.artists){
+                  track.artists.forEach((artistOnTrack) => {
+                    if (artistOnTrack.id === 605776){
+                      discogsTracks.push(getReleases)
+                      
+                    }
+                  })
+                  } else {
+                    discogsTracks.push(getReleases)
+                  }
+                })
+                
+              } 
             })
-          
-          
-          console.log(discogsTracks)
         }
+        if(discogsAlbums[i].type === "master"){
+        const getMasters = await db.getMaster(discogsAlbums[i].id)
+        if(getMasters){
+          
+          discogsTracks.push(getMasters)
+        }
+      }
       }
       
       

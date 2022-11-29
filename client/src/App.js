@@ -51,7 +51,8 @@ useEffect(() => {
 // }, [timedTracks]);
 
 
-
+console.log("discogsAlbums", discogsAlbums)
+console.log("discogsTracks", discogsTracks)
 
 const handleChange = (value) => {
   setFormData(value);
@@ -105,7 +106,16 @@ const discogsTrackNameArray = []
 if(discogsTracks){
   discogsTracks.forEach((discogsTrack) => {
     discogsTrack.tracklist.forEach((track) => {
+      if (track.artists){
+      track.artists.forEach((artistOnTrack) => {
+        if (artistOnTrack.id === 144193){
+          discogsTrackNameArray.push(track.title)
+        }
+      })
+        
+    } else {
       discogsTrackNameArray.push(track.title)
+    }
     })
   })
 }
@@ -191,7 +201,7 @@ setAllSpotifyTrackNames(uniqueSpotify)
 
     
     function findSingle(arr) {
-      return arr.filter(i => arr.filter(j => i === j).length === 1)
+      return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
     }
     
     const result = findSingle(both)
