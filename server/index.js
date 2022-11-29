@@ -14,9 +14,7 @@ const {
 
 
 
-// db.search("Cicciolina", function(err, data){
-//     console.log(data)
-//   console.log(err)})
+
 
 
   
@@ -46,12 +44,12 @@ var db = new Discogs().database();
 //   console.log(data)
 // })
 
-db.getArtistReleases("86857", function(err, data){
-  console.log(data.releases.length)
-  console.log(data.releases.forEach((release) => {
-    console.log("releaseid", release)
-  }))
-})
+// db.getArtistReleases("86857", function(err, data){
+//   console.log(data.releases.length)
+//   console.log(data.releases.forEach((release) => {
+//     console.log("releaseid", release)
+//   }))
+// })
 
 // db.getRelease("702665", function(err, data){
 //   console.log(data)
@@ -73,32 +71,91 @@ const newSpotifyToken = () => {
   spotifyApi.clientCredentialsGrant().then((data) => spotifyApi.setAccessToken(data.body["access_token"]))
 }
 
-const newDiscogsToken = (req, res) => {
-  
-    var oAuth = new Discogs().oauth();
 
-    oAuth.getRequestToken(
-      'vlkJsprxTlbVtiVFhVMH', 
-      'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
-      'http://localhost:8888/callback2/', 
-      function(err, requestData){
-        // Persist "requestData" here so that the callback handler can 
-        // access it later after returning from the authorize url
-        // res.redirect(requestData.authorizeUrl);
+
+
+// const newDiscogsToken = (req, res) => {
+  
+//     var oAuth = new Discogs().oauth();
+
+//     oAuth.getRequestToken(
+//       'vlkJsprxTlbVtiVFhVMH', 
+//       'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
+//       'http://localhost:8888/callback2/', 
+//       function(err, requestData){
+//         // Persist "requestData" here so that the callback handler can 
+//         // access it later after returning from the authorize url
+//         // res.redirect(requestData.authorizeUrl);
         
         
         
-      }
-    )
-}
-       
+//       }
+//     )
+// }
+let discogsRequestData = null
+   let discogsAccessData = null
+
+
+
+   
+
 express()
 .use(express.json())
 .use(helmet())
 .use(morgan("tiny"))
 
-.get('/authorize', (req, res) => newDiscogsToken())
 
+.get('/authorize', function(req, res){
+	var oAuth = new Discogs().oauth();
+	oAuth.getRequestToken(
+		'vlkJsprxTlbVtiVFhVMH', 
+		'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
+		'http://localhost:8888/callbackDiscogs/', 
+		function(err, requestData){
+			// Persist "requestData" here so that the callback handler can 
+			discogsRequestData = requestData
+			res.redirect(requestData.authorizeUrl);
+      
+		}
+	);
+})
+
+.get('/callbackDiscogs', function(req, res){
+	var oAuth = new Discogs(discogsRequestData).oauth();
+	oAuth.getAccessToken(
+		req.query.oauth_verifier, // Verification code sent back by Discogs
+		function(err, accessData){
+			discogsAccessData = accessData
+			res.redirect("http://localhost:8888/identity");
+		}
+	);
+})
+
+.get('/identity', function(req, res){
+	var dis = new Discogs(discogsAccessData);
+	dis.getIdentity(function(err, data){
+		console.log(data)
+    res.send(data);
+	});
+
+var db = new Discogs(discogsAccessData).database();
+
+db.search("Venise", function(err, data){
+  console.log("search", data)
+})
+
+db.getRelease(176126, function(err, data){
+	var url = data.images[0].resource_url;
+  
+	// db.getImage(url, function(err, data, rateLimit){
+	// 	// Data contains the raw binary image data
+	// 	require('fs').writeFile('/tmp/image.jpg', data, 'binary', function(err){
+	// 		console.log('Image saved!');
+  //     console.log(data)
+	// 	});
+	// });
+});
+})
 
 
 .get("/getDiscogsContent", async (req, res) => {

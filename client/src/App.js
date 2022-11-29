@@ -1,9 +1,12 @@
 import {  useEffect, useState  } from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import styled from "styled-components"
 
+
 const App = () => {
-  
+
+
+
 const [albums, setAlbums] = useState()
 const [artistSearchResults, setArtistSearchResults] = useState()
 const [selectedArtist, setSelectedArtist] = useState()
@@ -32,12 +35,14 @@ useEffect(() => {
     })
     .catch((err) => console.log(err));
 
-    // fetch("/authorize")
-    // .then((res) => res.json())
-    // .then((data) => {
-    //   console.log(data)
-    // })
-    // .catch((err) => console.log(err));
+  //  navigate("http://localhost:8888/authorize")
+   
+    fetch("http://localhost:8888/authorize")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data)
+    })
+    .catch((err) => console.log(err));
 }, [])
 
 // useEffect(() => {
@@ -247,28 +252,28 @@ return result
       {/* {seconds} seconds have elapsed since mounting. */}
       <SearchBar 
           type="search" 
-          placeholder={"Search For An Artist"}
+          placeholder={"Search For A Musician"}
           onChange={(e) => handleChange(e.target.value)}/>
       </form>
-      <ResultsHeader>
-      <div>SPOTIFY RESULTS</div>
-      <div>DISCOGS RESULTS</div>
-      </ResultsHeader>
+      
       <Results>
         {artistSearchResults && submitted ? 
         <div>
-          <div>Artist Results</div>
+          <SearchResults>
+
           {artistSearchResults.map((artistSearchResult, index) => {
           return <ArtistContainer key={index} onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.name)}
           }>
             {artistSearchResult.images[0] ? <Image src={artistSearchResult.images[0].url}/> : ""}        
             {artistSearchResult.name}
             </ArtistContainer>
-        })}</div>
+            
+        })}</SearchResults>
+        </div>
         : <></>
         }
 
-    {discogsAlbums ? 
+    {discogsAlbums && allSpotifyTracks ? 
     <>
     <div>
       <h1>There are <Number>{uniqueSpotify.length}</Number> tracks by {selectedArtist} on Spotify</h1>
@@ -302,7 +307,7 @@ return result
     : 
     <></>
     }
-    {discogsAlbums && 
+    {(discogsAlbums && allSpotifyTracks) && 
     <>
     <DiscogsResults>
     <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
@@ -330,9 +335,9 @@ return result
     
     
     
-    <CompareMessage>We found <Number>{compare().length}</Number> tracks not available on Spotify:</CompareMessage>
-    <div>{compare()}  </div>
-    <h2>But we found it on YouTube</h2>
+    <CompareMessage><h1>We found <Number>{compare().length}</Number> tracks not available on Spotify:</h1></CompareMessage>
+    <div><h1>{compare()} </h1> </div>
+    <h1>But we found it on YouTube</h1>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/vrM2EGghhqM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/YB2LivWtHfw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/X0puqUVPxLs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -371,7 +376,11 @@ const DiscogsResults = styled.div`
 display: block;
 text-align: center;
 `
-
+const SearchResults = styled.div`
+display: flex;
+flex-wrap: wrap;
+max-width: 1200px;
+`
 const Number = styled.h1`
 color: red;
 `
