@@ -46,6 +46,20 @@ var db = new Discogs().database();
 //   console.log(data)
 // })
 
+db.getArtistReleases("86857", function(err, data){
+  console.log(data.releases.length)
+  console.log(data.releases.forEach((release) => {
+    console.log("releaseid", release)
+  }))
+})
+
+// db.getRelease("702665", function(err, data){
+//   console.log(data)
+  
+// })
+
+// db.getRelease(discogsAlbums[i].id)
+
 
 
 
@@ -85,54 +99,48 @@ express()
 
 .get('/authorize', (req, res) => newDiscogsToken())
 
-// .get('/getDiscogsTracks', async (req, res) => {
-//   try {
-//     const discogsTracks = []
-//     // const albumDetails = await await db.getRelease(12468)
 
-//     if (albumDetails){
-//       discogsTracks.push(albumDetails)
-//       console.log(albumDetails)
-//       res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsAlbums })
-//     }
-//   }
-//   catch (err){
-//     console.log(err)
-//   }
-// })
 
 .get("/getDiscogsContent", async (req, res) => {
 
     try {
     
-    let discogsAlbums = []
-    const discogsTracks = []
+    const discogsAlbums = []
+    const discogsAlbumDetails = []
+    const discogsVersionIds = []
+    const discogsVersions = []
+    const discogsMasters = []
 
-    const artistReleases = await db.getArtistReleases(605776)
+    const artistReleases = await db.getArtistReleases(86857)
     
     if (artistReleases){    
-      console.log(artistReleases)  
+      
       artistReleases.releases.forEach((release) => {
-        if (release.role === "Main"){
+        if (release.type === "Master"){
+          discogsMasters.push(release)
+        }
+        if ((release.role === "Main") && (release.type !== "Master")){
           discogsAlbums.push(release)
+          console.log(discogsAlbums.length)
         }
       })
+      
 
       for (let i = 0; i < discogsAlbums.length; i++) {
         const getReleases = await db.getRelease(discogsAlbums[i].id)
         if (getReleases){
             getReleases.artists.forEach((artist) => {
-              if (artist.id === 605776){
+              if (artist.id === 86857){
                 getReleases.tracklist.forEach((track) => {
                   if (track.artists){
                   track.artists.forEach((artistOnTrack) => {
-                    if (artistOnTrack.id === 605776){
-                      discogsTracks.push(getReleases)
+                    if (artistOnTrack.id === 86857){
+                      discogsAlbumDetails.push(getReleases)
                       
                     }
                   })
                   } else {
-                    discogsTracks.push(getReleases)
+                    discogsAlbumDetails.push(getReleases)
                   }
                 })
                 
@@ -140,24 +148,32 @@ express()
             })
         }
         if(discogsAlbums[i].type === "master"){
-        const getMasters = await db.getMaster(discogsAlbums[i].id)
-        if(getMasters){
+          const getMasters = await db.getMaster(discogsAlbums[i].id)
+            getMasters && discogsAlbumDetails.push(getMasters)
+          const getVersionIds = await db.getMasterVersions(discogsAlbums[i].id)
           
-          discogsTracks.push(getMasters)
-        }
+          getVersionIds && getVersionIds.versions.forEach((version) => discogsVersionIds.push(version.id))
+          
       }
+      
+
+      for (let i = 0 ; i < discogsVersionIds.length; i++){
+        const getVersionsDetails = await db.getRelease(discogsVersionIds[i])
+        getVersionsDetails && discogsVersions.push(getVersionsDetails)
+        console.log(getVersionsDetails)
+        
+      
+
+
+
+      }
+          
       }
       
       
         
-    //   for(let i = 0; i < discogsAlbums[0].length; i++){
-    //     const getReleases = await db.getRelease(discogsAlbums[0][i].id)
-    //       if (getReleases){
-    //         discogsTracks.push(getReleases)
-    //       }
-    //     } 
-    // 
-      res.status(200).json({status: 200, message: "Discogs Content Found", data: {discogsAlbums: discogsAlbums, discogsTracks: discogsTracks} })
+    
+      res.status(200).json({status: 200, message: "Discogs Content Found", data: {discogsAlbums: discogsAlbums, discogsAlbumDetails: discogsAlbumDetails, discogsVersions: discogsVersions} })
       }
       else { 
         res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })

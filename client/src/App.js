@@ -18,7 +18,8 @@ const [allTracksFromBoth, setAllTracksFromBoth] = useState()
 
 
 const [discogsAlbums, setDiscogsAlbums] = useState()
-const [discogsTracks, setDiscogsTracks] = useState()
+const [discogsAlbumDetails, setDiscogsAlbumDetails] = useState()
+const [discogsVersions, setDiscogsVersions] = useState()
 const [discogsTrackNames, setDiscogsTrackNames] = useState()
 
 
@@ -52,7 +53,8 @@ useEffect(() => {
 
 
 console.log("discogsAlbums", discogsAlbums)
-console.log("discogsTracks", discogsTracks)
+console.log("discogsAlbumDetails", discogsAlbumDetails)
+console.log("discogsVersions", discogsVersions)
 
 const handleChange = (value) => {
   setFormData(value);
@@ -94,7 +96,8 @@ const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
       .then((res) => res.json())
       .then((data) => {
       setDiscogsAlbums(data.data.discogsAlbums)
-      setDiscogsTracks(data.data.discogsTracks)
+      setDiscogsAlbumDetails(data.data.discogsAlbumDetails)
+      setDiscogsVersions(data.data.discogsVersions)
       
       
     })
@@ -103,12 +106,12 @@ const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
 
 const discogsTrackNameArray = []
 
-if(discogsTracks){
-  discogsTracks.forEach((discogsTrack) => {
-    discogsTrack.tracklist.forEach((track) => {
+if(discogsAlbumDetails){
+  discogsAlbumDetails.forEach((discogsAlbumDetail) => {
+    discogsAlbumDetail.tracklist.forEach((track) => {
       if (track.artists){
       track.artists.forEach((artistOnTrack) => {
-        if (artistOnTrack.id === 144193){
+        if (artistOnTrack.id === 3818000){
           discogsTrackNameArray.push(track.title)
         }
       })
@@ -120,6 +123,22 @@ if(discogsTracks){
   })
 }
 
+if(discogsVersions){
+  discogsVersions.forEach((discogsVersion) => {
+    discogsVersion.tracklist.forEach((track) => {
+      if (track.artists){
+      track.artists.forEach((artistOnTrack) => {
+        if (artistOnTrack.id === 86857){
+          discogsTrackNameArray.push(track.title)
+        }
+      })
+        
+    } else {
+      discogsTrackNameArray.push(track.title)
+    }
+    })
+  })
+}
 
 
 const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
@@ -225,7 +244,7 @@ return result
       
       
       <form onSubmit={(e) => handleSubmit(e, formData)}>
-      {seconds} seconds have elapsed since mounting.
+      {/* {seconds} seconds have elapsed since mounting. */}
       <SearchBar 
           type="search" 
           placeholder={"Search For An Artist"}
@@ -249,11 +268,11 @@ return result
         : <></>
         }
 
-    {allSpotifyTrackNames ? 
+    {discogsAlbums ? 
     <>
     <div>
-      <h1>There are {uniqueSpotify.length} tracks by {selectedArtist} on Spotify</h1>
-      <button onClick={() => {filterDuplicates(allSpotifyTrackNames)}}>Filter Out Remastered</button>
+      <h1>There are <Number>{uniqueSpotify.length}</Number> tracks by {selectedArtist} on Spotify</h1>
+      {/* <button onClick={() => {filterDuplicates(allSpotifyTrackNames)}}>Filter Out Remastered</button> */}
       
       
       {/* {timedTracks ? 
@@ -271,7 +290,7 @@ return result
     </div>
     <div>
       
-      <h1>... on {spotifyAlbums.length} albums</h1>
+      <h1>... on <Number>{spotifyAlbums.length}</Number> albums</h1>
       {spotifyAlbums.map((spotifyAlbum) => {
       return <div>
         <Image src={spotifyAlbum.images[0].url} />
@@ -286,7 +305,7 @@ return result
     {discogsAlbums && 
     <>
     <DiscogsResults>
-    <h1>There are {uniqueDiscogs.length} tracks by {selectedArtist} on Discogs</h1>
+    <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
     <ul>
       {uniqueDiscogs.map((trackName) => {
         return <li>{trackName}</li>
@@ -294,25 +313,29 @@ return result
       }
     </ul>
     </DiscogsResults>
+    <DiscogsResults>
     <ul>
-    <h1>... on {discogsAlbums.length} albums</h1>
-    {discogsAlbums.map((item) => {
+    <h1>... on <Number>{discogsAlbums.length}</Number> albums</h1>
+    {discogsAlbums.map((item,index) => {
       return <li>{item.artist} - {item.title}</li>  
     })}
     </ul>
+    </DiscogsResults>
     </>}
     </Results>
     <>
     {discogsAlbums ? 
     <>
-    <h1>Let's Compare</h1>
     
     
     
-    <div>There are {compare().length} tracks not on Spotify:</div>
-    <div>{compare()} </div>
-    <div>But we found it on YouTube</div>
+    
+    <CompareMessage>We found <Number>{compare().length}</Number> tracks not available on Spotify:</CompareMessage>
+    <div>{compare()}  </div>
+    <h2>But we found it on YouTube</h2>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/vrM2EGghhqM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/YB2LivWtHfw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/X0puqUVPxLs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </>
   : <></>}
     </>
@@ -327,6 +350,9 @@ export default App;
 
 const Page = styled.div`
 margin: 0 50px;
+li{
+  list-style: none;
+}
 
 h1 {
   margin-bottom: 50px;
@@ -343,16 +369,26 @@ margin: 100px 100px 100px 300px;
 `
 const DiscogsResults = styled.div`
 display: block;
+text-align: center;
 `
+
+const Number = styled.h1`
+color: red;
+`
+
 const ResultsHeader = styled.div`
 text-decoration: underline;
 display: flex;
 justify-content: space-around
 `
+const CompareMessage = styled.div`
+text-align: center;
 
+`
 const Results = styled.div`
 display: flex;
-justify-content: space-between
+justify-content: space-between;
+text-align: center;
 `
 
 const ArtistContainer = styled.button`
