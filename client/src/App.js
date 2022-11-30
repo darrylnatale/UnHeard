@@ -1,8 +1,8 @@
-import {  useEffect, useContext  } from "react";
+import {  useEffect, useContext, useState  } from "react";
 import styled from "styled-components"
 import Searchbar from "./Components/Searchbar";
 import { Context } from "./Context";
-import SearchResult from "./Components/SearchResult";
+import ArtistButton from "./Components/ArtistButton";
 import Found from "./Found";
 const App = () => {
 
@@ -53,46 +53,56 @@ useEffect(() => {
     })
     .catch((err) => console.log(err));
 
-  
-   
-    // fetch("http://localhost:8888/authorize")
-    // .then((res) => res.json())
-    // .then((data) => {
-    //   console.log(data)
-    // })
-    // .catch((err) => console.log(err));
 }, [])
 
-// useEffect(() => {
-//   const interval = setInterval(() => {
-//     setSeconds(seconds => seconds + 1);
-    
-//      setTimedTracks([...timedTracks, allTracks[seconds]])
-    
-//   }, 1000);
-
-//   return () => clearInterval(interval);
-// }, [timedTracks]);
 
 
+const [answer, setAnswer] = useState("xxx")
 
-const verifyArtist = (formData) => {
 
-  // go into backend, if it's in mongo already, proceed to finding results
+const verifyArtist = (discogsArtistId) => {
+// go into backend, if it's in mongo already, proceed to finding results
+  console.log(discogsArtistId)
+  fetch(`/checkIfInMongo`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({discogsArtistId}),
+  })
+  .then((res) => res.json())
+  .then((data) => {
+      console.log(data)
+     })
+  .catch((err) => console.log(err));
+  
   // else, check spotify and return the first result
   // ask if correct
   // else show all spotify results
   // then on click, compare
+  
     fetch(`/searchSpotify/${formData}`) 
         .then((res) => res.json())
         .then((data) => {
             // setSubmitted(true)
             
             setSpotifySearchResults(data.data.body.artists.items)
-            console.log(spotifySearchResults)
+            
+
+            const suggested = []
+
+            data.data.body.artists.items.forEach((item) => {
+              if (item.name.toLowerCase() === formData){
+                suggested.push(item)
+              }
+              
+            })
+            setAnswer(suggested)   
          })
          .catch((err) => console.log(err));
 }
+
 const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
   fetch(`/getSpotifyContent/${artistId}`, {
     method: "POST",
@@ -145,12 +155,11 @@ if(discogsVersions){
   discogsVersions.forEach((discogsVersion) => {
     discogsVersion.tracklist.forEach((track) => {
       if (track.artists){
-      track.artists.forEach((artistOnTrack) => {
-        if (artistOnTrack.id === 86857){
-          discogsTrackNameArray.push(track.title)
-        }
-      })
-        
+        track.artists.forEach((artistOnTrack) => {
+          if (artistOnTrack.id === 86857){
+            discogsTrackNameArray.push(track.title)
+          }
+          })
     } else {
       discogsTrackNameArray.push(track.title)
     }
@@ -162,8 +171,6 @@ const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
 const uniqueDiscogs = [...new Set(discogsTrackNameArray)];
 
 const showMore = (answer) => {
-  
-  
   if (answer === "yes"){
     setCorrectGuess((prev) => true)
   }
@@ -173,66 +180,7 @@ const showMore = (answer) => {
   
 }
 
-const filterDuplicates = (allSpotifyTracks) => {
-  
 
-  let filtered = []
-  let remastered = []
-  let radioEdit = []
-  let liveVersion = []
-  let remix = []
-  
-  // uniqueSpotify.forEach((track) => {
-  //     if (track.toLowerCase().includes("remaster")){
-  //       remastered.push(track)
-  //     } else {
-  //       filtered.push(track)
-  //       setAllSpotifyTracks(filtered)
-  //     } 
-  //     })
-  
-
-  // uniqueSpotify.forEach((track) => {
-  //     if (track.toLowerCase().includes("radio edit")){
-  //       radioEdit.push(track)} 
-  //     })
-
-  // uniqueSpotify.forEach((track) => {
-  //     if (track.toLowerCase().includes("- live"  || "live at" )){
-  //       console.log(track)
-  //       liveVersion.push(track)} 
-  //     })
-
-  // uniqueSpotify.forEach((track) => {
-  //     if (track.toLowerCase().includes("remix")){
-  //       remix.push(track)} 
-  //     })
-
-    // console.log("remastered", remastered.length)
-    // console.log("radio edit", radioEdit.length)
-    // console.log("live", liveVersion.length)
-    // console.log("remix", remix.length)
-    
-    // const concatenatedFilters = remastered.concat(radioEdit,liveVersion,remix)
-
-    function Unique(array) {
-      var tmp = [];
-      var result = [];
-      
-      if (array !== undefined /* any additional error checking */ ) {
-        for (var i = 0; i < array.length; i++) {
-          var val = array[i];
-          if (tmp[val] === undefined) {
-             tmp[val] = true;
-             result.push(val);
-           }
-          }
-        }
-        return result;
-      }
-      Unique(uniqueSpotify)
-      setAllSpotifyTrackNames(uniqueSpotify)
-  }
   
   
   const compare = () => {
@@ -250,22 +198,20 @@ const filterDuplicates = (allSpotifyTracks) => {
   return (
     
     <Page>
-      <Searchbar />      
-      {/* <button onClick={() => searchDiscogs()}>Search Discogs</button>       */}
+      <Searchbar /> 
       <Results>
         {discogsSearchResults && submitted ? 
           <div>
-          <SearchResults>
+          <DiscogsSearchResults>
               {discogsSearchResults.map((discogsSearchResult, index) => {
-                  return <ArtistContainer 
+                  return <ArtistButton 
                           key={index} 
+                          fxn={() => {verifyArtist(discogsSearchResult.id)}} 
+                          thumb={discogsSearchResult.thumb} 
+                          title={discogsSearchResult.title}/>
                           // onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.title)}}
-                          onClick={() => {verifyArtist(submitted)}}>
-                          <Image src={discogsSearchResult.thumb}/>
-                          <p>{discogsSearchResult.title}</p>
-                          </ArtistContainer>            
                           })}
-          </SearchResults>
+          </DiscogsSearchResults>
          </div>
         : <></>
         }
@@ -275,9 +221,13 @@ const filterDuplicates = (allSpotifyTracks) => {
     <>
       <div>
         <div>
-          Hm, you're the first to search for that musician. We need to confirm the spotify artist. Did you mean {spotifySearchResults[0].name}?
-          <Image src={spotifySearchResults[0].images[0].url} />
-          <button onClick={() => {getAllContentFromSpotifyAndDiscogs(spotifySearchResults[1].id, spotifySearchResults[1].title)}}>Yes</button>
+          Hm, you're the first to search for that musician. 
+          We need to confirm the spotify artist. 
+          Did you mean 
+           <p>{answer[0].name}</p>
+           {answer[0].images[0] && <Image src={answer[0].images[0].url}/>}?
+          {/* <Image src={spotifySearchResults[0].images[0].url} /> */}
+          <button onClick={() => {getAllContentFromSpotifyAndDiscogs(spotifySearchResults[1].id, spotifySearchResults[1].name)}}>Yes</button>
           <button onClick={() => {showMore()}}>No</button>
         </div>
         {correctGuess !== undefined ? <>hi</> : <>bye</>}
@@ -288,16 +238,7 @@ const filterDuplicates = (allSpotifyTracks) => {
     <>
     <div>
       <h1>There are <Number>{uniqueSpotify.length}</Number> tracks by {selectedArtist} on Spotify</h1>
-      {/* <button onClick={() => {filterDuplicates(allSpotifyTrackNames)}}>Filter Out Remastered</button> */}
-      
-      
-      {/* {timedTracks ? 
-      timedTracks.map((timedTrack) => {
-        return <div>{timedTrack}</div>
-      })
-    : <></>
-    } */}
-      
+      {/* <button onClick={() => {filterDuplicates(allSpotifyTrackNames)}}>Filter Out Remastered</button> */}  
       {uniqueSpotify.map((track, index) => {
       return <div>
         {track}
@@ -320,7 +261,7 @@ const filterDuplicates = (allSpotifyTracks) => {
     }
     {(discogsAlbums && allSpotifyTracks) && 
     <>
-    <DiscogsResults>
+    <DiscogsTracksResults>
     <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
     <ul>
       {uniqueDiscogs.map((trackName) => {
@@ -328,15 +269,15 @@ const filterDuplicates = (allSpotifyTracks) => {
         })
       }
     </ul>
-    </DiscogsResults>
-    <DiscogsResults>
+    </DiscogsTracksResults>
+    <DiscogsTracksResults>
     <ul>
     <h1>... on <Number>{discogsAlbums.length}</Number> albums</h1>
     {discogsAlbums.map((item,index) => {
       return <li>{item.artist} - {item.title}</li>  
     })}
     </ul>
-    </DiscogsResults>
+    </DiscogsTracksResults>
     </>}
     </Results>
     <>
@@ -367,11 +308,11 @@ h1 {
 `
 
 
-const DiscogsResults = styled.div`
+const DiscogsTracksResults = styled.div`
 display: block;
 text-align: center;
 `
-const SearchResults = styled.div`
+const DiscogsSearchResults = styled.div`
 display: flex;
 flex-wrap: wrap;
 max-width: 1200px;

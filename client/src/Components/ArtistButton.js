@@ -2,20 +2,22 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { Context } from "../Context";
 
-const SearchResult = (key, thumb, title) => {
-    const { discogsSearchResults } = useContext(Context);
-
-    return ( <>
+const ArtistButton = ({thumb, title, fxn}) => {
     
-    </> );
+    return ( <ArtistContainer onClick={() => {fxn()}}>
+            <Image src={thumb}/>
+            <p>{title}</p>
+    </ArtistContainer> );
 }
  
-export default SearchResult;
+export default ArtistButton;
 
 const ArtistContainer = styled.button`
 display: flex;
-width: 200px;
+width: 400px;
 border: 1 px solid lightblue;
+border-radius: 15px;
+background: none;
 margin: 5px;
 padding: 5px;
 `

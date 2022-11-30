@@ -5,11 +5,21 @@ const morgan = require("morgan")
 const request = require('request-promise');
 const Discogs = require('disconnect').Client;
 const SpotifyWebApi = require('spotify-web-api-node');
+const { MongoClient, ReturnDocument } = require("mongodb");
+const { v4: uuidv4 } = require("uuid");
 const { access } = require('fs');
+require("dotenv").config();
+
+const { MONGO_URI } = process.env;
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
 
 const {
   
 } = require("./handlers");
+
 
 
 
@@ -287,6 +297,47 @@ db.search("Cicciolina", {type: "artist"}, function(err, data){
         res.status(400).json({status: 400, message: "Failed", data: err})
       });
     })
+
+.post("/checkIfInMongo", async (req, res) => {
+  const discogsArtistIdReceived = req.body.discogsArtistId
+  
+  const client = new MongoClient(MONGO_URI, options);
+  
+  try {
+    
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+    const artistIdMatches = await mongodb.collection("MatchedIds").find().toArray()
+    
+    console.log(discogsArtistIdReceived)
+    let foundMatch = null
+
+    artistIdMatches.forEach((artistIdMatch) => {
+      if (discogsArtistIdReceived === artistIdMatch.discogsArtistId){
+        foundMatch = artistIdMatch
+      }      
+    })
+
+    if (foundMatch){
+      res.status(200).json({
+        status: 200,
+        message: ` Hi`,
+        data: foundMatch,
+      })
+    } else {
+      res.status(400).json({
+        status: 400,
+        message: ` Not Found`,
+        data: null,
+  })
+}
+
+    
+  } catch (err) {
+    console.log(err);
+  }
+  client.close();
+})
 
 .listen(port, () => {
   console.log(`Example app listening on port ${port}`)

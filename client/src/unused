@@ -1,0 +1,90 @@
+// useEffect(() => {
+//   const interval = setInterval(() => {
+//     setSeconds(seconds => seconds + 1);
+    
+//      setTimedTracks([...timedTracks, allTracks[seconds]])
+    
+//   }, 1000);
+
+//   return () => clearInterval(interval);
+// }, [timedTracks]);
+
+
+{/* {timedTracks ? 
+      timedTracks.map((timedTrack) => {
+        return <div>{timedTrack}</div>
+      })
+    : <></>
+    } */}
+
+    
+
+    // fetch("http://localhost:8888/authorize")
+    // .then((res) => res.json())
+    // .then((data) => {
+    //   console.log(data)
+    // })
+    // .catch((err) => console.log(err));
+
+
+
+    const filterDuplicates = (allSpotifyTracks) => {
+  
+
+        let filtered = []
+        let remastered = []
+        let radioEdit = []
+        let liveVersion = []
+        let remix = []
+        
+        // uniqueSpotify.forEach((track) => {
+        //     if (track.toLowerCase().includes("remaster")){
+        //       remastered.push(track)
+        //     } else {
+        //       filtered.push(track)
+        //       setAllSpotifyTracks(filtered)
+        //     } 
+        //     })
+        
+      
+        // uniqueSpotify.forEach((track) => {
+        //     if (track.toLowerCase().includes("radio edit")){
+        //       radioEdit.push(track)} 
+        //     })
+      
+        // uniqueSpotify.forEach((track) => {
+        //     if (track.toLowerCase().includes("- live"  || "live at" )){
+        //       console.log(track)
+        //       liveVersion.push(track)} 
+        //     })
+      
+        // uniqueSpotify.forEach((track) => {
+        //     if (track.toLowerCase().includes("remix")){
+        //       remix.push(track)} 
+        //     })
+      
+          // console.log("remastered", remastered.length)
+          // console.log("radio edit", radioEdit.length)
+          // console.log("live", liveVersion.length)
+          // console.log("remix", remix.length)
+          
+          // const concatenatedFilters = remastered.concat(radioEdit,liveVersion,remix)
+      
+          function Unique(array) {
+            var tmp = [];
+            var result = [];
+            
+            if (array !== undefined /* any additional error checking */ ) {
+              for (var i = 0; i < array.length; i++) {
+                var val = array[i];
+                if (tmp[val] === undefined) {
+                   tmp[val] = true;
+                   result.push(val);
+                 }
+                }
+              }
+              return result;
+            }
+            Unique(uniqueSpotify)
+            setAllSpotifyTrackNames(uniqueSpotify)
+        }

@@ -1,6 +1,10 @@
+import { useContext } from "react";
+import { Context } from "./Context";
 import styled from "styled-components";
 
 const Found = () => {
+
+    
     return ( 
         <>
             <CompareMessage>
