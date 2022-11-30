@@ -15,52 +15,6 @@ const {
 
 
 
-
-
-  
-  
-    
-  
-// //       data.tracklist.forEach((tracklistItem) => {
-// //         tracklistItem.artists.forEach((artist) => {
-// //           if (artist.name === "Cicciolina"){
-// //             console.log(tracklistItem.title)
-// //           }
-// //         })
-// //       });
-// //     });
-    
-// //   })
-// // })
-
-
-var dis = new Discogs('MyUserAgent/1.0');
-var db = new Discogs().database();
-
-
-
-
-// db.getRelease("1105977", function(err, data){
-//   console.log(data)
-// })
-
-// db.getArtistReleases("86857", function(err, data){
-//   console.log(data.releases.length)
-//   console.log(data.releases.forEach((release) => {
-//     console.log("releaseid", release)
-//   }))
-// })
-
-// db.getRelease("702665", function(err, data){
-//   console.log(data)
-  
-// })
-
-// db.getRelease(discogsAlbums[i].id)
-
-
-
-
 var spotifyApi = new SpotifyWebApi({
   clientId: '0e14701b078b4c3cb5bab549f7cf3c6a',
   clientSecret: '8e0546807dd2423c9b3e2227f1e70355',
@@ -74,30 +28,29 @@ const newSpotifyToken = () => {
 
 
 
-// const newDiscogsToken = (req, res) => {
-  
-//     var oAuth = new Discogs().oauth();
-
-//     oAuth.getRequestToken(
-//       'vlkJsprxTlbVtiVFhVMH', 
-//       'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
-//       'http://localhost:8888/callback2/', 
-//       function(err, requestData){
-//         // Persist "requestData" here so that the callback handler can 
-//         // access it later after returning from the authorize url
-//         // res.redirect(requestData.authorizeUrl);
-        
-        
-        
-//       }
-//     )
-// }
-let discogsRequestData = null
-   let discogsAccessData = null
 
 
 
-   
+
+// let discogsAccessData = null
+// let discogsRequestData = null
+
+let discogsAccessData =  {
+  method: 'oauth',
+  level: 2,
+  consumerKey: 'vlkJsprxTlbVtiVFhVMH',
+  consumerSecret: 'wNoIsOLRrkupmLLmlRyZnmstIrulKLey',
+  token: 'faFnhztarWJCZVpIrCfqDHROvmqzFgwHDthhULoM',
+  tokenSecret: 'EcGrZDSQKaDyzqNnkCutOoieaOrWEHktweNgNyrX'
+}
+
+var dis = new Discogs(discogsAccessData);
+var db = new Discogs(discogsAccessData).database();
+
+
+
+// console.log(discogsRequestData)
+console.log(discogsAccessData)
 
 express()
 .use(express.json())
@@ -107,15 +60,17 @@ express()
 
 .get('/authorize', function(req, res){
 	var oAuth = new Discogs().oauth();
+
 	oAuth.getRequestToken(
 		'vlkJsprxTlbVtiVFhVMH', 
 		'wNoIsOLRrkupmLLmlRyZnmstIrulKLey', 
 		'http://localhost:8888/callbackDiscogs/', 
+
 		function(err, requestData){
 			// Persist "requestData" here so that the callback handler can 
 			discogsRequestData = requestData
-			res.redirect(requestData.authorizeUrl);
-      
+      console.log(discogsRequestData)
+			res.redirect(requestData.authorizeUrl);      
 		}
 	);
 })
@@ -126,6 +81,7 @@ express()
 		req.query.oauth_verifier, // Verification code sent back by Discogs
 		function(err, accessData){
 			discogsAccessData = accessData
+      console.log(discogsAccessData)
 			res.redirect("http://localhost:8888/identity");
 		}
 	);
@@ -133,6 +89,7 @@ express()
 
 .get('/identity', function(req, res){
 	var dis = new Discogs(discogsAccessData);
+
 	dis.getIdentity(function(err, data){
 		console.log(data)
     res.send(data);
@@ -140,23 +97,27 @@ express()
 
 var db = new Discogs(discogsAccessData).database();
 
-db.search("Venise", function(err, data){
-  console.log("search", data)
+db.search("Cicciolina", {type: "artist"}, function(err, data){
+  console.log("search", data.results[0])
+})
 })
 
-db.getRelease(176126, function(err, data){
-	var url = data.images[0].resource_url;
+
+.post("/searchDiscogs", async (req, res) => {
+  const artistSearched = req.body.formData
   
-	// db.getImage(url, function(err, data, rateLimit){
-	// 	// Data contains the raw binary image data
-	// 	require('fs').writeFile('/tmp/image.jpg', data, 'binary', function(err){
-	// 		console.log('Image saved!');
-  //     console.log(data)
-	// 	});
-	// });
-});
-})
+  try {
+    const searchResult = await db.search(artistSearched, {type: "artist"})
+    if (searchResult){
+      
+      res.status(200).json({status: 200, message: "Discogs Content Found", data: searchResult })
+    }
+  } catch (err) {
+    console.log(err)
+  }
+  
 
+})
 
 .get("/getDiscogsContent", async (req, res) => {
 
@@ -314,7 +275,7 @@ db.getRelease(176126, function(err, data){
   
   
 
-  .get('/searchArtist/:artistName', (req, res) => {
+  .get('/searchSpotify/:artistName', (req, res) => {
     const dataQueried = req.params.artistName
     
     spotifyApi.searchArtists(`${dataQueried}`)
@@ -331,3 +292,18 @@ db.getRelease(176126, function(err, data){
   console.log(`Example app listening on port ${port}`)
 })
 
+// db.getRelease("1105977", function(err, data){
+//   console.log(data)
+// })
+
+// db.getArtistReleases("86857", function(err, data){
+//   console.log(data.releases.length)
+//   console.log(data.releases.forEach((release) => {
+//     console.log("releaseid", release)
+//   }))
+// })
+
+// db.getRelease("702665", function(err, data){
+//   console.log(data)
+  
+// })

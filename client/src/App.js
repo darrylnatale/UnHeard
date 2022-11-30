@@ -1,30 +1,48 @@
-import {  useEffect, useState  } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import {  useEffect, useContext  } from "react";
 import styled from "styled-components"
-
-
+import Searchbar from "./Components/Searchbar";
+import { Context } from "./Context";
+import SearchResult from "./Components/SearchResult";
+import Found from "./Found";
 const App = () => {
 
+  
 
-
-const [albums, setAlbums] = useState()
-const [artistSearchResults, setArtistSearchResults] = useState()
-const [selectedArtist, setSelectedArtist] = useState()
-const [spotifyAlbums, setSpotifyAlbums] = useState()
-const [formData, setFormData] = useState()
-const [allSpotifyTracks, setAllSpotifyTracks] = useState()
-const [allSpotifyTrackNames, setAllSpotifyTrackNames] = useState()
-const [submitted, setSubmitted] = useState(false)
-const [seconds, setSeconds] = useState(0)
-const [timedTracks, setTimedTracks] = useState([])
-const [allTracksFromBoth, setAllTracksFromBoth] = useState()
-
-
-const [discogsAlbums, setDiscogsAlbums] = useState()
-const [discogsAlbumDetails, setDiscogsAlbumDetails] = useState()
-const [discogsVersions, setDiscogsVersions] = useState()
-const [discogsTrackNames, setDiscogsTrackNames] = useState()
-
+  const {
+    albums,
+    setAlbums,
+    correctGuess,
+    setCorrectGuess,
+    discogsSearchResults,
+    setDiscogsSearchResults,
+    spotifySearchResults,
+    setSpotifySearchResults,
+    selectedArtist,
+    setSelectedArtist,
+    spotifyAlbums,
+    setSpotifyAlbums,
+    formData,
+    setFormData,
+    allSpotifyTracks,
+    setAllSpotifyTracks,
+    allSpotifyTrackNames,
+    setAllSpotifyTrackNames,
+    submitted,
+    setSubmitted,
+    seconds,
+    setSeconds,
+    timedTracks,
+    setTimedTracks,
+    allTracksFromBoth,
+    setAllTracksFromBoth,
+    discogsAlbums,
+    setDiscogsAlbums,
+    discogsAlbumDetails,
+    setDiscogsAlbumDetails,
+    discogsVersions,
+    setDiscogsVersions,
+    discogsTrackNames,
+    setDiscogsTrackNames } = useContext(Context);
 
 
 useEffect(() => {
@@ -35,14 +53,14 @@ useEffect(() => {
     })
     .catch((err) => console.log(err));
 
-  //  navigate("http://localhost:8888/authorize")
+  
    
-    fetch("http://localhost:8888/authorize")
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data)
-    })
-    .catch((err) => console.log(err));
+    // fetch("http://localhost:8888/authorize")
+    // .then((res) => res.json())
+    // .then((data) => {
+    //   console.log(data)
+    // })
+    // .catch((err) => console.log(err));
 }, [])
 
 // useEffect(() => {
@@ -57,27 +75,24 @@ useEffect(() => {
 // }, [timedTracks]);
 
 
-console.log("discogsAlbums", discogsAlbums)
-console.log("discogsAlbumDetails", discogsAlbumDetails)
-console.log("discogsVersions", discogsVersions)
 
-const handleChange = (value) => {
-  setFormData(value);
-  
-};
+const verifyArtist = (formData) => {
 
-const handleSubmit = (e, formData) => {
-  e.preventDefault();
-  
-  fetch(`/searchArtist/${formData}`) 
-  .then((res) => res.json())
-  .then((data) => {
-      setSubmitted(true)
-      setArtistSearchResults(data.data.body.artists.items)
-   })
-   .catch((err) => console.log(err));
+  // go into backend, if it's in mongo already, proceed to finding results
+  // else, check spotify and return the first result
+  // ask if correct
+  // else show all spotify results
+  // then on click, compare
+    fetch(`/searchSpotify/${formData}`) 
+        .then((res) => res.json())
+        .then((data) => {
+            // setSubmitted(true)
+            
+            setSpotifySearchResults(data.data.body.artists.items)
+            console.log(spotifySearchResults)
+         })
+         .catch((err) => console.log(err));
 }
-
 const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
   fetch(`/getSpotifyContent/${artistId}`, {
     method: "POST",
@@ -103,8 +118,6 @@ const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
       setDiscogsAlbums(data.data.discogsAlbums)
       setDiscogsAlbumDetails(data.data.discogsAlbumDetails)
       setDiscogsVersions(data.data.discogsVersions)
-      
-      
     })
     .catch((err) => console.log(err));
 }
@@ -145,10 +158,20 @@ if(discogsVersions){
   })
 }
 
-
 const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
 const uniqueDiscogs = [...new Set(discogsTrackNameArray)];
 
+const showMore = (answer) => {
+  
+  
+  if (answer === "yes"){
+    setCorrectGuess((prev) => true)
+  }
+  else {
+    setCorrectGuess((prev) => false)
+  }
+  
+}
 
 const filterDuplicates = (allSpotifyTracks) => {
   
@@ -199,80 +222,68 @@ const filterDuplicates = (allSpotifyTracks) => {
       if (array !== undefined /* any additional error checking */ ) {
         for (var i = 0; i < array.length; i++) {
           var val = array[i];
-      
           if (tmp[val] === undefined) {
              tmp[val] = true;
              result.push(val);
            }
-      
           }
         }
-      
         return result;
       }
-      
       Unique(uniqueSpotify)
-      
-setAllSpotifyTrackNames(uniqueSpotify)
-
-    
+      setAllSpotifyTrackNames(uniqueSpotify)
   }
   
   
   const compare = () => {
     
     const both = uniqueSpotify.concat(uniqueDiscogs)
-
-    
     function findSingle(arr) {
       return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
     }
-    
     const result = findSingle(both)
-
-return result      
-
+    return result      
   }
   
 
 
-
-
-
-
-
-
-
-
   return (
+    
     <Page>
-      
-      
-      <form onSubmit={(e) => handleSubmit(e, formData)}>
-      {/* {seconds} seconds have elapsed since mounting. */}
-      <SearchBar 
-          type="search" 
-          placeholder={"Search For A Musician"}
-          onChange={(e) => handleChange(e.target.value)}/>
-      </form>
-      
+      <Searchbar />      
+      {/* <button onClick={() => searchDiscogs()}>Search Discogs</button>       */}
       <Results>
-        {artistSearchResults && submitted ? 
-        <div>
+        {discogsSearchResults && submitted ? 
+          <div>
           <SearchResults>
-
-          {artistSearchResults.map((artistSearchResult, index) => {
-          return <ArtistContainer key={index} onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.name)}
-          }>
-            {artistSearchResult.images[0] ? <Image src={artistSearchResult.images[0].url}/> : ""}        
-            {artistSearchResult.name}
-            </ArtistContainer>
-            
-        })}</SearchResults>
-        </div>
+              {discogsSearchResults.map((discogsSearchResult, index) => {
+                  return <ArtistContainer 
+                          key={index} 
+                          // onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.title)}}
+                          onClick={() => {verifyArtist(submitted)}}>
+                          <Image src={discogsSearchResult.thumb}/>
+                          <p>{discogsSearchResult.title}</p>
+                          </ArtistContainer>            
+                          })}
+          </SearchResults>
+         </div>
         : <></>
         }
 
+
+    {spotifySearchResults && 
+    <>
+      <div>
+        <div>
+          Hm, you're the first to search for that musician. We need to confirm the spotify artist. Did you mean {spotifySearchResults[0].name}?
+          <Image src={spotifySearchResults[0].images[0].url} />
+          <button onClick={() => {getAllContentFromSpotifyAndDiscogs(spotifySearchResults[1].id, spotifySearchResults[1].title)}}>Yes</button>
+          <button onClick={() => {showMore()}}>No</button>
+        </div>
+        {correctGuess !== undefined ? <>hi</> : <>bye</>}
+      </div>
+    </>
+      }
     {discogsAlbums && allSpotifyTracks ? 
     <>
     <div>
@@ -329,20 +340,11 @@ return result
     </>}
     </Results>
     <>
+    
     {discogsAlbums ? 
-    <>
-    
-    
-    
-    
-    <CompareMessage><h1>We found <Number>{compare().length}</Number> tracks not available on Spotify:</h1></CompareMessage>
-    <div><h1>{compare()} </h1> </div>
-    <h1>But we found it on YouTube</h1>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/vrM2EGghhqM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/YB2LivWtHfw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/X0puqUVPxLs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </>
-  : <></>}
+    <Found />
+  : <></>
+  }
     </>
     </Page>
   )
@@ -364,14 +366,7 @@ h1 {
 }
 `
 
-const SearchBar = styled.input`
-border: 1px solid black;
-border-radius: 3px;
-width: 500px;
-height: 50px;
-font-size: 30px;
-margin: 100px 100px 100px 300px;
-`
+
 const DiscogsResults = styled.div`
 display: block;
 text-align: center;
