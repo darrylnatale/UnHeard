@@ -4,11 +4,18 @@ import Searchbar from "./Components/Searchbar";
 import { Context } from "./Context";
 import ArtistButton from "./Components/ArtistButton";
 import Found from "./Found";
+import CrossReference from "./Components/CrossReference";
+
 const App = () => {
 
-  
+  const c = (tolog) => {
+    console.log(tolog)
+  }
 
+  
   const {
+    answer,
+    setAnswer,
     albums,
     setAlbums,
     correctGuess,
@@ -57,12 +64,17 @@ useEffect(() => {
 
 
 
-const [answer, setAnswer] = useState("xxx")
 
 
-const verifyArtist = (discogsArtistId) => {
-// go into backend, if it's in mongo already, proceed to finding results
-  console.log(discogsArtistId)
+
+const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
+
+  
+  const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
+  
+
+
+
   fetch(`/checkIfInMongo`, {
     method: "POST",
     headers: {
@@ -73,37 +85,48 @@ const verifyArtist = (discogsArtistId) => {
   })
   .then((res) => res.json())
   .then((data) => {
-      console.log(data)
+    
+    
+      if (data.data){
+        const spotifyArtistId = data.data.spotifyArtistId
+        const artistName = data.data.artistName
+        
+        getAllContentFromSpotifyAndDiscogs(spotifyArtistId, artistName)
+      } else {
+        console.log("not in db!")
+        
+        crossReference(submitted, formattedDiscogsArtistName)
+      }
+      
+      
      })
-  .catch((err) => console.log(err));
-  
-  // else, check spotify and return the first result
-  // ask if correct
-  // else show all spotify results
-  // then on click, compare
-  
-    fetch(`/searchSpotify/${formData}`) 
-        .then((res) => res.json())
-        .then((data) => {
-            // setSubmitted(true)
-            
-            setSpotifySearchResults(data.data.body.artists.items)
-            
+  .catch((err) => console.log(err));  
+}
 
-            const suggested = []
+const formatDiscogsArtistName = (discogsArtistName) => {
+  
 
-            data.data.body.artists.items.forEach((item) => {
-              if (item.name.toLowerCase() === formData){
-                suggested.push(item)
-              }
-              
-            })
-            setAnswer(suggested)   
-         })
-         .catch((err) => console.log(err));
+  const containsNumbers = (str) => {
+    return /\d/.test(str);
+  }
+
+
+  if (
+    (discogsArtistName.charAt(discogsArtistName.length-1) === ")") && 
+    (containsNumbers(discogsArtistName.charAt(discogsArtistName.lastIndexOf(")")-1)))
+    )
+    {
+    
+   const lastIndexOfOpenParentheses = discogsArtistName.lastIndexOf("(")
+  
+   return discogsArtistName.slice(0,lastIndexOfOpenParentheses-1)
+  } 
+
+  return discogsArtistName
 }
 
 const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
+  
   fetch(`/getSpotifyContent/${artistId}`, {
     method: "POST",
     headers: {
@@ -132,6 +155,35 @@ const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
     .catch((err) => console.log(err));
 }
 
+const crossReference = (submitted, formattedDiscogsArtistName) => {
+  
+  
+  fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(submitted)
+            console.log(data)
+            setSpotifySearchResults(data.data.body.artists.items)
+            
+
+            let suggested = []
+
+            data.data.body.artists.items.forEach((item) => {
+              
+              if (item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase()){
+                suggested.push(item)
+                setAnswer(suggested)
+              }
+            })
+            
+             
+            
+         })
+         
+         
+         
+         .catch((err) => console.log(err));
+}
 const discogsTrackNameArray = []
 
 if(discogsAlbumDetails){
@@ -200,15 +252,16 @@ const showMore = (answer) => {
     <Page>
       <Searchbar /> 
       <Results>
-        {discogsSearchResults && submitted ? 
+        {discogsSearchResults.length && submitted ? 
           <div>
           <DiscogsSearchResults>
               {discogsSearchResults.map((discogsSearchResult, index) => {
                   return <ArtistButton 
                           key={index} 
-                          fxn={() => {verifyArtist(discogsSearchResult.id)}} 
-                          thumb={discogsSearchResult.thumb} 
-                          title={discogsSearchResult.title}/>
+                          fxn={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
+                          thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
+                          profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
+                          name={discogsSearchResult.name}/>
                           // onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.title)}}
                           })}
           </DiscogsSearchResults>
@@ -217,20 +270,18 @@ const showMore = (answer) => {
         }
 
 
-    {spotifySearchResults && 
+    {(spotifySearchResults && answer) && 
     <>
       <div>
         <div>
-          Hm, you're the first to search for that musician. 
-          We need to confirm the spotify artist. 
-          Did you mean 
-           <p>{answer[0].name}</p>
-           {answer[0].images[0] && <Image src={answer[0].images[0].url}/>}?
+          <CrossReference />          
+           
           {/* <Image src={spotifySearchResults[0].images[0].url} /> */}
-          <button onClick={() => {getAllContentFromSpotifyAndDiscogs(spotifySearchResults[1].id, spotifySearchResults[1].name)}}>Yes</button>
+          <div><button onClick={() => {getAllContentFromSpotifyAndDiscogs(spotifySearchResults[1].id, spotifySearchResults[1].name)}}>Yes</button>
           <button onClick={() => {showMore()}}>No</button>
+          </div>
         </div>
-        {correctGuess !== undefined ? <>hi</> : <>bye</>}
+        
       </div>
     </>
       }

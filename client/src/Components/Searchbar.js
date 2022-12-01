@@ -1,10 +1,14 @@
 import styled from "styled-components";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Context } from "../Context";
 
 const Searchbar = () => {
 
-    const { setSubmitted, setDiscogsSearchResults, formData, setFormData, artistSearchResults } = useContext(Context);
+  
+    
+  
+
+    const { setSubmitted, discogsSeachResults, setDiscogsSearchResults, formData, setFormData, artistSearchResults } = useContext(Context);
     
     const handleChange = (value) => {
         setFormData(value);
@@ -25,21 +29,44 @@ const Searchbar = () => {
             .then((data) => {
               
               setSubmitted(formData)
-              setDiscogsSearchResults(data.data.results)
+              // setDiscogsSearchResults(data.data.results)
               
+              
+              // for (let i = 0; i < 3; i++)
+              data.data.results.forEach((result) => {
+                x(result.id)
+              })
+              
+       
              })
              .catch((err) => console.log(err));
         
+             
         
-        // fetch(`/searchArtist/${formData}`) 
-        // .then((res) => res.json())
-        // .then((data) => {
-        //     setSubmitted(true)
-        //     setSearchResults(data.data.body.artists.items)
-        //  })
-        //  .catch((err) => console.log(err));
       }
 
+      
+        const x = (results) => {
+        fetch(`/getDiscogsArtistDetails`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({results}),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+          setDiscogsSearchResults(prevState => [...prevState, data.data])
+          
+
+          console.log(data.data)
+          
+      })
+     .catch((err) => console.log(err));
+        }
+      
+       
     return (<>
         <form onSubmit={(e) => handleSubmit(e, formData)}>
         <SearchBar 

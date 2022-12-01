@@ -129,6 +129,27 @@ db.search("Cicciolina", {type: "artist"}, function(err, data){
 
 })
 
+.post("/getDiscogsArtistDetails", async (req, res) => {
+const receivedDiscogsArtistId = req.body.results
+
+try {
+  const artistDetails = await db.getArtist(receivedDiscogsArtistId)
+
+  if (artistDetails){
+    res.status(200).json({status: 200, message: "Discogs Content Found", data: artistDetails })
+  } else {
+    res.status(400).json({status: 400, message: "Discogs Content Found", data: null })
+  }
+
+} catch (err) {
+
+}
+
+
+ 
+
+})
+
 .get("/getDiscogsContent", async (req, res) => {
 
     try {
@@ -299,22 +320,28 @@ db.search("Cicciolina", {type: "artist"}, function(err, data){
     })
 
 .post("/checkIfInMongo", async (req, res) => {
-  const discogsArtistIdReceived = req.body.discogsArtistId
   
+  const discogsArtistIdReceived = JSON.stringify(req.body.discogsArtistId)
+  console.log(discogsArtistIdReceived)
   const client = new MongoClient(MONGO_URI, options);
   
   try {
-    
+
     const mongodb = client.db("UnHeard");
     await client.connect();
     const artistIdMatches = await mongodb.collection("MatchedIds").find().toArray()
     
-    console.log(discogsArtistIdReceived)
     let foundMatch = null
 
     artistIdMatches.forEach((artistIdMatch) => {
+      console.log(typeof artistIdMatch.discogsArtistId)
+      console.log(typeof discogsArtistIdReceived)
       if (discogsArtistIdReceived === artistIdMatch.discogsArtistId){
-        foundMatch = artistIdMatch
+        
+        foundMatch = {
+          spotifyArtistId: artistIdMatch.spotifyArtistId,
+          artistName: artistIdMatch.artistName
+        }
       }      
     })
 
@@ -327,7 +354,7 @@ db.search("Cicciolina", {type: "artist"}, function(err, data){
     } else {
       res.status(400).json({
         status: 400,
-        message: ` Not Found`,
+        message: `Not Found`,
         data: null,
   })
 }

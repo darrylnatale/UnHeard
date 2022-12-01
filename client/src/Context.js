@@ -4,6 +4,7 @@ import {useState, createContext} from "react"
 export const Context = createContext(null)
 
 const Provider = ({children}) => {
+    const [answer, setAnswer] = useState(null)
     const [albums, setAlbums] = useState()
     const [correctGuess, setCorrectGuess] = useState(undefined)
     const [spotifySearchResults, setSpotifySearchResults] = useState()
@@ -17,7 +18,7 @@ const Provider = ({children}) => {
     const [timedTracks, setTimedTracks] = useState([])
     const [allTracksFromBoth, setAllTracksFromBoth] = useState()
 
-    const [discogsSearchResults, setDiscogsSearchResults] = useState()
+    const [discogsSearchResults, setDiscogsSearchResults] = useState([])
     const [discogsAlbums, setDiscogsAlbums] = useState()
     const [discogsAlbumDetails, setDiscogsAlbumDetails] = useState()
     const [discogsVersions, setDiscogsVersions] = useState()
@@ -25,6 +26,8 @@ const Provider = ({children}) => {
     
     
     return <Context.Provider value={{
+        answer,
+        setAnswer,
         albums,
         setAlbums,
         correctGuess,
