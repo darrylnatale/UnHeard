@@ -33,8 +33,10 @@ const Searchbar = () => {
               
               
               // for (let i = 0; i < 3; i++)
-              data.data.results.forEach((result) => {
+              data.data.results.forEach((result, index) => {
+                if (result.thumb && index < 7){
                 x(result.id)
+              }
               })
               
        

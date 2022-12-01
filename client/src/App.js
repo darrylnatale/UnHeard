@@ -12,7 +12,11 @@ const App = () => {
     console.log(tolog)
   }
 
-  
+  const [index, setIndex] = useState(0)
+  const [testTracks, setTestTracks] = useState()
+  const [tempTracks, setTempTracks] = useState(["track 1","track 2","track 3","track 4","track 5","track 6","track 7","track 8","track 9","track 10","track 11","track 12","track 13","track 14","track 15","track 16","track 17","track 18","track 19","track 20","track 21","track 22","track 23"])
+ 
+
   const {
     answer,
     setAnswer,
@@ -184,6 +188,7 @@ const crossReference = (submitted, formattedDiscogsArtistName) => {
          
          .catch((err) => console.log(err));
 }
+
 const discogsTrackNameArray = []
 
 if(discogsAlbumDetails){
@@ -244,24 +249,57 @@ const showMore = (answer) => {
     const result = findSingle(both)
     return result      
   }
+
+  
+useEffect(() => {
+  let index2 = 0
+  let tracks2 = []
+  const interval = setInterval(() => {
+    
+    setIndex(prevIndex => prevIndex + 1 )
+    index2++
+    // tracks2 = tempTracks.slice(0,index)
+    // console.log("temptracks length",tempTracks.length)
+    // console.log("index",index)
+    // console.log("testtracks",testTracks)
+    if (index2 > tempTracks.length){
+      
+      return clearInterval(interval)
+    }
+  }, 75)
+
   
 
 
+}, [])
+
+
+console.log(index)
   return (
     
     <Page>
       <Searchbar /> 
+      <Animation>
+     {index > 1 && tempTracks.slice(0,index).map((testTrack) => {
+        
+          return <Track>{testTrack} </Track>
+          
+      })}
+      </Animation>
+      
       <Results>
         {discogsSearchResults.length && submitted ? 
           <div>
           <DiscogsSearchResults>
               {discogsSearchResults.map((discogsSearchResult, index) => {
+
+                if (index < 10 && discogsSearchResult.images) {
                   return <ArtistButton 
                           key={index} 
                           fxn={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
                           thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
                           profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
-                          name={discogsSearchResult.name}/>
+                          name={discogsSearchResult.name}/>}
                           // onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.title)}}
                           })}
           </DiscogsSearchResults>
@@ -371,6 +409,15 @@ max-width: 1200px;
 const Number = styled.h1`
 color: red;
 `
+const Animation = styled.div`
+display: flex;
+flex-wrap: wrap;
+font-size: 100px;
+`
+
+const Track = styled.div`
+margin: 0 10px;
+`
 
 const ResultsHeader = styled.div`
 text-decoration: underline;
@@ -394,6 +441,7 @@ border: 1 px solid lightblue;
 margin: 5px;
 padding: 5px;
 `
+
 
 const Image = styled.img`
 width: 125px;

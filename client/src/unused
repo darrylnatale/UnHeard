@@ -1,21 +1,4 @@
-// useEffect(() => {
-//   const interval = setInterval(() => {
-//     setSeconds(seconds => seconds + 1);
-    
-//      setTimedTracks([...timedTracks, allTracks[seconds]])
-    
-//   }, 1000);
 
-//   return () => clearInterval(interval);
-// }, [timedTracks]);
-
-
-{/* {timedTracks ? 
-      timedTracks.map((timedTrack) => {
-        return <div>{timedTrack}</div>
-      })
-    : <></>
-    } */}
 
     
 
