@@ -19,6 +19,7 @@ const options = {
 const {
   
 } = require("./handlers");
+const { post } = require('request');
 
 
 
@@ -146,8 +147,40 @@ try {
 }
 
 
- 
 
+
+})
+
+.post("/matchArtistIds", async (req, res) => {
+  const {spotifyArtistId, discogsArtistId, artistName} = req.body
+  
+  const stringifedDiscogsArtistId = JSON.stringify(discogsArtistId)
+
+  
+  console.log(artistName)
+  console.log(typeof spotifyArtistId)
+  console.log(typeof discogsArtistId)
+
+  const newEntry = {
+    spotifyArtistId: spotifyArtistId,
+    discogsArtistId: stringifedDiscogsArtistId,
+    artistName: artistName
+  }
+
+  const client = new MongoClient(MONGO_URI, options);
+
+  try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+
+    await mongodb.collection("MatchedIds").insertOne(newEntry);
+
+    res.status(200).json({status: 200, message: "Matched Ids Added To Mongo", data: newEntry })
+  }
+  catch (err){
+    console.log(err)
+  }
+  client.close();
 })
 
 .get("/getDiscogsContent", async (req, res) => {
@@ -234,15 +267,15 @@ try {
 
 .get("/login", (req, res) => newSpotifyToken())
 
-.post('/getSpotifyContent/:artistId', async (req, res) => {
-  const {artistId, artistName} = req.body
+.post('/getSpotifyContent', async (req, res) => {
+  const {spotifyArtistId, artistName} = req.body
   
 
   try {
     const tracks = []
     const albums = []
     const albumIds = []
-    const firstPageAlbumResults = await spotifyApi.getArtistAlbums(`${artistId}`, { limit: 20, offset: 0 })
+    const firstPageAlbumResults = await spotifyApi.getArtistAlbums(spotifyArtistId, { limit: 20, offset: 0 })
     
     if (firstPageAlbumResults){
       const {total, items} = firstPageAlbumResults.body
@@ -253,7 +286,7 @@ try {
       
       if (total > 20){
           for (let i = 1; i < Math.ceil(total / 20); i++){
-            const additionalResults = await spotifyApi.getArtistAlbums(`${artistId}`, { limit: 20, offset: 20 * i })
+            const additionalResults = await spotifyApi.getArtistAlbums(`${spotifyArtistId}`, { limit: 20, offset: 20 * i })
             if (additionalResults){
               const {items} = additionalResults.body
               items.forEach((item) => {
@@ -298,7 +331,7 @@ try {
     }
   } catch (err) 
   {
-    console.log(err)
+    res.status(400).json({status: 400, message: req.body })
   }
   })
 
@@ -322,7 +355,7 @@ try {
 .post("/checkIfInMongo", async (req, res) => {
   
   const discogsArtistIdReceived = JSON.stringify(req.body.discogsArtistId)
-  console.log(discogsArtistIdReceived)
+  
   const client = new MongoClient(MONGO_URI, options);
   
   try {
@@ -334,8 +367,7 @@ try {
     let foundMatch = null
 
     artistIdMatches.forEach((artistIdMatch) => {
-      console.log(typeof artistIdMatch.discogsArtistId)
-      console.log(typeof discogsArtistIdReceived)
+      
       if (discogsArtistIdReceived === artistIdMatch.discogsArtistId){
         
         foundMatch = {
@@ -348,13 +380,13 @@ try {
     if (foundMatch){
       res.status(200).json({
         status: 200,
-        message: ` Hi`,
+        message: `Already In Mongo!`,
         data: foundMatch,
       })
     } else {
       res.status(400).json({
         status: 400,
-        message: `Not Found`,
+        message: `Not In Mongo Yet - Proceed to CrossReference!`,
         data: null,
   })
 }

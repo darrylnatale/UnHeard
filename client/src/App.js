@@ -53,7 +53,9 @@ const App = () => {
     discogsVersions,
     setDiscogsVersions,
     discogsTrackNames,
-    setDiscogsTrackNames } = useContext(Context);
+    setDiscogsTrackNames,
+    discogsArtistId, 
+    setDiscogsArtistId } = useContext(Context);
 
 
 useEffect(() => {
@@ -73,12 +75,10 @@ useEffect(() => {
 
 const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
 
-  
+  setDiscogsArtistId(discogsArtistId)
+
   const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
   
-
-
-
   fetch(`/checkIfInMongo`, {
     method: "POST",
     headers: {
@@ -89,15 +89,16 @@ const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
   })
   .then((res) => res.json())
   .then((data) => {
-    
+    console.log(data)
     
       if (data.data){
         const spotifyArtistId = data.data.spotifyArtistId
         const artistName = data.data.artistName
         
         getAllContentFromSpotifyAndDiscogs(spotifyArtistId, artistName)
+
       } else {
-        console.log("not in db!")
+        
         
         crossReference(submitted, formattedDiscogsArtistName)
       }
@@ -129,18 +130,34 @@ const formatDiscogsArtistName = (discogsArtistName) => {
   return discogsArtistName
 }
 
-const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
-  
-  fetch(`/getSpotifyContent/${artistId}`, {
+const matchArtistIds = (spotifyArtistId, artistName) => {
+  fetch(`/matchArtistIds`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({artistId, artistName}),
+    body: JSON.stringify({spotifyArtistId, artistName, discogsArtistId}),
+  })
+  .then((res) => res.json())
+    .then((data) => {
+      console.log(data)
+     })
+     .catch((err) => console.log(err));
+}
+const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName) => {
+
+  fetch(`/getSpotifyContent`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({spotifyArtistId, artistName}),
   }) 
     .then((res) => res.json())
     .then((data) => {
+      console.log("content from spotify", data)
       setSubmitted(false)
       setSelectedArtist(data.data.spotifyArtistName)
       setAllSpotifyTracks(data.data.spotifyTracks)
@@ -149,9 +166,10 @@ const getAllContentFromSpotifyAndDiscogs = (artistId, artistName) => {
      })
      .catch((err) => console.log(err));
 
-     fetch(`/getDiscogsContent/`) 
+  fetch(`/getDiscogsContent/`) 
       .then((res) => res.json())
       .then((data) => {
+        console.log("content from discogs", data)
       setDiscogsAlbums(data.data.discogsAlbums)
       setDiscogsAlbumDetails(data.data.discogsAlbumDetails)
       setDiscogsVersions(data.data.discogsVersions)
@@ -165,18 +183,19 @@ const crossReference = (submitted, formattedDiscogsArtistName) => {
   fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
         .then((res) => res.json())
         .then((data) => {
-          console.log(submitted)
-            console.log(data)
+          
             setSpotifySearchResults(data.data.body.artists.items)
+            console.log(data.data.body.artists.items)
             
 
-            let suggested = []
+            let suggestedSpotifyArtists = []
 
             data.data.body.artists.items.forEach((item) => {
               
               if (item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase()){
-                suggested.push(item)
-                setAnswer(suggested)
+                suggestedSpotifyArtists.push(item)
+                setAnswer(suggestedSpotifyArtists)
+                
               }
             })
             
@@ -251,41 +270,38 @@ const showMore = (answer) => {
   }
 
   
-useEffect(() => {
-  let index2 = 0
-  let tracks2 = []
-  const interval = setInterval(() => {
+
+
+// useEffect(() => {
+//   let index2 = 0
+//   let tracks2 = []
+//   const interval = setInterval(() => {
     
-    setIndex(prevIndex => prevIndex + 1 )
-    index2++
-    // tracks2 = tempTracks.slice(0,index)
-    // console.log("temptracks length",tempTracks.length)
-    // console.log("index",index)
-    // console.log("testtracks",testTracks)
-    if (index2 > tempTracks.length){
-      
-      return clearInterval(interval)
-    }
-  }, 75)
-
+//     setIndex(prevIndex => prevIndex + 1 )
+//     index2++
   
+//     if (index2 > tempTracks.length){
+      
+//       return clearInterval(interval)
+//     }
+//   }, 75)
+
+// }, [])
 
 
-}, [])
 
-
-console.log(index)
   return (
     
     <Page>
       <Searchbar /> 
-      <Animation>
+      
+      {/* <Animation>
      {index > 1 && tempTracks.slice(0,index).map((testTrack) => {
         
           return <Track>{testTrack} </Track>
           
       })}
-      </Animation>
+      </Animation> */}
       
       <Results>
         {discogsSearchResults.length && submitted ? 
@@ -313,10 +329,9 @@ console.log(index)
       <div>
         <div>
           <CrossReference />          
-           
-          {/* <Image src={spotifySearchResults[0].images[0].url} /> */}
-          <div><button onClick={() => {getAllContentFromSpotifyAndDiscogs(spotifySearchResults[1].id, spotifySearchResults[1].name)}}>Yes</button>
-          <button onClick={() => {showMore()}}>No</button>
+          <div>
+            <button onClick={() => {matchArtistIds(spotifySearchResults[0].id, spotifySearchResults[0].name)}}>Yes</button>
+            <button onClick={() => {showMore()}}>No</button>
           </div>
         </div>
         
@@ -446,3 +461,4 @@ padding: 5px;
 const Image = styled.img`
 width: 125px;
 `
+

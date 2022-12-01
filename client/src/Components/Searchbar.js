@@ -60,10 +60,6 @@ const Searchbar = () => {
         .then((res) => res.json())
         .then((data) => {
           setDiscogsSearchResults(prevState => [...prevState, data.data])
-          
-
-          console.log(data.data)
-          
       })
      .catch((err) => console.log(err));
         }

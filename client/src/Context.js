@@ -23,7 +23,7 @@ const Provider = ({children}) => {
     const [discogsAlbumDetails, setDiscogsAlbumDetails] = useState()
     const [discogsVersions, setDiscogsVersions] = useState()
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
-    
+    const [discogsArtistId, setDiscogsArtistId] = useState()
     
     return <Context.Provider value={{
         answer,
@@ -62,6 +62,8 @@ const Provider = ({children}) => {
         setDiscogsVersions,
         discogsTrackNames,
         setDiscogsTrackNames,
+        discogsArtistId, 
+        setDiscogsArtistId
     }}>
         {children}
     </Context.Provider>
