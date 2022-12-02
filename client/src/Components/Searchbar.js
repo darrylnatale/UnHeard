@@ -8,14 +8,15 @@ const Searchbar = () => {
     
   
 
-    const { setSubmitted, discogsSeachResults, setDiscogsSearchResults, formData, setFormData, artistSearchResults } = useContext(Context);
+    const { setSubmitted, discogsSeachResults, setDiscogsSearchResults, submitted, formData, setFormData, artistSearchResults, setSpotifySearchResults, setExactSpotifyNameMatch, setAllSpotifyTracks, setDiscogsAlbums } = useContext(Context);
     
     const handleChange = (value) => {
         setFormData(value);
       };
       
-      const handleSubmit = (e, formData) => {
+    const handleSubmit = (e, formData) => {
         e.preventDefault();
+        
         
         fetch(`/searchDiscogs/`, {
             method: "POST",
@@ -27,29 +28,22 @@ const Searchbar = () => {
           }) 
             .then((res) => res.json())
             .then((data) => {
-              
+              setDiscogsSearchResults([])
               setSubmitted(formData)
+              
               // setDiscogsSearchResults(data.data.results)
-              
-              
-              // for (let i = 0; i < 3; i++)
-              data.data.results.forEach((result, index) => {
-                if (index < 1){
-                  
-                getDiscogsArtistDetails(result.id)
-              }
-              })
-              
-       
+
+                        data.data.results.forEach((result, index) => {
+                          if (index < 5){
+                          getDiscogsArtistDetails(result.id)
+                        }
+                        })
              })
              .catch((err) => console.log(err));
-        
-             
-        
       }
 
       
-        const getDiscogsArtistDetails = (results) => {
+    const getDiscogsArtistDetails = (results) => {
         fetch(`/getDiscogsArtistDetails`, {
           method: "POST",
           headers: {
@@ -61,9 +55,13 @@ const Searchbar = () => {
         .then((res) => res.json())
         .then((data) => {
           
-          setDiscogsSearchResults(prevState => [...prevState, data.data])
-      })
-     .catch((err) => console.log(err));
+          setDiscogsSearchResults(prev => [...prev, data.data])
+          setExactSpotifyNameMatch(null)
+          setSpotifySearchResults(null)
+          setAllSpotifyTracks(null)
+          setDiscogsAlbums(null)
+        })
+        .catch((err) => console.log(err));
         }
       
        
@@ -86,5 +84,18 @@ border-radius: 15px;
 width: 500px;
 height: 75px;
 font-size: 30px;
-margin: 100px 100px 100px 300px;
+margin: 100px ;
+
+
+  text-align: center;
+
+
+::-webkit-input-placeholder {
+  text-align: center;
+}
+
+:-moz-placeholder {
+  text-align: center;
+}
+
 `

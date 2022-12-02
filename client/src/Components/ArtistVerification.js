@@ -44,30 +44,45 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
 
     
 
-    return ( <>
-    Hm, you're the first to search for that musician. 
+    return ( <StyledArtistVerificationContainer>
+    <h2>Hm, you're the first to search for that musician. 
     We need to confirm the spotify artist. 
-    Did you mean {
+    Did you mean</h2>
+    {
       exactSpotifyNameMatch.map((match, index) => {
         return (<>
-        <button key={Math.floor(Math.random() * 16000000)} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); getAllContentFromSpotifyAndDiscogs(match.id, match.name, discogsArtistIdState)}}>
-        <p>{match.name}?</p>
-        {match.images[0] && <Image src={match.images[0].url}/>}
-        </button>
-        </>)
-      })
-    }
+                <StyledArtistButton key={index} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); getAllContentFromSpotifyAndDiscogs(match.id, match.name, discogsArtistIdState)}}>
+                  <p>{match.name}</p>
+                  {match.images[0] && <Image src={match.images[0].url}/>}
+                </StyledArtistButton><h2>?</h2>
+                </>
+               )
+        })
+     }
+  
     
-    
-    
-    
-    {/* <button onClick={() => {getAllContentFromSpotifyAndDiscogs("6UiNFle7UUqz6t9x8A6i0A", "nahh", 86857)}}>No, show me more</button> */}
-    
-    </> );
+    </StyledArtistVerificationContainer> );
 }
  
 export default ArtistVerification;
 
 const Image = styled.img`
 width: 125px;
+`
+const StyledArtistVerificationContainer = styled.div`
+text-align: center;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+`
+
+const StyledArtistButton = styled.button`
+display: flex;
+width: 400px;
+border: 1 px solid lightblue;
+border-radius: 15px;
+background: none;
+margin: 5px;
+padding: 5px;
 `

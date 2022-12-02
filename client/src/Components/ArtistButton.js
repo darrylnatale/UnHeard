@@ -7,17 +7,17 @@ const ArtistButton = ({thumb, name, checkIfInMongoHandler, profile, discogsArtis
     const {setDiscogsArtistIdState} = useContext(Context)
     
     
-    return ( <ArtistContainer onClick={() => {checkIfInMongoHandler() ; setDiscogsArtistIdState(discogsArtistId)}}>
+    return ( <StyledArtistButton onClick={() => {checkIfInMongoHandler() ; setDiscogsArtistIdState(discogsArtistId)}}>
             <Image src={thumb}/>
             <p>{name}</p>
             <p>{profile}</p>
             <p>{discogsArtistId}</p>
-    </ArtistContainer> );
+    </StyledArtistButton> );
 }
  
 export default ArtistButton;
 
-const ArtistContainer = styled.button`
+const StyledArtistButton = styled.button`
 display: flex;
 width: 400px;
 border: 1 px solid lightblue;

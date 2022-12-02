@@ -50,7 +50,7 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
     Did you mean {
       exactSpotifyNameMatch.discogsArtistIdState((match, index) => {
         return (<>
-        <button key={Math.floor(Math.random() * 16000000)} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); getAllContentFromSpotifyAndDiscogs(match.id, match.name, discogsArtistIdState)}}>
+        <button key={Math.floor(Math.random() * 14000000000)} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); getAllContentFromSpotifyAndDiscogs(match.id, match.name, discogsArtistIdState)}}>
         <p>{match.name}?</p>
         {match.images[0] && <Image src={match.images[0].url}/>}
         </button>
