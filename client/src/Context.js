@@ -23,8 +23,8 @@ const Provider = ({children}) => {
     const [discogsAlbumDetails, setDiscogsAlbumDetails] = useState()
     const [discogsVersions, setDiscogsVersions] = useState()
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
-    const [discogsArtistId, setDiscogsArtistId] = useState()
-    const [xx, setxx] = useState()
+    const [discogsArtistIdState, setDiscogsArtistIdState] = useState()
+    
     
     return <Context.Provider value={{
         exactSpotifyNameMatch,
@@ -63,10 +63,8 @@ const Provider = ({children}) => {
         setDiscogsVersions,
         discogsTrackNames,
         setDiscogsTrackNames,
-        discogsArtistId, 
-        setDiscogsArtistId,
-        xx,
-        setxx,
+        discogsArtistIdState, 
+        setDiscogsArtistIdState,
     }}>
         {children}
     </Context.Provider>

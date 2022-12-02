@@ -2,8 +2,12 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { Context } from "../Context";
 
-const ArtistButton = ({thumb, name, fxn, profile, discogsArtistId}) => {
-    return ( <ArtistContainer onClick={() => {fxn()}}>
+
+const ArtistButton = ({thumb, name, checkIfInMongoHandler, profile, discogsArtistId}) => {
+    const {setDiscogsArtistIdState} = useContext(Context)
+    
+    
+    return ( <ArtistContainer onClick={() => {checkIfInMongoHandler() ; setDiscogsArtistIdState(discogsArtistId)}}>
             <Image src={thumb}/>
             <p>{name}</p>
             <p>{profile}</p>

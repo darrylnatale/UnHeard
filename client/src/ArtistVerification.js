@@ -48,7 +48,7 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
     Hm, you're the first to search for that musician. 
     We need to confirm the spotify artist. 
     Did you mean {
-      exactSpotifyNameMatch.map((match, index) => {
+      exactSpotifyNameMatch.discogsArtistIdState((match, index) => {
         return (<>
         <button key={Math.floor(Math.random() * 16000000)} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); getAllContentFromSpotifyAndDiscogs(match.id, match.name, discogsArtistIdState)}}>
         <p>{match.name}?</p>

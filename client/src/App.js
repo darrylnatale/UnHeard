@@ -55,10 +55,10 @@ const App = () => {
     setDiscogsVersions,
     discogsTrackNames,
     setDiscogsTrackNames,
-    xx,
-    setxx
+    discogsArtistIdState, 
+    setDiscogsArtistIdState,
      } = useContext(Context);
-
+     
 
 useEffect(() => {
     fetch("/login")
@@ -76,9 +76,12 @@ useEffect(() => {
 
 
 const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
-console.log("from checkiginmongo", discogsArtistId)
-  setxx(discogsArtistId)
-  console.log(xx)
+  
+  let dd = discogsArtistId
+
+  
+  
+  
 
   const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
   
@@ -118,7 +121,6 @@ const formatDiscogsArtistName = (discogsArtistName) => {
     return /\d/.test(str);
   }
 
-
   if (
     (discogsArtistName.charAt(discogsArtistName.length-1) === ")") && 
     (containsNumbers(discogsArtistName.charAt(discogsArtistName.lastIndexOf(")")-1)))
@@ -129,7 +131,6 @@ const formatDiscogsArtistName = (discogsArtistName) => {
   
    return discogsArtistName.slice(0,lastIndexOfOpenParentheses-1)
   } 
-
   return discogsArtistName
 }
 
@@ -137,9 +138,7 @@ const formatDiscogsArtistName = (discogsArtistName) => {
 
 
 const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogsArtistId) => {
-  console.log("fromapp", spotifyArtistId)
-  console.log("fromapp", artistName)
-  console.log("fromapp", discogsArtistId)
+  
   fetch(`/getSpotifyContent`, {
     method: "POST",
     headers: {
@@ -170,6 +169,8 @@ const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogs
       .then((res) => res.json())
       .then((data) => {
         console.log("content from discogs", data)
+        
+        
       setDiscogsAlbums(data.data.discogsAlbums)
       setDiscogsAlbumDetails(data.data.discogsAlbumDetails)
       setDiscogsVersions(data.data.discogsVersions)
@@ -178,7 +179,7 @@ const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogs
 }
 
 const crossReference = (submitted, formattedDiscogsArtistName, discogsArtistId) => {
-  console.log(formattedDiscogsArtistName)
+  
   
   fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
         .then((res) => res.json())
@@ -215,7 +216,8 @@ if(discogsAlbumDetails){
     discogsAlbumDetail.tracklist.forEach((track) => {
       if (track.artists){
       track.artists.forEach((artistOnTrack) => {
-        if (artistOnTrack.id === 3818000){
+        
+        if (artistOnTrack.id === discogsArtistIdState){
           discogsTrackNameArray.push(track.title)
         }
       })
@@ -232,7 +234,8 @@ if(discogsVersions){
     discogsVersion.tracklist.forEach((track) => {
       if (track.artists){
         track.artists.forEach((artistOnTrack) => {
-          if (artistOnTrack.id === 86857){
+          
+          if (artistOnTrack.id === discogsArtistIdState){
             discogsTrackNameArray.push(track.title)
           }
           })
@@ -272,11 +275,12 @@ useEffect(() => {
     setIndex(prevIndex => prevIndex + 1 )
     index2++
   
-    if (index2 > uniqueDiscogs.length){
-      
+    
+    if (index2 > 3300){
+      console.log(index2)
       return clearInterval(interval)
     }
-  }, 300 )
+  }, 40 )
 
 }, [discogsAlbums])
 
@@ -296,9 +300,10 @@ useEffect(() => {
               {discogsSearchResults.map((discogsSearchResult, index) => {
 
                 if (discogsSearchResult) {
+                  // console.log("discogs search result", discogsSearchResult)
                   return <ArtistButton 
                           key={index} 
-                          fxn={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
+                          checkIfInMongoHandler={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
                           thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
                           profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
                           name={discogsSearchResult.name}
@@ -312,20 +317,20 @@ useEffect(() => {
   
     {(spotifySearchResults && exactSpotifyNameMatch) && 
       <div>
-          <ArtistVerification fxn2={ getAllContentFromSpotifyAndDiscogs } />        
+          <ArtistVerification getAllContentFromSpotifyAndDiscogs={ getAllContentFromSpotifyAndDiscogs } />        
       </div>
     }
 
 
-    {discogsAlbums && allSpotifyTracks ? 
+    { allSpotifyTracks ? 
     <>
     <SpotifyResults>
-      <h1>We found {uniqueSpotify.length} tracks by {selectedArtist} on Spotify</h1>
+      <h1>We found {allSpotifyTrackNames.length} tracks by {selectedArtist} on Spotify</h1>
       <Animation>
       {/* <button onClick={() => {filterDuplicates(allSpotifyTrackNames)}}>Filter Out Remastered</button> */}  
-      {index > 1 && uniqueSpotify.slice(0,index).map((testTrack) => {
+      {index > 1 && allSpotifyTrackNames.slice(0,index).map((testTrack) => {
         
-        return <Track>{testTrack} </Track>
+        return <Track key={Math.floor(Math.random() * 16000000)}>{testTrack} </Track>
         
     })}
     </Animation>
@@ -337,8 +342,8 @@ useEffect(() => {
       <Album>
       {spotifyAlbums.map((spotifyAlbum) => {
       return <>
-        <Image src={spotifyAlbum.images[0].url} />
-        <div>{spotifyAlbum.name}</div>
+        <Image src={spotifyAlbum.images[0].url} key={Math.floor(Math.random() * 16000000)}/>
+        {/* <div>{spotifyAlbum.name}</div> */}
         </>
             })}
             </Album>
@@ -373,7 +378,7 @@ useEffect(() => {
     <Album>
     {discogsAlbumDetails.map((item,index) => {
       
-      return <div>
+      return <div key={Math.floor(Math.random(index) * 160000000)}>
         {/* <div>{discogsAlbums.artist} - {item.title}</div> */}
         <Image src={item.images[0].uri} />
         </div>  
@@ -438,11 +443,11 @@ const Animation = styled.div`
 display: flex;
 flex-wrap: wrap;
 justify-content: space-between;
-font-size: 40px;
+font-size: 10px;
 `
 
 const Track = styled.div`
-margin: 0 60px;
+margin: 0 10px;
 `
 
 const ResultsHeader = styled.div`
@@ -470,6 +475,6 @@ padding: 5px;
 
 
 const Image = styled.img`
-width: 400px;
+width: 100px;
 `
 

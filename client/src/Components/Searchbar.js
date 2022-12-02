@@ -34,9 +34,10 @@ const Searchbar = () => {
               
               // for (let i = 0; i < 3; i++)
               data.data.results.forEach((result, index) => {
-                // if (result.thumb && index < 7){
-                x(result.id)
-              // }
+                if (index < 1){
+                  
+                getDiscogsArtistDetails(result.id)
+              }
               })
               
        
@@ -48,7 +49,7 @@ const Searchbar = () => {
       }
 
       
-        const x = (results) => {
+        const getDiscogsArtistDetails = (results) => {
         fetch(`/getDiscogsArtistDetails`, {
           method: "POST",
           headers: {

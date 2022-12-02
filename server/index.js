@@ -8,6 +8,7 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const { MongoClient, ReturnDocument } = require("mongodb");
 const { v4: uuidv4 } = require("uuid");
 const { access } = require('fs');
+
 require("dotenv").config();
 
 const { MONGO_URI } = process.env;
@@ -153,9 +154,9 @@ try {
 })
 
 .post("/storeMatchedArtistIds", async (req, res) => {
-  const {spotifyArtistId, xx, artistName} = req.body
+  const {spotifyArtistId, discogsArtistIdState, artistName} = req.body
   
-  const stringifedDiscogsArtistId = JSON.stringify(xx)
+  const stringifedDiscogsArtistId = JSON.stringify(discogsArtistIdState)
 
   
   
@@ -183,8 +184,9 @@ try {
 })
 
 .post("/getDiscogsContent", async (req, res) => {
-console.log(req.body)
-   const {discogsArtistId} = req.body
+console.log("req body in getdiscogscontent BE ", req.body)
+   const discogsArtistId = req.body.discogsArtistId
+
     try {
     
     const discogsAlbums = []
@@ -193,10 +195,10 @@ console.log(req.body)
     const discogsVersions = []
     const discogsMasters = []
 
-    const artistReleases = await db.getArtistReleases(req.body.discogsArtistId)
+    const artistReleases = await db.getArtistReleases(discogsArtistId)
     
     if (artistReleases){    
-      
+      console.log(artistReleases)
       artistReleases.releases.forEach((release) => {
         if (release.type === "Master"){
           discogsMasters.push(release)
@@ -206,24 +208,31 @@ console.log(req.body)
           
         }
       })
+      // don't change the i to be more than the length of the releases or it will break (eg 5 releases, 10 "i's is BAD)
       
-      console.log("discogs albums length",discogsAlbums.length)
-      console.log("discogs masters length",discogsAlbums.length)
-      for (let i = 0; i < discogsAlbums.length; i++) {
+      for (let i = 0; i < 1; i++) {
         const getReleases = await db.getRelease(discogsAlbums[i].id)
         if (getReleases){
+          
             getReleases.artists.forEach((artist) => {
               if (artist.id === discogsArtistId){
+                
                 getReleases.tracklist.forEach((track) => {
                   if (track.artists){
+                    
                   track.artists.forEach((artistOnTrack) => {
+                    
                     if (artistOnTrack.id === discogsArtistId){
+                      
                       discogsAlbumDetails.push(getReleases)
+                      
                       
                     }
                   })
                   } else {
+                    
                     discogsAlbumDetails.push(getReleases)
+                    
                   }
                 })
                 
