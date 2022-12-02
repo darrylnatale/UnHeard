@@ -33,7 +33,10 @@ var spotifyApi = new SpotifyWebApi({
 });
 
 const newSpotifyToken = () => {
-  spotifyApi.clientCredentialsGrant().then((data) => spotifyApi.setAccessToken(data.body["access_token"]))
+  spotifyApi.clientCredentialsGrant()
+  .then((data) => {
+    spotifyApi.setAccessToken(data.body["access_token"])
+  })
 }
 
 
@@ -61,7 +64,7 @@ var db = new Discogs(discogsAccessData).database();
 
 
 // console.log(discogsRequestData)
-console.log(discogsAccessData)
+
 
 express()
 .use(express.json())
@@ -80,7 +83,7 @@ express()
 		function(err, requestData){
 			// Persist "requestData" here so that the callback handler can 
 			discogsRequestData = requestData
-      console.log(discogsRequestData)
+      
 			res.redirect(requestData.authorizeUrl);      
 		}
 	);
@@ -92,7 +95,7 @@ express()
 		req.query.oauth_verifier, // Verification code sent back by Discogs
 		function(err, accessData){
 			discogsAccessData = accessData
-      console.log(discogsAccessData)
+      
 			res.redirect("http://localhost:8888/identity");
 		}
 	);
@@ -102,15 +105,11 @@ express()
 	var dis = new Discogs(discogsAccessData);
 
 	dis.getIdentity(function(err, data){
-		console.log(data)
+		
     res.send(data);
 	});
 
 var db = new Discogs(discogsAccessData).database();
-
-db.search("Cicciolina", {type: "artist"}, function(err, data){
-  console.log("search", data.results[0])
-})
 })
 
 
@@ -121,10 +120,12 @@ db.search("Cicciolina", {type: "artist"}, function(err, data){
     const searchResult = await db.search(artistSearched, {type: "artist"})
     if (searchResult){
       
-      res.status(200).json({status: 200, message: "Discogs Content Found", data: searchResult })
+      res.status(200).json({status: 200, message: "Discogs Artist Search Results Found", data: searchResult })
+    } else{
+      res.status(400).json({status: 400, message: "No Discogs Artist Search Results Found", data: artistSearched })
     }
   } catch (err) {
-    console.log(err)
+    res.status(404).json({status: 404, message: "Problem Searching For Discogs Artists", error: err })
   }
   
 
@@ -137,13 +138,13 @@ try {
   const artistDetails = await db.getArtist(receivedDiscogsArtistId)
 
   if (artistDetails){
-    res.status(200).json({status: 200, message: "Discogs Content Found", data: artistDetails })
+    res.status(200).json({status: 200, message: "Discogs Artist Details Found", data: artistDetails })
   } else {
-    res.status(400).json({status: 400, message: "Discogs Content Found", data: null })
+    res.status(400).json({status: 400, message: "Discogs Artist Details Not Found", data: null })
   }
 
 } catch (err) {
-
+  res.status(404).json({status: 404, message: err })
 }
 
 
@@ -151,15 +152,13 @@ try {
 
 })
 
-.post("/matchArtistIds", async (req, res) => {
-  const {spotifyArtistId, discogsArtistId, artistName} = req.body
+.post("/storeMatchedArtistIds", async (req, res) => {
+  const {spotifyArtistId, xx, artistName} = req.body
   
-  const stringifedDiscogsArtistId = JSON.stringify(discogsArtistId)
+  const stringifedDiscogsArtistId = JSON.stringify(xx)
 
   
-  console.log(artistName)
-  console.log(typeof spotifyArtistId)
-  console.log(typeof discogsArtistId)
+  
 
   const newEntry = {
     spotifyArtistId: spotifyArtistId,
@@ -178,13 +177,14 @@ try {
     res.status(200).json({status: 200, message: "Matched Ids Added To Mongo", data: newEntry })
   }
   catch (err){
-    console.log(err)
+    res.status(404).json({status: 404, message: err })
   }
   client.close();
 })
 
-.get("/getDiscogsContent", async (req, res) => {
-
+.post("/getDiscogsContent", async (req, res) => {
+console.log(req.body)
+   const {discogsArtistId} = req.body
     try {
     
     const discogsAlbums = []
@@ -193,7 +193,7 @@ try {
     const discogsVersions = []
     const discogsMasters = []
 
-    const artistReleases = await db.getArtistReleases(86857)
+    const artistReleases = await db.getArtistReleases(req.body.discogsArtistId)
     
     if (artistReleases){    
       
@@ -203,20 +203,21 @@ try {
         }
         if ((release.role === "Main") && (release.type !== "Master")){
           discogsAlbums.push(release)
-          console.log(discogsAlbums.length)
+          
         }
       })
       
-
+      console.log("discogs albums length",discogsAlbums.length)
+      console.log("discogs masters length",discogsAlbums.length)
       for (let i = 0; i < discogsAlbums.length; i++) {
         const getReleases = await db.getRelease(discogsAlbums[i].id)
         if (getReleases){
             getReleases.artists.forEach((artist) => {
-              if (artist.id === 86857){
+              if (artist.id === discogsArtistId){
                 getReleases.tracklist.forEach((track) => {
                   if (track.artists){
                   track.artists.forEach((artistOnTrack) => {
-                    if (artistOnTrack.id === 86857){
+                    if (artistOnTrack.id === discogsArtistId){
                       discogsAlbumDetails.push(getReleases)
                       
                     }
@@ -229,26 +230,20 @@ try {
               } 
             })
         }
-        if(discogsAlbums[i].type === "master"){
-          const getMasters = await db.getMaster(discogsAlbums[i].id)
-            getMasters && discogsAlbumDetails.push(getMasters)
-          const getVersionIds = await db.getMasterVersions(discogsAlbums[i].id)
+      //   if(discogsAlbums[i].type === "master"){
+      //     const getMasters = await db.getMaster(discogsAlbums[i].id)
+      //       getMasters && discogsAlbumDetails.push(getMasters)
+      //     const getVersionIds = await db.getMasterVersions(discogsAlbums[i].id)
           
-          getVersionIds && getVersionIds.versions.forEach((version) => discogsVersionIds.push(version.id))
+      //     getVersionIds && getVersionIds.versions.forEach((version) => discogsVersionIds.push(version.id))
           
-      }
+      // }
       
 
-      for (let i = 0 ; i < discogsVersionIds.length; i++){
-        const getVersionsDetails = await db.getRelease(discogsVersionIds[i])
-        getVersionsDetails && discogsVersions.push(getVersionsDetails)
-        console.log(getVersionsDetails)
-        
-      
-
-
-
-      }
+      // for (let i = 0 ; i < discogsVersionIds.length; i++){
+      //   const getVersionsDetails = await db.getRelease(discogsVersionIds[i])
+      //   getVersionsDetails && discogsVersions.push(getVersionsDetails)
+      // }
           
       }
       
@@ -261,7 +256,7 @@ try {
         res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
       }
     } catch (err) 
-    {console.log(err)}
+    {res.status(404).json({status: 404, message: err })}
     })
 
 
@@ -269,7 +264,8 @@ try {
 
 .post('/getSpotifyContent', async (req, res) => {
   const {spotifyArtistId, artistName} = req.body
-  
+  console.log(req.body)
+  console.log(typeof spotifyArtistId)
 
   try {
     const tracks = []
@@ -327,11 +323,13 @@ try {
       }
       res.status(200).json({status: 200, message: "Spotify Content Found", data: {spotifyArtistName: artistName, spotifyAlbums: albums, spotifyTracks: tracks}})  
     } else { 
+      console.log("mybad")
       res.status(400).json({status: 400, message: "Error Finding Spotify Content" })
     }
   } catch (err) 
   {
-    res.status(400).json({status: 400, message: req.body })
+    console.log(err)
+    res.status(404).json({status: 404, message: err })
   }
   })
 
@@ -345,10 +343,12 @@ try {
     spotifyApi.searchArtists(`${dataQueried}`)
 
       .then((data) => {
+        console.log(data)
         res.status(200).json({status: 200, message: "Artists Found", data: data})
         })
       .catch((err) => {
-        res.status(400).json({status: 400, message: "Failed", data: err})
+        console.log(err)
+        res.status(404).json({status: 404, message: "Failed", data: err})
       });
     })
 
@@ -380,20 +380,24 @@ try {
     if (foundMatch){
       res.status(200).json({
         status: 200,
-        message: `Already In Mongo!`,
+        message: `Successfully checked Mongo - Record Exists!`,
         data: foundMatch,
       })
     } else {
-      res.status(400).json({
-        status: 400,
-        message: `Not In Mongo Yet - Proceed to CrossReference!`,
+      res.status(200).json({
+        status: 200,
+        message: `Successfully checked Mongo - Record Does NOT Exist - Proceed To Verify  `,
         data: null,
   })
 }
 
     
   } catch (err) {
-    console.log(err);
+    res.status(404).json({
+      status: 404,
+      message: `Problem Checking Mongo!`,
+      data: null,
+})
   }
   client.close();
 })

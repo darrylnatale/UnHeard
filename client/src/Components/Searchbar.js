@@ -34,9 +34,9 @@ const Searchbar = () => {
               
               // for (let i = 0; i < 3; i++)
               data.data.results.forEach((result, index) => {
-                if (result.thumb && index < 7){
+                // if (result.thumb && index < 7){
                 x(result.id)
-              }
+              // }
               })
               
        
@@ -59,6 +59,7 @@ const Searchbar = () => {
         })
         .then((res) => res.json())
         .then((data) => {
+          
           setDiscogsSearchResults(prevState => [...prevState, data.data])
       })
      .catch((err) => console.log(err));

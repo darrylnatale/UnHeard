@@ -2,12 +2,12 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { Context } from "../Context";
 
-const ArtistButton = ({thumb, name, fxn, profile}) => {
-    
+const ArtistButton = ({thumb, name, fxn, profile, discogsArtistId}) => {
     return ( <ArtistContainer onClick={() => {fxn()}}>
             <Image src={thumb}/>
             <p>{name}</p>
             <p>{profile}</p>
+            <p>{discogsArtistId}</p>
     </ArtistContainer> );
 }
  
