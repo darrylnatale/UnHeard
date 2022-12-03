@@ -1,49 +1,15 @@
-import { Context } from "./Context";
+import { Context } from "../Context";
 import { useContext } from "react";
 import styled from "styled-components";
-import ArtistButton from "./Components/ArtistButton";
+import ArtistButton from "./ArtistButton";
 
 const SearchResults = ({getAllContentFromSpotifyAndDiscogs}) => {
     
     const {
-        exactSpotifyNameMatch,
         setExactSpotifyNameMatch,
-        albums,
-        setAlbums,
-        correctGuess,
-        setCorrectGuess,
         discogsSearchResults,
-        setDiscogsSearchResults,
-        spotifySearchResults,
         setSpotifySearchResults,
-        selectedArtist,
-        setSelectedArtist,
-        spotifyAlbums,
-        setSpotifyAlbums,
-        formData,
-        setFormData,
-        allSpotifyTracks,
-        setAllSpotifyTracks,
-        allSpotifyTrackNames,
-        setAllSpotifyTrackNames,
-        submitted,
-        setSubmitted,
-        seconds,
-        setSeconds,
-        timedTracks,
-        setTimedTracks,
-        allTracksFromBoth,
-        setAllTracksFromBoth,
-        discogsAlbums,
-        setDiscogsAlbums,
-        discogsAlbumDetails,
-        setDiscogsAlbumDetails,
-        discogsVersions,
-        setDiscogsVersions,
-        discogsTrackNames,
-        setDiscogsTrackNames,
-        discogsArtistIdState, 
-        setDiscogsArtistIdState,
+        submitted, 
          } = useContext(Context);
 
          

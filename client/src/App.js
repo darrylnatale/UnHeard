@@ -3,10 +3,12 @@ import styled from "styled-components"
 import Searchbar from "./Components/Searchbar";
 import { Context } from "./Context";
 // import ArtistButton from "./Components/ArtistButton";
-import Found from "./Found";
+import Found from "./Components/Found";
 import ArtistVerification from "./Components/ArtistVerification";
-import SearchResults from "./SearchResults";
-import Header from "./Header";
+import SearchResults from "./Components/SearchResults";
+import Header from "./Components/Header";
+import Results from "./Components/Results";
+
 const App = () => {
   
   
@@ -14,50 +16,23 @@ const App = () => {
     console.log(tolog)
   }
 
-  const [index, setIndex] = useState(0)
+  
   const [testTracks, setTestTracks] = useState()
   const [tempTracks, setTempTracks] = useState(["track 1","track 2","track 3","track 4","track 5","track 6","track 7","track 8","track 9","track 10","track 11","track 12","track 13","track 14","track 15","track 16","track 17","track 18","track 19","track 20","track 21","track 22","track 23"])
  
 
   const {
+    setAnimationIndex,
     exactSpotifyNameMatch,
-    setExactSpotifyNameMatch,
-    albums,
-    setAlbums,
-    correctGuess,
-    setCorrectGuess,
-    discogsSearchResults,
-    setDiscogsSearchResults,
     spotifySearchResults,
-    setSpotifySearchResults,
-    selectedArtist,
     setSelectedArtist,
-    spotifyAlbums,
     setSpotifyAlbums,
-    formData,
-    setFormData,
-    allSpotifyTracks,
     setAllSpotifyTracks,
     allSpotifyTrackNames,
     setAllSpotifyTrackNames,
-    submitted,
     setSubmitted,
-    seconds,
-    setSeconds,
-    timedTracks,
-    setTimedTracks,
-    allTracksFromBoth,
-    setAllTracksFromBoth,
-    discogsAlbums,
-    setDiscogsAlbums,
-    discogsAlbumDetails,
-    setDiscogsAlbumDetails,
-    discogsVersions,
-    setDiscogsVersions,
-    discogsTrackNames,
-    setDiscogsTrackNames,
-    discogsArtistIdState, 
-    setDiscogsArtistIdState,
+    discogsData,
+    setDiscogsData,
      } = useContext(Context);
      
 
@@ -133,11 +108,14 @@ const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogs
     .then((res) => res.json())
     .then((data) => {
       console.log("content from spotify", data)
+
+      if (data.data){
       setSubmitted(false)
       setSelectedArtist(data.data.spotifyArtistName)
       setAllSpotifyTracks(data.data.spotifyTracks)
       setAllSpotifyTrackNames(data.data.spotifyTracks.map((spotifyTrack) => spotifyTrack.name))
       setSpotifyAlbums(data.data.spotifyAlbums)
+    }
      })
      .catch((err) => console.log(err));
 
@@ -154,65 +132,31 @@ const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogs
         console.log("content from discogs", data)
         
         
-      setDiscogsAlbums(data.data.discogsAlbums)
-      setDiscogsAlbumDetails(data.data.discogsAlbumDetails)
-      setDiscogsVersions(data.data.discogsVersions)
+        setDiscogsData(data.data)
+      
+      
     })
     .catch((err) => console.log(err));
 }
 
 
 
-const discogsTrackNameArray = []
 
-if(discogsAlbumDetails){
-  discogsAlbumDetails.forEach((discogsAlbumDetail) => {
-    discogsAlbumDetail.tracklist.forEach((track) => {
-      if (track.artists){
-      track.artists.forEach((artistOnTrack) => {
-        
-        if (artistOnTrack.id === discogsArtistIdState){
-          discogsTrackNameArray.push(track.title)
-        }
-      })
-        
-    } else {
-      discogsTrackNameArray.push(track.title)
-    }
-    })
-  })
-}
 
-if(discogsVersions){
-  discogsVersions.forEach((discogsVersion) => {
-    discogsVersion.tracklist.forEach((track) => {
-      if (track.artists){
-        track.artists.forEach((artistOnTrack) => {
-          
-          if (artistOnTrack.id === discogsArtistIdState){
-            discogsTrackNameArray.push(track.title)
-          }
-          })
-    } else {
-      discogsTrackNameArray.push(track.title)
-    }
-    })
-  })
-}
 
 const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
-const uniqueDiscogs = [...new Set(discogsTrackNameArray)];
+
 
   
-  const compare = () => {
+  // const compare = () => {
     
-    const both = uniqueSpotify.concat(uniqueDiscogs)
-    function findSingle(arr) {
-      return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
-    }
-    const result = findSingle(both)
-    return result      
-  }
+  //   const both = uniqueSpotify.concat(uniqueDiscogs)
+  //   function findSingle(arr) {
+  //     return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
+  //   }
+  //   const result = findSingle(both)
+  //   return result      
+  // }
 
   
 useEffect(() => {
@@ -220,17 +164,17 @@ useEffect(() => {
   let tracks2 = []
   const interval = setInterval(() => {
     
-    setIndex(prevIndex => prevIndex + 1 )
+    setAnimationIndex(prevIndex => prevIndex + 1 )
     index2++
   
     
     if (index2 > 3300){
-      console.log(index2)
+      
       return clearInterval(interval)
     }
   }, 40 )
 
-}, [discogsAlbums])
+}, [discogsData])
 
 
 
@@ -245,85 +189,11 @@ useEffect(() => {
       <ArtistVerification getAllContentFromSpotifyAndDiscogs={ getAllContentFromSpotifyAndDiscogs } />        
       }
 
+  {discogsData && <Results />}
 
-    { allSpotifyTracks ? 
-    <>
-    <SpotifyResults>
-      <h1>We found {allSpotifyTrackNames.length} tracks by {selectedArtist} on Spotify</h1>
-      <Animation>
-      {/* <button onClick={() => {filterDuplicates(allSpotifyTrackNames)}}>Filter Out Remastered</button> */}  
-      {index > 1 && allSpotifyTrackNames.slice(0,index).map((testTrack) => {
-        
-        return <Track key={Math.floor(Math.random() * 16000000)}>{testTrack} </Track>
-        
-    })}
-    </Animation>
-    
-    
-    <div>
-      
-      <h1>... on {spotifyAlbums.length} albums</h1>
-      <Album>
-      {spotifyAlbums.map((spotifyAlbum) => {
-      return <>
-        <Image src={spotifyAlbum.images[0].url} key={Math.floor(Math.random() * 16000000)}/>
-        {/* <div>{spotifyAlbum.name}</div> */}
-        </>
-            })}
-            </Album>
-    </div>
-    </SpotifyResults>
-    </>
-    : 
-    <></>
-    }
-
-    {(discogsAlbums && allSpotifyTracks) && 
-    <>
-    <SpotifyResults>
-    <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
-    
-    <Animation>
-    {index > 1 && uniqueDiscogs.slice(0,index).map((testTrack) => {
-        
-        return <Track>{testTrack} </Track>
-        
-    })}
-</Animation>
-      {/* {uniqueDiscogs.map((trackName) => {
-        return <li>{trackName}</li>
-        })
-      } */}
-    
-    
-    
-    
-    <h1>... on {discogsAlbums.length} albums</h1>
-    <Album>
-    {discogsAlbumDetails.map((item,index) => {
-      
-      return <div key={Math.floor(Math.random(index) * 160000000)}>
-        {/* <div>{discogsAlbums.artist} - {item.title}</div> */}
-        <Image src={item.images[0].uri} />
-        </div>  
-    })}
-    </Album>
-    
-    </SpotifyResults>
-    </>}
-
-    
-    <>
-    
-
-
-
-    {discogsAlbums ? 
-    <Found />
-  : <></>
-  }
-    </>
-    </Page>
+  {discogsData &&  <Found />}
+  
+  </Page>
   )
 }
 
@@ -345,33 +215,12 @@ const Page = styled.div`
     text-align: center;
       }
 `
-const Album = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`
-
-const SpotifyResults = styled.div`
-`
-
-const Number = styled.p`
-  color: red;
-`
-
-const Animation = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  font-size: 10px;
-`
-
-const Track = styled.div`
-margin: 0 10px;
-`
 
 
-const Image = styled.img`
-width: 100px;
-`
+
+
+
+
 
 
 
@@ -465,3 +314,43 @@ width: 100px;
                 
         //          .catch((err) => console.log(err));
         // }
+
+
+
+
+              {/* {uniqueDiscogs.map((trackName) => {
+        return <li>{trackName}</li>
+        })
+      } */}
+
+    //   {discogsData && 
+    //     <>
+    //     <div>
+    //     <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
+        
+    //     {/* <Animation>
+    //     {index > 1 && uniqueDiscogs.slice(0,index).map((testTrack) => {
+            
+    //         return <Track>{testTrack} </Track>
+            
+    //     })}
+    // </Animation> */}
+    
+        
+        
+        
+        
+    //     <h1>... on {discogsData.length} albums</h1>
+    //     <Album>
+    //     {discogsData.map((item,index) => {
+          
+    //       return <div key={Math.floor(Math.random(index) * 160000000)}>
+    //         {/* <div>{discogsData.artist} - {item.title}</div> */}
+    //         <Image src={item.images[0].uri} />
+    //         </div>  
+    //     })
+    //     }
+    //     </Album>
+        
+    //     </div>
+    //     </>}

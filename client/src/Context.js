@@ -4,6 +4,7 @@ import {useState, createContext} from "react"
 export const Context = createContext(null)
 
 const Provider = ({children}) => {
+    const [animationIndex, setAnimationIndex] = useState(0)
     const [exactSpotifyNameMatch, setExactSpotifyNameMatch] = useState(null)
     const [albums, setAlbums] = useState()
     const [correctGuess, setCorrectGuess] = useState(undefined)
@@ -19,14 +20,14 @@ const Provider = ({children}) => {
     const [allTracksFromBoth, setAllTracksFromBoth] = useState()
 
     const [discogsSearchResults, setDiscogsSearchResults] = useState([])
-    const [discogsAlbums, setDiscogsAlbums] = useState()
-    const [discogsAlbumDetails, setDiscogsAlbumDetails] = useState()
-    const [discogsVersions, setDiscogsVersions] = useState()
+    const [discogsData, setDiscogsData] = useState()
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
     const [discogsArtistIdState, setDiscogsArtistIdState] = useState()
     
     
     return <Context.Provider value={{
+        animationIndex,
+        setAnimationIndex,
         exactSpotifyNameMatch,
         setExactSpotifyNameMatch,
         albums,
@@ -55,12 +56,8 @@ const Provider = ({children}) => {
         setTimedTracks,
         allTracksFromBoth,
         setAllTracksFromBoth,
-        discogsAlbums,
-        setDiscogsAlbums,
-        discogsAlbumDetails,
-        setDiscogsAlbumDetails,
-        discogsVersions,
-        setDiscogsVersions,
+        discogsData,
+        setDiscogsData,
         discogsTrackNames,
         setDiscogsTrackNames,
         discogsArtistIdState, 

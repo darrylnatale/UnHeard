@@ -8,7 +8,7 @@ const Searchbar = () => {
     
   
 
-    const { setSubmitted, discogsSeachResults, setDiscogsSearchResults, submitted, formData, setFormData, artistSearchResults, setSpotifySearchResults, setExactSpotifyNameMatch, setAllSpotifyTracks, setDiscogsAlbums } = useContext(Context);
+    const { setSubmitted, setDiscogsSearchResults, formData, setFormData, setSpotifySearchResults, setExactSpotifyNameMatch, setAllSpotifyTracks, setDiscogsData } = useContext(Context);
     
     const handleChange = (value) => {
         setFormData(value);
@@ -31,7 +31,7 @@ const Searchbar = () => {
               setDiscogsSearchResults([])
               setSubmitted(formData)
               
-              // setDiscogsSearchResults(data.data.results)
+              
 
                         data.data.results.forEach((result, index) => {
                           if (index < 5){
@@ -59,7 +59,7 @@ const Searchbar = () => {
           setExactSpotifyNameMatch(null)
           setSpotifySearchResults(null)
           setAllSpotifyTracks(null)
-          setDiscogsAlbums(null)
+          setDiscogsData(null)
         })
         .catch((err) => console.log(err));
         }
@@ -79,16 +79,13 @@ const Searchbar = () => {
 export default Searchbar;
 
 const SearchBar = styled.input`
-border: 1px solid black;
-border-radius: 15px;
-width: 500px;
-height: 75px;
-font-size: 30px;
-margin: 100px ;
-
-
+  border: 1px solid black;
+  border-radius: 15px;
+  width: 500px;
+  height: 75px;
+  font-size: 30px;
+  margin: 100px ;
   text-align: center;
-
 
 ::-webkit-input-placeholder {
   text-align: center;
