@@ -144,7 +144,7 @@ const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogs
 
 
 
-const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
+
 
 
   

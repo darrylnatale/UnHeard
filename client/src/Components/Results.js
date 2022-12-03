@@ -10,7 +10,7 @@ const Results = () => {
 
     return ( <>
             {allSpotifyTrackNames && <SpotifyResults / >}
-            <DiscogsResults />
+            {<DiscogsResults />}
         </> );
 }
  

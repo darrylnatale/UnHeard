@@ -1,34 +1,32 @@
 import styled from "styled-components";
 import { Context } from "../Context";
 import { useContext } from "react";
+import Tracks from "./Tracks";
+import Albums from "./Albums";
 
 const SpotifyResults = () => {
 
-    const {allSpotifyTrackNames, selectedArtist, animationIndex, spotifyAlbums} = useContext(Context)
+    const {allSpotifyTrackNames, spotifyAlbums} = useContext(Context)
     
+    const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
     return ( 
-    
+        <>
+        <Tracks uniqueTracks={uniqueSpotify}/>
+        </>
+        // <div>
+        //   <h1>... on {spotifyAlbums.length} albums</h1>
+        //   <Album>
+        //     {spotifyAlbums.map((spotifyAlbum) => {
+        //         return <>
+        //                 <Image src={spotifyAlbum.images[0].url} key={Math.floor(Math.random() * 16000000)}/>
+        //                 {/* <div>{spotifyAlbum.name}</div> */}
+        //                 </>
+        //                  })}
+        //     </Album>
+        // </div>
         
-        <div>
-            {allSpotifyTrackNames.length && <h1>We found {allSpotifyTrackNames.length} tracks by {selectedArtist} on Spotify</h1>}
-            <Animation>
-          
-            {animationIndex > 1 && allSpotifyTrackNames.slice(0,animationIndex).map((testTrack) => {
-                return <Track key={Math.floor(Math.random() * 16000000)}>
-                            {testTrack} 
-                        </Track>    
-                        })}
-            </Animation>
-          <h1>... on {spotifyAlbums.length} albums</h1>
-          <Album>
-            {spotifyAlbums.map((spotifyAlbum) => {
-                return <>
-                        <Image src={spotifyAlbum.images[0].url} key={Math.floor(Math.random() * 16000000)}/>
-                        {/* <div>{spotifyAlbum.name}</div> */}
-                        </>
-                         })}
-        </Album>
-        </div>
+        
+        
          );
 }
  
