@@ -3,7 +3,7 @@ import styled from "styled-components";
 const Header = () => {
     return ( <>
     <Logo>UnHeard</Logo>
-    <p>Find tracks by your favourite musicians that you never knew existed</p>
+    <p>Find hidden gems by your favourite musicians</p>
     </> );
 }
 

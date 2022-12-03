@@ -25,6 +25,7 @@ export default Albums;
 
 const Image = styled.img`
 width: 100px;
+border-radius: 15px;
 `
 
 const Album = styled.div`

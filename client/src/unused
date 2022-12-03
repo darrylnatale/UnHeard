@@ -78,3 +78,185 @@
             Unique(uniqueSpotify)
             setAllSpotifyTrackNames(uniqueSpotify)
         }
+
+
+
+
+        // PREVIOUS DISCOGS SEARCH RESULTS 
+
+        // const StyledDiscogsSearchResults = styled.div`
+        // display: flex;
+        // flex-wrap: wrap;
+        // max-width: 1200px;
+        // align-items: center;
+        // justify-content: center;
+        // `
+
+
+        {/* {discogsSearchResults.length && submitted ? 
+                  <div>
+                  <StyledDiscogsSearchResults>
+                      {discogsSearchResults.map((discogsSearchResult, index) => {
+
+                        if (discogsSearchResult) {
+                          // console.log("discogs search result", discogsSearchResult)
+                          return <ArtistButton 
+                                  key={index} 
+                                  checkIfInMongoHandler={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
+                                  thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
+                                  profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
+                                  name={discogsSearchResult.name}
+                                  discogsArtistId={discogsSearchResult.id}/>}
+                                  // onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.title)}}
+                                  })}
+                  </StyledDiscogsSearchResults>
+                </div>
+                : <></>
+                } */}
+
+  // PREV FORMATDISCOGSARTISTNAME FXN
+
+              // const formatDiscogsArtistName = (discogsArtistName) => {
+              
+              //   const containsNumbers = (str) => {
+              //     return /\d/.test(str);
+              //   }
+
+              //   if (
+              //     (discogsArtistName.charAt(discogsArtistName.length-1) === ")") && 
+              //     (containsNumbers(discogsArtistName.charAt(discogsArtistName.lastIndexOf(")")-1)))
+              //     )
+              //     {
+                  
+              //    const lastIndexOfOpenParentheses = discogsArtistName.lastIndexOf("(")
+                
+              //    return discogsArtistName.slice(0,lastIndexOfOpenParentheses-1)
+              //   } 
+              //   return discogsArtistName
+              // }
+
+
+// PREV CROSSREFERENCE FXN
+
+        // const crossReference = (submitted, formattedDiscogsArtistName, discogsArtistId) => {
+          
+        //   fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
+        //         .then((res) => res.json())
+        //         .then((data) => {
+                  
+        //             setSpotifySearchResults(data.data.body.artists.items)
+                    
+                    
+
+        //             let suggestedSpotifyArtists = []
+
+        //             data.data.body.artists.items.forEach((item) => {
+                      
+        //               if (item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase()){
+        //                 suggestedSpotifyArtists.push(item)
+        //                 setExactSpotifyNameMatch(suggestedSpotifyArtists)
+                        
+        //               }
+        //             })
+                    
+                    
+                    
+        //          })
+                
+                
+                
+        //          .catch((err) => console.log(err));
+        // }
+
+
+
+
+              {/* {uniqueDiscogs.map((trackName) => {
+        return <li>{trackName}</li>
+        })
+      } */}
+
+    //   {discogsData && 
+    //     <>
+    //     <div>
+    //     <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
+        
+    //     {/* <Animation>
+    //     {index > 1 && uniqueDiscogs.slice(0,index).map((testTrack) => {
+            
+    //         return <Track>{testTrack} </Track>
+            
+    //     })}
+    // </Animation> */}
+    
+        
+        
+        
+        
+    //     <h1>... on {discogsData.length} albums</h1>
+    //     <Album>
+    //     {discogsData.map((item,index) => {
+          
+    //       return <div key={Math.floor(Math.random(index) * 160000000)}>
+    //         {/* <div>{discogsData.artist} - {item.title}</div> */}
+    //         <Image src={item.images[0].uri} />
+    //         </div>  
+    //     })
+    //     }
+    //     </Album>
+        
+    //     </div>
+    //     </>}
+
+
+
+
+
+// const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
+  
+//   let dd = discogsArtistId
+
+  
+  
+  
+
+//   const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
+  
+//   fetch(`/checkIfInMongo`, {
+//     method: "POST",
+//     headers: {
+//       Accept: "application/json",
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({discogsArtistId}),
+//   })
+//   .then((res) => res.json())
+//   .then((data) => {
+//     console.log(data)
+    
+//       if (data.data){
+//         const spotifyArtistId = data.data.spotifyArtistId
+//         const artistName = data.data.artistName
+        
+//         getAllContentFromSpotifyAndDiscogs(spotifyArtistId, artistName, discogsArtistId)
+
+//       } else {
+        
+        
+//         crossReference(submitted, formattedDiscogsArtistName, discogsArtistId)
+//       }
+      
+      
+//      })
+//   .catch((err) => console.log(err));  
+// }
+
+
+const showMore = (exactSpotifyNameMatch) => {
+  if (exactSpotifyNameMatch === "yes"){
+    setCorrectGuess((prev) => true)
+  }
+  else {
+    setCorrectGuess((prev) => false)
+  } 
+}

@@ -6,11 +6,11 @@ import SpotifyResults from "./SpotifyResults";
 
 const Results = () => {
 
-    const {allSpotifyTrackNames} = useContext(Context)
-
+    const {allSpotifyTrackNames, discogsData} = useContext(Context)
+    
     return ( <>
             {allSpotifyTrackNames && <SpotifyResults / >}
-            {<DiscogsResults />}
+            {discogsData && <DiscogsResults />}
         </> );
 }
  

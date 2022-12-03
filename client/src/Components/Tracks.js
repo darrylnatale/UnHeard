@@ -1,23 +1,21 @@
 import styled from "styled-components";
 import { Context } from "../Context";
 import { useContext } from "react";
+import filter from "../Functions/filter";
 
-const Tracks = ({uniqueTracks}) => {
-
+const Tracks = ({uniqueTracks, site}) => {
+    
     const {animationIndex, selectedArtist} = useContext(Context)
-    const filters = ["Remaster", "- Live", "Remix", "Edit", "Dub", "Live at", "Mix", "World Tour", "Vocal", "12", "Club", "Version"];
 
-    const filteredSongs = uniqueTracks.filter(song => 
-  filters.every(filter => !song.includes(filter))
-
-);
+    const filteredSongs = filter(uniqueTracks)
+    
     return ( <>
-    <h1>There are {filteredSongs.length} tracks by {selectedArtist} on Discogs</h1>
+    <h1>There are {filteredSongs.length} tracks by {selectedArtist} on {site}</h1>
        
        <Animation>
-        {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack) => {
+        {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
            
-            return <Track>{testTrack} </Track>
+            return <Track key={index}>{testTrack} </Track>
            
         })}
     </Animation>
@@ -33,6 +31,7 @@ const Animation = styled.div`
   justify-content: space-between;
   font-size: 10px;
 `
+
 const Track = styled.div`
 margin: 0 10px;
 `

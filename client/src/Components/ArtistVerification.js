@@ -1,24 +1,13 @@
 import { Context } from "../Context";
 import { useContext } from "react";
 import styled from "styled-components";
+import Results from "./Results";
 
 const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
   
-  
-  const {exactSpotifyNameMatch, discogsArtistIdState, setCorrectGuess} = useContext(Context)
-
-  const showMore = (exactSpotifyNameMatch) => {
-    if (exactSpotifyNameMatch === "yes"){
-      setCorrectGuess((prev) => true)
-    }
-    else {
-      setCorrectGuess((prev) => false)
-    } 
-  }
-    
-    
-    
-    const storeMatchedArtistIds = (spotifyArtistId, artistName) => {
+  const {exactSpotifyNameMatch, discogsArtistIdState, setCorrectGuess, setDiscogsData, discogsData} = useContext(Context)
+      
+  const storeMatchedArtistIds = (spotifyArtistId, artistName) => {
         
         fetch(`/storeMatchedArtistIds`, {
           method: "POST",
@@ -42,9 +31,54 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
            .catch((err) => console.log(err));
       }
 
-    
+      const storeSingleArtistId = (artistName) => {
+        
+        fetch(`/storeSingleArtistId`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({artistName, discogsArtistIdState}),
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.status === 200){
+              console.log("single artistId input in mongo, now show results")
+              
+              
+              // getAllContentFromSpotifyAndDiscogs(artistName, discogsArtistIdState)
+            }
+           })
+           .catch((err) => console.log(err));
+      }
+
+      const getAllDiscogsContent = (discogsArtistIdState) => {
+
+          const discogsArtistId = discogsArtistIdState
+
+        fetch(`/getDiscogsContent/`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({discogsArtistId}),
+        }) 
+            .then((res) => res.json())
+            .then((data) => {
+              console.log("content from discogs", data)              
+              setDiscogsData(data.data)
+          })
+          .catch((err) => console.log(err));
+      }
+
+
+
 
     return ( <StyledArtistVerificationContainer>
+    
+    
     <h2>Hm, you're the first to search for that musician. 
     We need to confirm the spotify artist. 
     Did you mean</h2>
@@ -60,6 +94,10 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
         })
      }
   
+    <button onClick={() => {storeSingleArtistId(exactSpotifyNameMatch[0].name, discogsArtistIdState); getAllDiscogsContent(discogsArtistIdState)
+    }}>No, none of these are right</button>
+    
+    
     
     </StyledArtistVerificationContainer> );
 }
@@ -68,6 +106,7 @@ export default ArtistVerification;
 
 const Image = styled.img`
 width: 125px;
+border-radius: 15px;
 `
 const StyledArtistVerificationContainer = styled.div`
 text-align: center;
@@ -81,7 +120,7 @@ const StyledArtistButton = styled.button`
 display: flex;
 width: 400px;
 border: 1 px solid lightblue;
-border-radius: 15px;
+border-radius: 20px;
 background: none;
 margin: 5px;
 padding: 5px;

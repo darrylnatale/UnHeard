@@ -8,13 +8,13 @@ const Searchbar = () => {
     
   
 
-    const { setSubmitted, setDiscogsSearchResults, formData, setFormData, setSpotifySearchResults, setExactSpotifyNameMatch, setAllSpotifyTracks, setDiscogsData } = useContext(Context);
+    const { setSubmitted, setDiscogsSearchResults, searchFormData, setSearchFormData, setSpotifySearchResults, setExactSpotifyNameMatch, setDiscogsData } = useContext(Context);
     
     const handleChange = (value) => {
-        setFormData(value);
+        setSearchFormData(value);
       };
       
-    const handleSubmit = (e, formData) => {
+    const handleSubmit = (e, searchFormData) => {
         e.preventDefault();
         
         
@@ -24,12 +24,12 @@ const Searchbar = () => {
               Accept: "application/json",
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({formData}),
+            body: JSON.stringify({searchFormData}),
           }) 
             .then((res) => res.json())
             .then((data) => {
               setDiscogsSearchResults([])
-              setSubmitted(formData)
+              setSubmitted(searchFormData)
               
               
 
@@ -58,7 +58,6 @@ const Searchbar = () => {
           setDiscogsSearchResults(prev => [...prev, data.data])
           setExactSpotifyNameMatch(null)
           setSpotifySearchResults(null)
-          setAllSpotifyTracks(null)
           setDiscogsData(null)
         })
         .catch((err) => console.log(err));
@@ -66,7 +65,7 @@ const Searchbar = () => {
       
        
     return (<>
-        <form onSubmit={(e) => handleSubmit(e, formData)}>
+        <form onSubmit={(e) => handleSubmit(e, searchFormData)}>
         <SearchBar 
           type="search" 
           placeholder={"Search For A Musician"}
@@ -80,7 +79,7 @@ export default Searchbar;
 
 const SearchBar = styled.input`
   border: 1px solid black;
-  border-radius: 15px;
+  border-radius: 20px;
   width: 500px;
   height: 75px;
   font-size: 30px;

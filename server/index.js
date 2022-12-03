@@ -115,7 +115,7 @@ var db = new Discogs(discogsAccessData).database();
 
 
 .post("/searchDiscogs", async (req, res) => {
-  const artistSearched = req.body.formData
+  const artistSearched = req.body.searchFormData
   
   try {
     const searchResult = await db.search(artistSearched, {type: "artist"})
@@ -154,6 +154,8 @@ try {
 })
 
 .post("/storeMatchedArtistIds", async (req, res) => {
+
+
   const {spotifyArtistId, discogsArtistIdState, artistName} = req.body
   
   const stringifedDiscogsArtistId = JSON.stringify(discogsArtistIdState)
@@ -182,6 +184,39 @@ try {
   }
   client.close();
 })
+
+.post("/storeSingleArtistId", async (req, res) => {
+
+
+  const {discogsArtistIdState, artistName} = req.body
+  
+  const stringifedDiscogsArtistId = JSON.stringify(discogsArtistIdState)
+
+  
+  
+
+  const newEntry = {
+    spotifyArtistId: null,
+    discogsArtistId: stringifedDiscogsArtistId,
+    artistName: artistName
+  }
+
+  const client = new MongoClient(MONGO_URI, options);
+
+  try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+
+    await mongodb.collection("MatchedIds").insertOne(newEntry);
+
+    res.status(200).json({status: 200, message: "Discogs Id Added To Mongo Successfully - No Spotify Match", data: newEntry })
+  }
+  catch (err){
+    res.status(404).json({status: 404, message: err })
+  }
+  client.close();
+})
+
 
 .post("/getDiscogsContent", async (req, res) => {
 
@@ -228,7 +263,7 @@ try {
     if (artistReleases){    
       //artistReleases.pagination : {page: 1, pages: 54, per_page: 50, items: 2674, urls: {last: "http://...", next: "http://..."}}
       // console.log("artist releases fetched from api")
-      console.log("there are this many artist releases (masters and releases):", artistReleases.releases.length)
+      // console.log("there are this many artist releases (masters and releases):", artistReleases.releases.length)
       artistReleases.releases.forEach((release, index) => {
         
 // IF TYPE IS MASTER, SEPARATE INTO MAIN & APPEARANCE GET THE MAIN_RELEASE BEFORE FETCHING THE DETAILS
@@ -257,14 +292,14 @@ try {
             
           
       })
-      console.log(discogsMasterMainReleaseMainRoleIds.length)
-      console.log(discogsMasterMainReleaseAppearanceRoleIds.length)
-      console.log(discogsMasterMainReleaseTrackAppearanceRoleIds.length)
+      // console.log(discogsMasterMainReleaseMainRoleIds.length)
+      // console.log(discogsMasterMainReleaseAppearanceRoleIds.length)
+      // console.log(discogsMasterMainReleaseTrackAppearanceRoleIds.length)
 
 
-      console.log(discogsReleasesMainRoleIds.length)
-      console.log(discogsReleasesAppearanceRoleIds.length)
-      console.log(discogsReleasesTrackAppearanceRoleIds.length)
+      // console.log(discogsReleasesMainRoleIds.length)
+      // console.log(discogsReleasesAppearanceRoleIds.length)
+      // console.log(discogsReleasesTrackAppearanceRoleIds.length)
      
       // don't change the i to be more than the length of the releases or it will break (eg 5 releases, 10 "i's is BAD)
       
