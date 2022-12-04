@@ -2,10 +2,12 @@ import { Context } from "../Context";
 import { useContext } from "react";
 import styled from "styled-components";
 import Results from "./Results";
+import getDiscogsContent from "../Functions/getDiscogsContent";
+import getSpotifyContent from "../Functions/getSpotifyContent";
 
 const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
   
-  const {exactSpotifyNameMatch, discogsArtistIdState, setCorrectGuess, setDiscogsData, discogsData} = useContext(Context)
+  const {exactSpotifyNameMatch, discogsArtistIdState, setDiscogsContent, setSelectedArtist} = useContext(Context)
       
   const storeMatchedArtistIds = (spotifyArtistId, artistName) => {
         
@@ -21,11 +23,15 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
         .then((data) => {
             if (data.status === 200){
               console.log("artistIds input in mongo, now show results")
-              console.log(spotifyArtistId)
-              console.log(artistName)
+              console.log(data.data)
               
-              
-              getAllContentFromSpotifyAndDiscogs(spotifyArtistId, artistName, discogsArtistIdState)
+              setSelectedArtist(data.data)
+              const spotifyArtistId = data.data.spotifyArtistId
+              const discogsArtistId = data.data.discogsArtistId
+              const artistName = data.data.artistName    
+
+              getSpotifyContent(spotifyArtistId, artistName)
+              getDiscogsContent(discogsArtistId)
             }
            })
            .catch((err) => console.log(err));
@@ -47,31 +53,16 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
               console.log("single artistId input in mongo, now show results")
               
               
-              // getAllContentFromSpotifyAndDiscogs(artistName, discogsArtistIdState)
+              const discogsArtistId = data.data.discogsArtistId
+              getDiscogsContent(discogsArtistId)
+              
+    
             }
            })
            .catch((err) => console.log(err));
       }
 
-      const getAllDiscogsContent = (discogsArtistIdState) => {
-
-          const discogsArtistId = discogsArtistIdState
-
-        fetch(`/getDiscogsContent/`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({discogsArtistId}),
-        }) 
-            .then((res) => res.json())
-            .then((data) => {
-              console.log("content from discogs", data)              
-              setDiscogsData(data.data)
-          })
-          .catch((err) => console.log(err));
-      }
+     
 
 
 
@@ -85,7 +76,7 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
     {
       exactSpotifyNameMatch.map((match, index) => {
         return (<>
-                <StyledArtistButton key={index} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); getAllContentFromSpotifyAndDiscogs(match.id, match.name, discogsArtistIdState)}}>
+                <StyledArtistButton key={match.id} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); }}>
                   <p>{match.name}</p>
                   {match.images[0] && <Image src={match.images[0].url}/>}
                 </StyledArtistButton><h2>?</h2>
@@ -94,8 +85,9 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
         })
      }
   
-    <button onClick={() => {storeSingleArtistId(exactSpotifyNameMatch[0].name, discogsArtistIdState); getAllDiscogsContent(discogsArtistIdState)
-    }}>No, none of these are right</button>
+    <button onClick={() => {storeSingleArtistId(exactSpotifyNameMatch[0].name, discogsArtistIdState)}}>
+      No, none of these are right
+      </button>
     
     
     

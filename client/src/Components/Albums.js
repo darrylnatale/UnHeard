@@ -4,15 +4,15 @@ import { useContext } from "react";
 
 const Albums = () => {
 
-    const {discogsData} = useContext(Context)
+    const {discogsContent} = useContext(Context)
     
     return ( <>
-    <h1>... on {discogsData.length} albums</h1>
+    <h1>... on {discogsContent.length} albums</h1>
    <Album>
-    {discogsData.masters.mainReleases.roles.main.map((item,index) => {
+    {discogsContent.masters.mainReleases.roles.main.map((item,index) => {
          
          return <div key={Math.floor(Math.random(index) * 160000000)}>
-           {/* <div>{discogsData.artist} - {item.title}</div> */}
+           {/* <div>{discogsContent.artist} - {item.title}</div> */}
            <Image src={item.images[0].uri} />
            </div>  
        })

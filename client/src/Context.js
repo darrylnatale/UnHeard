@@ -17,7 +17,8 @@ const Provider = ({children}) => {
     const [submitted, setSubmitted] = useState(false)
     const [allTracksFromBoth, setAllTracksFromBoth] = useState()
     const [discogsSearchResults, setDiscogsSearchResults] = useState([])
-    const [discogsData, setDiscogsData] = useState()
+    const [discogsContent, setDiscogsContent] = useState()
+    const [spotifyContent, setSpotifyContent] = useState()
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
     const [discogsArtistIdState, setDiscogsArtistIdState] = useState()
     const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState()
@@ -48,8 +49,10 @@ const Provider = ({children}) => {
         setSubmitted,
         allTracksFromBoth,
         setAllTracksFromBoth,
-        discogsData,
-        setDiscogsData,
+        discogsContent,
+        setDiscogsContent,
+        spotifyContent,
+        setSpotifyContent,
         discogsTrackNames,
         setDiscogsTrackNames,
         discogsArtistIdState, 

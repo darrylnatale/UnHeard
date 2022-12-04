@@ -21,6 +21,7 @@ const {
   
 } = require("./handlers");
 const { post, get } = require('request');
+const { type } = require('os');
 
 
 
@@ -155,12 +156,8 @@ try {
 
 .post("/storeMatchedArtistIds", async (req, res) => {
 
-
   const {spotifyArtistId, discogsArtistIdState, artistName} = req.body
-  
   const stringifedDiscogsArtistId = JSON.stringify(discogsArtistIdState)
-
-  
   
 
   const newEntry = {
@@ -219,9 +216,16 @@ try {
 
 
 .post("/getDiscogsContent", async (req, res) => {
+  
+  let discogsArtistId = req.body.discogsArtistId
 
-   const discogsArtistId = req.body.discogsArtistId
+  if (typeof req.body.discogsArtistId !== "number"){
+    discogsArtistId = Number(req.body.discogsArtistId)
+  } 
 
+  
+   
+  
     try {
 
       // IDS
@@ -261,6 +265,7 @@ try {
       // RELEASES ARE EITHER MASTERS OR RELEASES
       // MASTERS HAVE MAIN_RELEASES, RELEASES DO NOT
     if (artistReleases){    
+      
       //artistReleases.pagination : {page: 1, pages: 54, per_page: 50, items: 2674, urls: {last: "http://...", next: "http://..."}}
       // console.log("artist releases fetched from api")
       // console.log("there are this many artist releases (masters and releases):", artistReleases.releases.length)
@@ -270,6 +275,7 @@ try {
           if (release.type === "master" && release.role === "Main"){
             // console.log("release type:", index, release.type, "main_release id:", release.main_release, "releaseid:", release.id)  
             discogsMasterMainReleaseMainRoleIds.push(release.main_release)
+            
           } else if (release.type === "master" && release.role === "Appearance") {
             discogsMasterMainReleaseAppearanceRoleIds.push(release.main_release)
           }  else if (release.type === "master" && release.role === "Track Appearance") {
@@ -281,6 +287,7 @@ try {
           if (release.type === "release" && release.role === "Main"){
             discogsReleasesMainRoleIds.push(release.id)
             // console.log("this is a main")
+            
           } else if (release.type === "release" && release.role === "Appearance"){
               // console.log("this is an appearance")
             discogsReleasesAppearanceRoleIds.push(release.id)
@@ -311,8 +318,11 @@ try {
         if (getMasters){
           
             getMasters.artists.forEach((artist) => {
+              console.log(typeof artist.id)
+              console.log(typeof discogsArtistId)
               if (artist.id === discogsArtistId){
                 discogsMastersMainReleaseMainRole.push(getMasters) 
+                
                 // getMasters.tracklist.forEach((track) => {
                 //   if (track.artists){
                 //   track.artists.forEach((artistOnTrack) => {
@@ -386,7 +396,7 @@ try {
           }
         }
 
-        const discogsData = {
+        const discogsContent = {
           masters: {
             mainReleases: {
               roles: {
@@ -405,8 +415,8 @@ try {
               }
           }
         }
-        console.log(discogsData.masters.mainReleases)
-      res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsData })
+        // console.log(discogsContent.masters.mainReleases)
+      res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsContent })
       }
       else { 
         res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
@@ -420,7 +430,7 @@ try {
 
 .post('/getSpotifyContent', async (req, res) => {
   const {spotifyArtistId, artistName} = req.body
-  
+  // !! IF SPOTIFYARTISTID IS NULL , MEANS THE ARTIST DOES NOT EXIST ON SPOTIFY - INCLUDE LOGIC
 
   try {
     const tracks = []
@@ -498,7 +508,7 @@ try {
     spotifyApi.searchArtists(`${dataQueried}`)
 
       .then((data) => {
-        console.log(data)
+        // console.log(data)
         res.status(200).json({status: 200, message: "Artists Found", data: data})
         })
       .catch((err) => {
@@ -527,7 +537,8 @@ try {
         
         foundMatch = {
           spotifyArtistId: artistIdMatch.spotifyArtistId,
-          artistName: artistIdMatch.artistName
+          artistName: artistIdMatch.artistName,
+          discogsArtistId: artistIdMatch.discogsArtistId,
         }
       }      
     })

@@ -1,0 +1,60 @@
+%!Adobe-FontList 1.23
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Invalid
+OutlineFileName:/Users/davidknowles/Dropbox/IDK/02_PROJECTS/01_ACTIVE/DARRYL/darryl_wires_221202 Folder/Document fonts/AdobeFnt23.lst
+FileLength:1252
+FileModTime:691711728
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ArtisanSelectricRegular
+FamilyName:Artisan Selectric
+StyleName:Regular
+MenuName:Artisan Selectric
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Artisan Selectric Regular
+WritingScript:Roman
+OutlineFileName:/Users/davidknowles/Dropbox/IDK/02_PROJECTS/01_ACTIVE/DARRYL/darryl_wires_221202 Folder/Document fonts/ArtisanSelectricRegular (1).otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:12380
+FileModTime:691711531
+NameArray:0,Mac,4,Artisan Selectric Regular
+NameArray:0,Win,1,Artisan Selectric
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Audiowide-Regular
+FamilyName:Audiowide
+StyleName:Regular
+MenuName:Audiowide
+StyleBits:0
+WeightClass:400
+WidthClass:5
+AngleClass:0
+FullName:Audiowide
+WritingScript:Roman
+OutlineFileName:/Users/davidknowles/Dropbox/IDK/02_PROJECTS/01_ACTIVE/DARRYL/darryl_wires_221202 Folder/Document fonts/Audiowide_Regular.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:70900
+FileModTime:667404236
+NameArray:0,Mac,18,Audiowide
+NameArray:0,Mac,4,Audiowide
+NameArray:0,Win,1,Audiowide
+%EndFont
+

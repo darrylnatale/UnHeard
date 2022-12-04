@@ -3,6 +3,7 @@ import { Context } from "../Context";
 import styled from "styled-components";
 import filter from "../Functions/filter";
 import YouTubeVideoSection from "./YouTubeVideoSection";
+
 const Found = () => {
 
     const {allSpotifyTrackNames, spotifyAlbums, allDiscogsTrackNames} = useContext(Context)
@@ -20,7 +21,7 @@ const Found = () => {
         return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
         }
         const result = findSingle(mergedFilteredArrays)
-        return result      
+        return result   
   }
 
   const gems = compare()
@@ -38,8 +39,8 @@ const Found = () => {
             <CompareMessage>
                 <h1>{message}</h1>
             </CompareMessage>
-            {gems.length > 0 && gems.map((gem) => {
-                return <p>{gem}</p>
+            {gems.length > 0 && gems.map((gem, index) => {
+                return <p key={index}>{gem}</p>
             }
             )
             }

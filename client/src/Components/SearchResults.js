@@ -2,68 +2,51 @@ import { Context } from "../Context";
 import { useContext } from "react";
 import styled from "styled-components";
 import ArtistButton from "./ArtistButton";
-
-const SearchResults = ({getAllContentFromSpotifyAndDiscogs}) => {
+import formatDiscogsArtistName from "../Functions/formatDiscogsArtistName";
+import getDiscogsContent from "../Functions/getDiscogsContent";
+import getSpotifyContent from "../Functions/getSpotifyContent";
+const SearchResults = () => {
     
-    const {
-        setExactSpotifyNameMatch,
-        discogsSearchResults,
-        setSpotifySearchResults,
-        submitted, 
-         } = useContext(Context);
+    const { setExactSpotifyNameMatch, 
+      discogsSearchResults, 
+      setSelectedArtist,      
+      setDiscogsContent,
+      setSpotifyContent, discogsArtistIdState } = useContext(Context);
 
+      
+      
          
-         const formatDiscogsArtistName = (discogsArtistName) => {
-
-            const containsNumbers = (str) => {
-              return /\d/.test(str);
-            }
-          
-            if (
-              (discogsArtistName.charAt(discogsArtistName.length-1) === ")") && 
-              (containsNumbers(discogsArtistName.charAt(discogsArtistName.lastIndexOf(")")-1)))
-              )
-              {
-              
-             const lastIndexOfOpenParentheses = discogsArtistName.lastIndexOf("(")
-            
-             return discogsArtistName.slice(0,lastIndexOfOpenParentheses-1)
-            } 
-            return discogsArtistName
-          }
-
-          const crossReference = (submitted, formattedDiscogsArtistName, discogsArtistId) => {
-  
+      const crossReference = (formattedDiscogsArtistName, discogsArtistId) => {
+        console.log(discogsArtistId)
             fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
                   .then((res) => res.json())
                   .then((data) => {
                     
-                      setSpotifySearchResults(data.data.body.artists.items)
-
-                      let suggestedSpotifyArtists = []
-          
+                    
+                    let suggestedSpotifyArtists = []
+                    
                       data.data.body.artists.items.forEach((item) => {
                         
-                        if (item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase()){
-                          suggestedSpotifyArtists.push(item)
-                          setExactSpotifyNameMatch(suggestedSpotifyArtists)
-                          
-                        }
-                      })
+                            if (item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase()){
+                              suggestedSpotifyArtists.push(item)
+                            }                               
+                      }) 
                       
-                       
-                      
+                      if (suggestedSpotifyArtists.length === 0){
+                        console.log(discogsArtistId)
+                        setDiscogsContent(getDiscogsContent(discogsArtistId))
+                      } else {
+                        console.log("yes")
+                        setExactSpotifyNameMatch(suggestedSpotifyArtists)
+                      }
                    })
-                   
-                   
-                   
                    .catch((err) => console.log(err));
-          }
+                  }
 
-         const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
-          
-            const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
-            
+        const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
+        
+          console.log(discogsArtistId)
+
             fetch(`/checkIfInMongo`, {
               method: "POST",
               headers: {
@@ -77,18 +60,31 @@ const SearchResults = ({getAllContentFromSpotifyAndDiscogs}) => {
               
             // IF IT EXISTS IN MONGO, PROCEED TO GETTING ALL CONTENT
                 if (data.data){
+                  
+                  
+                  setSelectedArtist(data.data)
+
                   const spotifyArtistId = data.data.spotifyArtistId
-                  const artistName = data.data.artistName      
-                  getAllContentFromSpotifyAndDiscogs(spotifyArtistId, artistName, discogsArtistId)
+                  const discogsArtistId = data.data.discogsArtistId
+                  const artistName = data.data.artistName    
+
+                   
+                  setSpotifyContent(getSpotifyContent(spotifyArtistId, artistName))
+                  setDiscogsContent(getDiscogsContent(discogsArtistId))
+
+                  
             
             // ELSE CROSS REFERENCE THE ARTIST WITH THE SPOTIFY API
-                } else {
-                  crossReference(submitted, formattedDiscogsArtistName, discogsArtistId)
+                } else {                
+                  console.log(discogsArtistId)
+                  const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
+                  
+                  
+                  crossReference(formattedDiscogsArtistName, discogsArtistId)
                 }
                })
             .catch((err) => console.log(err));  
           }
-
 
     return ( <>
     {discogsSearchResults.length ? 
@@ -98,13 +94,12 @@ const SearchResults = ({getAllContentFromSpotifyAndDiscogs}) => {
 
                 if (discogsSearchResult) {
                   return <ArtistButton 
-                          key={index} 
-                          checkIfInMongoHandler={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
-                          thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
-                          profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
-                          name={discogsSearchResult.name}
-                          discogsArtistId={discogsSearchResult.id}/>}
-                          // onClick={() => {getAllContentFromSpotifyAndDiscogs(artistSearchResult.id, artistSearchResult.title)}}
+                              key={index} 
+                              checkIfInMongoHandler={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
+                              thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
+                              profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
+                              name={discogsSearchResult.name}
+                              discogsArtistId={discogsSearchResult.id}/>}
                           })}
           </StyledDiscogsSearchResults>
          

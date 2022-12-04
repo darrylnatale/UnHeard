@@ -176,7 +176,7 @@
         })
       } */}
 
-    //   {discogsData && 
+    //   {discogsContent && 
     //     <>
     //     <div>
     //     <h1>There are <Number>{uniqueDiscogs.length}</Number> tracks by {selectedArtist} on Discogs</h1>
@@ -193,12 +193,12 @@
         
         
         
-    //     <h1>... on {discogsData.length} albums</h1>
+    //     <h1>... on {discogsContent.length} albums</h1>
     //     <Album>
-    //     {discogsData.map((item,index) => {
+    //     {discogsContent.map((item,index) => {
           
     //       return <div key={Math.floor(Math.random(index) * 160000000)}>
-    //         {/* <div>{discogsData.artist} - {item.title}</div> */}
+    //         {/* <div>{discogsContent.artist} - {item.title}</div> */}
     //         <Image src={item.images[0].uri} />
     //         </div>  
     //     })
@@ -260,3 +260,42 @@ const showMore = (exactSpotifyNameMatch) => {
     setCorrectGuess((prev) => false)
   } 
 }
+
+useEffect(() => {
+  let index2 = 0
+  const interval = setInterval(() => {
+    
+    setAnimationIndex(prevIndex => prevIndex + 1 )
+    index2++      
+    if (index2 > 3300){
+      return clearInterval(interval)
+    }
+  }, 40 )
+
+}, [discogsContent])
+
+// const getAllContentFromSpotifyAndDiscogs = (spotifyArtistId, artistName, discogsArtistId) => {
+           
+//   fetch(`/getSpotifyContent`, {
+//       method: "POST",
+//       headers: {
+//       Accept: "application/json",
+//       "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({spotifyArtistId, artistName}),
+//       }) 
+//   .then((res) => res.json())
+//   .then((data) => {
+//     console.log("content from spotify", data)
+
+//     if (data.data){
+//     setSubmitted(false)
+//     setSelectedArtist(data.data.spotifyArtistName)
+//     setAllSpotifyTrackNames(data.data.spotifyTracks.map((spotifyTrack) => spotifyTrack.name))
+//     setSpotifyAlbums(data.data.spotifyAlbums)
+//       }
+//    })
+//    .catch((err) => console.log(err));
+
+
+// }

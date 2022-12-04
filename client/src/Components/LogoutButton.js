@@ -9,5 +9,5 @@ const LogoutButton = () => {
         </button>) 
     );
 }
-https://www.youtube.com/results?search_query=venise+%22roissy%22
+
 export default LogoutButton;

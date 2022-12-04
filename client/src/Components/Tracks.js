@@ -8,9 +8,10 @@ const Tracks = ({uniqueTracks, site}) => {
     const {animationIndex, selectedArtist} = useContext(Context)
 
     const filteredSongs = filter(uniqueTracks)
+    console.log(selectedArtist)
     
     return ( <>
-    <h1>There are {filteredSongs.length} tracks by {selectedArtist} on {site}</h1>
+    <h1>There are {filteredSongs.length} tracks by {selectedArtist.artistName} on {site}</h1>
        
        <Animation>
         {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {

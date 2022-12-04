@@ -6,14 +6,14 @@ import Tracks from "./Tracks";
 
 const DiscogsResults = () => {
 
-    const {discogsData, discogsArtistIdState, setAllDiscogsTrackNames} = useContext(Context)
-    const discogsSiteName = "Discogs"
+    const {discogsContent, discogsArtistIdState, setAllDiscogsTrackNames} = useContext(Context)
+    const discogsSiteName = "the internet"
     const discogsTrackNameArray = []
     
     
 
-    if(discogsData.masters){
-        discogsData.masters.mainReleases.roles.main.forEach((discogsAlbumDetail) => {
+    if(discogsContent.masters){
+        discogsContent.masters.mainReleases.roles.main.forEach((discogsAlbumDetail) => {
             discogsAlbumDetail.tracklist.forEach((track) => {
             if (track.artists){
                 track.artists.forEach((artistOnTrack) => {
@@ -29,8 +29,8 @@ const DiscogsResults = () => {
         })
     }
  
-    if(discogsData.releases){
-        discogsData.releases.roles.main.forEach((discogsAlbumDetail) => {
+    if(discogsContent.releases){
+        discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
             discogsAlbumDetail.tracklist.forEach((track) => {
                 if (track.artists){
                     track.artists.forEach((artistOnTrack) => {
@@ -58,7 +58,7 @@ useEffect(() => {
 
 
     return (  <>
-    {/* <Albums apiData={discogsData}/> */}
+    {/* <Albums apiData={discogsContent}/> */}
     <Tracks uniqueTracks={uniqueDiscogs} site={discogsSiteName}/>
         <div>
         
