@@ -1,8 +1,11 @@
 import styled from "styled-components";
+import { BsGem } from 'react-icons/bs';
 
 const Header = () => {
     return ( <>
-    <Logo>UnHeard</Logo>
+    
+    
+    <Logo>UnHeard <BsGem /></Logo>
     <p>Find hidden gems by your favourite musicians</p>
     </> );
 }
@@ -11,5 +14,4 @@ const Header = () => {
 export default Header;
 
 const Logo = styled.h1`
-
 `

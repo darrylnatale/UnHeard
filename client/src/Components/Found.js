@@ -45,7 +45,7 @@ const Found = () => {
             }
             {gems.length > 0 && <div>
             <h1>But we found it on YouTube</h1>
-            <YouTubeVideoSection />
+            <YouTubeVideoSection gems={gems}/>
             </div>
             }
             
