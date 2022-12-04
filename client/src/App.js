@@ -9,10 +9,15 @@ import Header from "./Components/Header";
 import Results from "./Components/Results";
 import filter from "./Functions/filter";
 import NotFound from "./Components/NotFound";
-
+import LoginButton from "./Components/LoginButton";
+import LogoutButton from "./Components/LogoutButton";
+import Profile from "./Components/Profile";
+import { useAuth0
+ } from "@auth0/auth0-react";
 const App = () => {
   
-  
+  const {isLoading, error} = useAuth0()
+
   const c = (tolog) => {
     console.log(tolog)
   }
@@ -37,7 +42,7 @@ const App = () => {
      
 
 useEffect(() => {
-    fetch("/login")
+    fetch("/loginToSpotify")
     .then((res) => res.json())
     .then((data) => {
       console.log(data)
@@ -121,6 +126,15 @@ useEffect(() => {
   return (
     
     <Page>
+      {error && <p>Authentication Error</p>}
+      {!error && isLoading && <p>Loading...</p>}
+      {!error && !isLoading && 
+      <>
+        <LoginButton />
+        <LogoutButton />
+      </>
+      }
+      <Profile />
       <Header />
       <Searchbar /> 
       <SearchResults getAllContentFromSpotifyAndDiscogs={ getAllContentFromSpotifyAndDiscogs } />

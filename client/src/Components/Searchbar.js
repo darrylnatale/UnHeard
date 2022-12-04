@@ -64,19 +64,25 @@ const Searchbar = () => {
         }
       
        
-    return (<>
+    return (<SearchBarContainer>
         <form onSubmit={(e) => handleSubmit(e, searchFormData)}>
-        <SearchBar 
-          type="search" 
-          placeholder={"Search For A Musician"}
-          onChange={(e) => handleChange(e.target.value)}/>
+            <SearchBar 
+                type="search" 
+                placeholder={"Search For A Musician"}
+                onChange={(e) => handleChange(e.target.value)}/>
+            <SubmitButton onClick={(e) => handleSubmit(e, searchFormData)}>💎</SubmitButton>
         </form>
-      </>
+        
+        
+      </SearchBarContainer>
     )
 }
 
 export default Searchbar;
 
+const SearchBarContainer = styled.div`
+display: flex;
+`
 const SearchBar = styled.input`
   border: 1px solid black;
   border-radius: 20px;
@@ -93,5 +99,14 @@ const SearchBar = styled.input`
 :-moz-placeholder {
   text-align: center;
 }
+`
 
+const SubmitButton = styled.button`
+
+width: 75px;
+height: 75px;
+border: none;
+background: none;
+
+font-size: 50px;
 `

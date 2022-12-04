@@ -416,7 +416,7 @@ try {
     })
 
 
-.get("/login", (req, res) => newSpotifyToken())
+.get("/loginToSpotify", (req, res) => newSpotifyToken())
 
 .post('/getSpotifyContent', async (req, res) => {
   const {spotifyArtistId, artistName} = req.body
