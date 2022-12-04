@@ -1,7 +1,7 @@
 import { Context } from "../Context";
 import { useContext } from "react";
 
-const YouTubeVideoSection = () => {
+const YouTubeVideoSection = ({gems}) => {
 
     const {discogsData} = useContext(Context)
 
@@ -29,7 +29,7 @@ const YouTubeVideoSection = () => {
         }
     })
     
-    // console.log(videos)
+    
     return ( <>
     {videos.map((video) => {
     return <div>{video.title}</div>
