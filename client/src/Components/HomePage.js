@@ -10,17 +10,61 @@ import SearchResults from "./SearchResults"
 import SpotifyResults from "./SpotifyResults"
 import DiscogsResults from "./DiscogsResults";
 import getSpotifyContent from "../Functions/getSpotifyContent";
-const HomePage = () => {
+import { useAuth0 } from "@auth0/auth0-react";
 
+const HomePage = () => {
+    const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
-        selectedArtist,
+        selectedArtist, submitted,
         exactSpotifyNameMatch,
         spotifySearchResults,
-        setSpotifyContent,
-        spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames
+        setSpotifyContent, setLastSearched,
+        spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
          } = useContext(Context);
 
+  useEffect(() => {
+    if (isAuthenticated){
+      
+        fetch(`/addUserToMongo`, {
+            method: "POST",
+            headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify({user}),
+            }) 
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("user added", data)
+          setMongoUser(data.data)
+
+
+        if (isAuthenticated){
+          
+          fetch(`/getLast`, {
+              method: "POST",
+              headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              },
+              body: JSON.stringify({user}),
+              }) 
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("last searched", data)
+            setLastSearched(data.data)
   
+      
+           })
+           .catch((err) => console.log(err));
+      }
+    
+         })
+         .catch((err) => console.log(err));
+    }
+  },[isAuthenticated])
+
+
          const getSpotifyContent = (spotifyArtistId, artistName) => {
           fetch(`/getSpotifyContent`, {
               method: "POST",
@@ -113,12 +157,12 @@ useEffect(() => {
 
     return ( 
         <Page>
-        {/* <p>Find hidden gems by your favourite musicians</p> */}
-        <SearchResults />
+        <h1>Find hidden gems by your favourite musicians</h1>
+        {submitted && <SearchResults />}
         {exactSpotifyNameMatch && <ArtistVerification />}     
         {allSpotifyTrackNames && <SpotifyResults / >}
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <DiscogsResults / >}
-        {/* {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>} */}
+        {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>}
         </Page>
     );
 }
@@ -126,10 +170,11 @@ useEffect(() => {
 export default HomePage;
 
 const Page = styled.div`
+  font-family: "Zen Dots", cursive;
   display: flex;
   padding: 20px;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   width: auto;
   height: 100%;
   flex-direction: column;
@@ -141,6 +186,7 @@ const Page = styled.div`
   }
 
   h1 {
+    font-size: 20px;
     margin-bottom: 50px;
     text-align: center;
   }

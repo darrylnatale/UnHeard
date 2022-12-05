@@ -20,8 +20,9 @@ const Header = () => {
           </>
         }
         </StyledCredentials>
-      <StyledLink to="/">
+      
         <Wrapper>
+        <StyledLink to="/" onClick={() => window.location.reload()} >
           <StyledLogo>
             <Title>
               <span>U</span>
@@ -36,11 +37,12 @@ const Header = () => {
               </Gem>
             </Title>
           </StyledLogo>
+          </StyledLink>
         </Wrapper>
         <SearchSticky>
           <Searchbar />
         </SearchSticky>
-      </StyledLink>
+      
       </>
       
     );

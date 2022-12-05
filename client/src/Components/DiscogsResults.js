@@ -79,7 +79,7 @@ const DiscogsResults = () => {
     { allDiscogsTrackNames ?
     <StyledDiscogsResults>
           <div>
-            There are {filteredSongs.length} tracks by {selectedArtist.artistName}
+            Out of a total of {filteredSongs.length} tracks :
           </div>
           <Animation>
               {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
@@ -102,6 +102,7 @@ width: 100%;
 min-height: 30%;
 max-height: 30%;
 overflow:auto;
+font-family: "Zen Dots", cursive;
 `
 const Animation = styled.div`
   display: flex;

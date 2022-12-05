@@ -11,7 +11,7 @@ const SearchResults = () => {
       setDiscogsSearchResults, 
       setSelectedArtist,      
       setDiscogsContent,
-      setSpotifyContent, spotifyContent, setIsInMongo } = useContext(Context);
+      setSpotifyContent, spotifyContent, setIsInMongo, setLastSearched  } = useContext(Context);
 
       
       
@@ -92,6 +92,22 @@ const SearchResults = () => {
             .catch((err) => console.log(err));  
           }
 
+          const addSearchToUserHistory = (discogsArtistId) => {
+            fetch(`/addSearchToUserHistory`, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({discogsArtistId}),
+            })
+            .then((res) => res.json())
+            .then((data) => {
+              setLastSearched(data.data)
+              console.log(data)
+            })
+          }
+          
     return ( <>
     {discogsSearchResults.length ? 
           
@@ -101,7 +117,12 @@ const SearchResults = () => {
                 if (discogsSearchResult) {
                   return <ArtistButton 
                               key={index} 
-                              checkIfInMongoHandler={() => {checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)}} 
+                              clickHandler={() => {
+                                checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)
+                                addSearchToUserHistory(discogsSearchResult.id)
+                              }
+                                
+                              } 
                               thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
                               profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
                               name={discogsSearchResult.name}
@@ -109,7 +130,7 @@ const SearchResults = () => {
                           })}
           </StyledDiscogsSearchResults>
          
-        : <></>
+        : <>Searching... This Might Take a Moment</>
         }
     </> );
 }
@@ -118,7 +139,7 @@ export default SearchResults;
 
 const StyledDiscogsSearchResults = styled.div`
  
-
+font-family: "Zen Dots", cursive;
 display: flex;
 flex-wrap: wrap;
 max-width: 1200px;

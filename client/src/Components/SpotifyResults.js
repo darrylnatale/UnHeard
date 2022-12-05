@@ -77,6 +77,7 @@ width: 100%;
 min-height: 30%;
 max-height: 30%;
 overflow:auto;
+font-family: "Zen Dots", cursive;
 
 `
 const Animation = styled.div`

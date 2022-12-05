@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { Context } from "../Context";
 
-const ArtistButton = ({ thumb, name, checkIfInMongoHandler, profile, discogsArtistId }) => {
+const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId }) => {
   
     const { setDiscogsArtistIdState, discogsArtistIdState, setDiscogsSearchResults,  } = useContext(Context);
 
@@ -10,8 +10,8 @@ const ArtistButton = ({ thumb, name, checkIfInMongoHandler, profile, discogsArti
         let formattedProfileText = profile
 
 
-        if (formattedProfileText.length > 300) {
-            formattedProfileText = profile.slice(0, 299) + "...";
+        if (formattedProfileText.length > 250) {
+            formattedProfileText = profile.slice(0, 150) + "...";
           }
 
           
@@ -45,7 +45,7 @@ const ArtistButton = ({ thumb, name, checkIfInMongoHandler, profile, discogsArti
   return (
     <StyledArtistButton
       onClick={() => {
-        checkIfInMongoHandler();
+        clickHandler();
         setDiscogsArtistIdState(discogsArtistId);
         setDiscogsSearchResults([])
         console.log("buttonclicke", discogsArtistIdState);
@@ -64,7 +64,7 @@ export default ArtistButton;
 
 const StyledArtistButton = styled.button`
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  
+  font-family: "Zen Dots", cursive;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -5,7 +5,7 @@ export const Context = createContext(null)
 
 const Provider = ({children}) => {
     const [animationIndex, setAnimationIndex] = useState(0)
-
+    const [mongoUser, setMongoUser] = useState(null)
     const [exactSpotifyNameMatch, setExactSpotifyNameMatch] = useState(null)
     const [albums, setAlbums] = useState()
     const [correctGuess, setCorrectGuess] = useState(undefined)
@@ -22,6 +22,7 @@ const Provider = ({children}) => {
     const [spotifyContent, setSpotifyContent] = useState()
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
     const [discogsArtistIdState, setDiscogsArtistIdState] = useState()
+    const [lastSearched, setLastSearched] = useState()
     
     const [isInMongo, setIsInMongo] = useState()
     
@@ -61,7 +62,9 @@ const Provider = ({children}) => {
         allDiscogsTrackNames,
         setAllDiscogsTrackNames,
         isInMongo, 
-        setIsInMongo
+        setIsInMongo,
+        mongoUser, setMongoUser,
+        lastSearched, setLastSearched
     }}>
         {children}
     </Context.Provider>

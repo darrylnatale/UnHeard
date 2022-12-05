@@ -154,6 +154,118 @@ try {
 
 })
 
+.post("/addUserToMongo", async (req, res) => {
+
+  const {user} = req.body
+
+  const client = new MongoClient(MONGO_URI, options);
+
+  try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+    
+    let mongoUsers = await mongodb.collection("Users").find().toArray()
+
+    let foundMatch = false
+    
+    mongoUsers.forEach((mongoUser) => {
+      
+      if (user.email === mongoUser.email){
+        
+        foundMatch = mongoUser
+      }      
+    })
+  
+    
+    if(!foundMatch){
+      let addUser = await mongodb.collection("Users").insertOne(user);
+      if (addUser){
+        res.status(200).json({status: 200, message: "User Added To Mongo", data: user })
+      } 
+    } else {
+      res.status(400).json({status: 400, message: "User Already In Mongo", data: user })
+    }
+
+    
+
+    
+  }
+  catch (err){
+    res.status(404).json({status: 404, message: err })
+  }
+  client.close();
+})
+
+.post("/getLast", async (req, res) => {
+  const email = req.body.user.email
+  const client = new MongoClient(MONGO_URI, options);
+  try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+    
+    let mongoUsers = await mongodb.collection("Users").find().toArray()
+
+    let foundMatch = false
+    
+    mongoUsers.forEach((mongoUser) => {
+      console.log(email)
+      if (email === mongoUser.email){
+        
+        foundMatch = mongoUser
+      }      
+    })
+  console.log(foundMatch)
+  
+
+  
+    if(foundMatch){
+      const artistDetails = await db.getArtist(foundMatch.artistId)
+        res.status(200).json({status: 200, message: "Found Match . Last Search Id was: ", data: artistDetails })
+       
+    } else {
+      res.status(400).json({status: 400, message: "User Not Found", data: null })
+    }
+    
+  }
+  catch (err){
+    res.status(404).json({status: 404, message: err })
+  }
+  client.close();
+})
+
+.post("/addSearchToUserHistory", async (req, res) => {
+
+  const {discogsArtistId} = req.body
+  
+
+  const client = new MongoClient(MONGO_URI, options);
+
+  try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+    
+    let mongoUsers = await mongodb.collection("Users").updateOne({email: "darrylnatale@gmail.com"}, {$set: {artistId: discogsArtistId }})
+
+    
+
+    
+    
+    if(mongoUsers){
+      res.status(200).json({status: 200, message: "Discogs ID Added to Users History", data: discogsArtistId })
+    } else {
+      res.status(400).json({status: 400, message: "ID Was Already In To Mongo", data: discogsArtistId })
+    }
+
+    
+
+    
+  }
+  catch (err){
+    res.status(404).json({status: 404, message: "didnt work" })
+  }
+  client.close();
+})
+
 .post("/storeMatchedArtistIds", async (req, res) => {
 
   const {spotifyArtistId, discogsArtistIdState, artistName} = req.body
@@ -318,8 +430,7 @@ try {
         if (getMasters){
           
             getMasters.artists.forEach((artist) => {
-              console.log(typeof artist.id)
-              console.log(typeof discogsArtistId)
+              
               if (artist.id === discogsArtistId){
                 discogsMastersMainReleaseMainRole.push(getMasters) 
                 
