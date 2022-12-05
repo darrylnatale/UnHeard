@@ -79,7 +79,7 @@ const DiscogsResults = () => {
     { allDiscogsTrackNames ?
     <StyledDiscogsResults>
           <div>
-            Out of a total of {filteredSongs.length} tracks :
+            <h1>Out of a total of <span>{filteredSongs.length}</span> tracks :</h1>
           </div>
           <Animation>
               {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
@@ -97,12 +97,22 @@ const DiscogsResults = () => {
 export default DiscogsResults;
 
 const StyledDiscogsResults = styled.div`
+margin: 10px 0;
+padding: 20px 0; 
 border: 1px solid black;
+border-radius: 10px;
 width: 100%;
 min-height: 30%;
 max-height: 30%;
 overflow:auto;
 font-family: "Zen Dots", cursive;
+h1{ 
+  font-size: 20px;
+}
+span{
+  color: red;
+  font-size: 30px;
+}
 `
 const Animation = styled.div`
   display: flex;
@@ -114,7 +124,7 @@ const Animation = styled.div`
   font-size: 20px;
 `
 
-const Track = styled.div`
+const Track = styled.span`
 margin: 0 10px;
 `
 

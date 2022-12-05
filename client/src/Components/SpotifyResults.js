@@ -52,7 +52,8 @@ const SpotifyResults = () => {
         { allSpotifyTrackNames ?
           <StyledSpotifyResults>
             
-            <div>We found {filteredSongs.length} tracks by {selectedArtist.artistName} on Spotify...</div>
+            <div>
+            <h1>We found <span>{filteredSongs.length}</span> tracks by {selectedArtist.artistName} on Spotify...</h1></div>
             <div>{message}</div>
             <Animation>
             
@@ -72,6 +73,9 @@ const SpotifyResults = () => {
 export default SpotifyResults;
 
 const StyledSpotifyResults = styled.div`
+margin: 10px 0;
+border-radius: 10px;
+padding: 20px 0; 
 border: 1px solid black;
 width: 100%;
 min-height: 30%;
@@ -79,8 +83,17 @@ max-height: 30%;
 overflow:auto;
 font-family: "Zen Dots", cursive;
 
+h1{ 
+  font-size: 20px;
+}
+span{
+  color: red;
+  font-size: 30px;
+}
+
 `
 const Animation = styled.div`
+margin: 10px 0; 
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;

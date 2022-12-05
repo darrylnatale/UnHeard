@@ -5,7 +5,7 @@ import Results from "./Results";
 import getDiscogsContent from "../Functions/getDiscogsContent";
 import getSpotifyContent from "../Functions/getSpotifyContent";
 
-const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
+const ArtistVerification = ({getDiscogsContent, getSpotifyContent}) => {
   
   const {exactSpotifyNameMatch, discogsArtistIdState, setDiscogsContent,setIsInMongo, setSelectedArtist} = useContext(Context)
       
@@ -71,16 +71,16 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
     return ( <StyledArtistVerificationContainer>
     
     
-    <h2>Hm, you're the first to search for that musician. 
-    We need to confirm the spotify artist. 
-    Did you mean</h2>
+    <h2>You're the first to search for that musician!</h2>
+    <h2>We need to confirm we're matching the right Spotify artist. </h2>
+    <h2>Did you mean:</h2>
     {
       exactSpotifyNameMatch.map((match, index) => {
         return (<>
                 <StyledArtistButton key={match.id} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); }}>
                   <p>{match.name}</p>
                   {match.images[0] && <Image src={match.images[0].url}/>}
-                </StyledArtistButton><h2>?</h2>
+                </StyledArtistButton><h2></h2>
                 </>
                )
         })
@@ -103,10 +103,26 @@ border-radius: 15px;
 `
 const StyledArtistVerificationContainer = styled.div`
 text-align: center;
+line-height: 2;
 display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: center;
+button{
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  font-family: "Zen Dots", cursive;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  width: 425px;
+  height: 250px;
+  border-radius: 20px;
+  background: white;
+  margin: 25px 25px 0 25px;
+  padding: 20px;
+  border: none;
+}
 `
 
 const StyledArtistButton = styled.button`

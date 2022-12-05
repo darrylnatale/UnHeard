@@ -1,4 +1,4 @@
-
+import { BsGem } from "react-icons/bs";
 import styled from "styled-components"
 import { useContext, useEffect } from "react";
 import Found from "./Found"
@@ -18,7 +18,7 @@ const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
         selectedArtist, submitted, moreToFetch, setMoreToFetch,
-        exactSpotifyNameMatch,
+        exactSpotifyNameMatch, setSubmitted,
         spotifySearchResults,
         setSpotifyContent, setLastSearched,
         spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
@@ -81,7 +81,7 @@ const HomePage = () => {
             console.log("content from spotify", data)
       
             if (data.data){
-                  
+                  setSubmitted(false)
                   setAllSpotifyTrackNames(data.data.spotifyTracks.map((spotifyTrack) => spotifyTrack.name))
                   // setSpotifyAlbums(data.data.spotifyAlbums)
               }
@@ -168,17 +168,20 @@ useEffect(() => {
     console.log("example run")
   }
     
-  useInterval(() => moreToFetch !== 0 && functionexample(),10000)
+  // useInterval(() => moreToFetch !== 0 && functionexample(),10000)
   
   
 
     return ( 
         <Page>
-        <h1>Find hidden gems by your favourite musicians</h1>
+        <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
+        <StyledBsGem />
         {/* {moreToFetch !== 0 && <Timer functionToCall={() => getDiscogsContent(selectedArtist.discogsArtistId, moreToFetch)}/>} */}
         {submitted && <SearchResults />}
-        {exactSpotifyNameMatch && <ArtistVerification />}     
-        {(allSpotifyTrackNames || allDiscogsTrackNames) && <SpotifyResults / >}
+        
+        {exactSpotifyNameMatch && <ArtistVerification getDiscogsContent={getDiscogsContent} getSpotifyContent={getSpotifyContent}/>}     
+        {(allSpotifyTrackNames || allDiscogsTrackNames) && <><SpotifyResults / ><StyledBsGem /></>}
+        
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <DiscogsResults / >}
         {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>}
         </Page>
@@ -204,8 +207,15 @@ const Page = styled.div`
   }
 
   h1 {
-    font-size: 20px;
+    font-size: 30px;
     margin-bottom: 50px;
     text-align: center;
   }
 `;
+const StyledBsGem = styled(BsGem)`
+font-size: 30px;
+`
+const Copy = styled.div`
+text-decoration:underline
+`
+

@@ -11,6 +11,8 @@ const Searchbar = () => {
     setSpotifySearchResults,
     setExactSpotifyNameMatch,
     setDiscogsContent,
+    setAllSpotifyTrackNames,
+    setAllDiscogsTrackNames,
   } = useContext(Context);
 
   const handleChange = (value) => {
@@ -30,6 +32,9 @@ const Searchbar = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        setAllDiscogsTrackNames(null)
+        setAllSpotifyTrackNames(null)
+        
         setDiscogsSearchResults([]); // resets searchResults to empty array on click (move this to later in process)
         setSpotifySearchResults(null); // resets searchResults to null to reset (move later?)
         setDiscogsContent(null); // resets discogsContent to null to reset (move later?)
