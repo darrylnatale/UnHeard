@@ -11,7 +11,7 @@ const SearchResults = () => {
       discogsSearchResults, 
       setSelectedArtist,      
       setDiscogsContent,
-      setSpotifyContent, discogsArtistIdState } = useContext(Context);
+      setSpotifyContent, spotifyContent, setIsInMongo } = useContext(Context);
 
       
       
@@ -45,8 +45,6 @@ const SearchResults = () => {
 
         const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
         
-          console.log(discogsArtistId)
-
             fetch(`/checkIfInMongo`, {
               method: "POST",
               headers: {
@@ -57,31 +55,39 @@ const SearchResults = () => {
             })
             .then((res) => res.json())
             .then((data) => {
+              setIsInMongo(true)
+              setSelectedArtist(data.data)
+              console.log(data)
+              return data
               
+              //     const spotifyArtistId = data.data.spotifyArtistId
+              //     const discogsArtistId = data.data.discogsArtistId
+              //     const artistName = data.data.artistName   
+              // console.log(getSpotifyContent(spotifyArtistId, artistName))
             // IF IT EXISTS IN MONGO, PROCEED TO GETTING ALL CONTENT
-                if (data.data){
+            //     if (data.data){
                   
                   
-                  setSelectedArtist(data.data)
+            //       setSelectedArtist(data.data)
 
-                  const spotifyArtistId = data.data.spotifyArtistId
-                  const discogsArtistId = data.data.discogsArtistId
-                  const artistName = data.data.artistName    
+            //       const spotifyArtistId = data.data.spotifyArtistId
+            //       const discogsArtistId = data.data.discogsArtistId
+            //       const artistName = data.data.artistName    
 
                    
-                  setSpotifyContent(getSpotifyContent(spotifyArtistId, artistName))
-                  setDiscogsContent(getDiscogsContent(discogsArtistId))
+            //       getSpotifyContent(spotifyArtistId, artistName)
+            //       setDiscogsContent(getDiscogsContent(discogsArtistId))
 
                   
             
-            // ELSE CROSS REFERENCE THE ARTIST WITH THE SPOTIFY API
-                } else {                
-                  console.log(discogsArtistId)
-                  const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
+            // // ELSE CROSS REFERENCE THE ARTIST WITH THE SPOTIFY API
+            // //     } else {                
+            //       console.log(discogsArtistId)
+            //       const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
                   
                   
-                  crossReference(formattedDiscogsArtistName, discogsArtistId)
-                }
+            //       crossReference(formattedDiscogsArtistName, discogsArtistId)
+            //     }
                })
             .catch((err) => console.log(err));  
           }

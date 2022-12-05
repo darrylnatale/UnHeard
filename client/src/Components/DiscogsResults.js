@@ -3,75 +3,102 @@ import { Context } from "../Context";
 import { useContext, useEffect } from "react";
 import Albums from "./Albums";
 import Tracks from "./Tracks";
+import filter from "../Functions/filter";
 
 const DiscogsResults = () => {
 
-    const {discogsContent, discogsArtistIdState, setAllDiscogsTrackNames} = useContext(Context)
-    const discogsSiteName = "the internet"
-    const discogsTrackNameArray = []
+    const { animationIndex, setAnimationIndex, allDiscogsTrackNames, discogsAlbums, discogsContent, setAllDiscogsTrackNames, selectedArtist} = useContext(Context)
+    const uniqueDiscogs = [...new Set(allDiscogsTrackNames)];
+    const filteredSongs = filter(uniqueDiscogs)
     
-    
-
-    if(discogsContent.masters){
-        discogsContent.masters.mainReleases.roles.main.forEach((discogsAlbumDetail) => {
-            discogsAlbumDetail.tracklist.forEach((track) => {
-            if (track.artists){
-                track.artists.forEach((artistOnTrack) => {
-                    if (artistOnTrack.id === discogsArtistIdState){
-                        discogsTrackNameArray.push(track.title)
-                        }
-                    })            
-            } else {
-                discogsTrackNameArray.push(track.title)
-                
-            }
-            })
-        })
-    }
- 
-    if(discogsContent.releases){
-        discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
-            discogsAlbumDetail.tracklist.forEach((track) => {
-                if (track.artists){
-                    track.artists.forEach((artistOnTrack) => {
-                        if (artistOnTrack.id === discogsArtistIdState){
-                            discogsTrackNameArray.push(track.title)
-                        }
-                    })     
-                } else {
-                    discogsTrackNameArray.push(track.title)
-                }
-            })
-        })
-    }
-
-
-const uniqueDiscogs = [...new Set(discogsTrackNameArray)];
-
-
-
-useEffect(() => {
-    setAllDiscogsTrackNames(uniqueDiscogs)
-}, [])
-
-
-
-
-    return (  <>
-    {/* <Albums apiData={discogsContent}/> */}
-    <Tracks uniqueTracks={uniqueDiscogs} site={discogsSiteName}/>
-        <div>
+    useEffect(() => {
+      let index2 = 0
+      const interval = setInterval(() => {
         
-   
-       
-       
-       
-       
-       </div>
-       </> );
+        setAnimationIndex(prevIndex => prevIndex + 1 )
+        index2++      
+        if (index2 > 3300){
+          return clearInterval(interval)
+        }
+      }, 40 )
+    
+    }, [])
+
+//     const {discogsContent, discogsArtistIdState, setAllDiscogsTrackNames} = useContext(Context)
+    
+//     const discogsTrackNameArray = []
+    
+    
+
+//     if(discogsContent.masters){
+//         discogsContent.masters.mainReleases.roles.main.forEach((discogsAlbumDetail) => {
+//             discogsAlbumDetail.tracklist.forEach((track) => {
+//             if (track.artists){
+//                 track.artists.forEach((artistOnTrack) => {
+//                     if (artistOnTrack.id === discogsArtistIdState){
+//                         discogsTrackNameArray.push(track.title)
+//                         }
+//                     })            
+//             } else {
+//                 discogsTrackNameArray.push(track.title)
+                
+//             }
+//             })
+//         })
+//     }
+ 
+//     if(discogsContent.releases){
+//         discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
+//             discogsAlbumDetail.tracklist.forEach((track) => {
+//                 if (track.artists){
+//                     track.artists.forEach((artistOnTrack) => {
+//                         if (artistOnTrack.id === discogsArtistIdState){
+//                             discogsTrackNameArray.push(track.title)
+//                         }
+//                     })     
+//                 } else {
+//                     discogsTrackNameArray.push(track.title)
+//                 }
+//             })
+//         })
+//     }
+
+
+// const uniqueDiscogs = [...new Set(discogsTrackNameArray)];
+
+
+
+// useEffect(() => {
+//     setAllDiscogsTrackNames(uniqueDiscogs)
+// }, [])
+
+
+
+
+    return (  <div>
+          <div>There are {filteredSongs.length} tracks by {selectedArtist.artistName}</div>
+          <Animation>
+        {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
+           
+            return <Track key={index}>{testTrack} </Track>
+           
+        })}
+    </Animation>
+        </div> );
 }
  
 export default DiscogsResults;
+
+const Animation = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 10px;
+`
+
+const Track = styled.div`
+margin: 0 10px;
+`
 
 
 

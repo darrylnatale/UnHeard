@@ -14,6 +14,7 @@ const Provider = ({children}) => {
     const [spotifyAlbums, setSpotifyAlbums] = useState()
     const [searchFormData, setSearchFormData] = useState()
     const [allSpotifyTrackNames, setAllSpotifyTrackNames] = useState()
+    const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState()
     const [submitted, setSubmitted] = useState(false)
     const [allTracksFromBoth, setAllTracksFromBoth] = useState()
     const [discogsSearchResults, setDiscogsSearchResults] = useState([])
@@ -21,8 +22,8 @@ const Provider = ({children}) => {
     const [spotifyContent, setSpotifyContent] = useState()
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
     const [discogsArtistIdState, setDiscogsArtistIdState] = useState()
-    const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState()
     
+    const [isInMongo, setIsInMongo] = useState()
     
     return <Context.Provider value={{
         animationIndex,
@@ -59,6 +60,8 @@ const Provider = ({children}) => {
         setDiscogsArtistIdState,
         allDiscogsTrackNames,
         setAllDiscogsTrackNames,
+        isInMongo, 
+        setIsInMongo
     }}>
         {children}
     </Context.Provider>

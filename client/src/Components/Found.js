@@ -36,9 +36,9 @@ const Found = () => {
 
     return ( 
         <>
-            <CompareMessage>
+            
                 <h1>{message}</h1>
-            </CompareMessage>
+            
             {gems.length > 0 && gems.map((gem, index) => {
                 return <p key={index}>{gem}</p>
             }
