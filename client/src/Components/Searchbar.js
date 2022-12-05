@@ -36,7 +36,7 @@ const Searchbar = () => {
         setSubmitted(searchFormData);
         setExactSpotifyNameMatch(null);
         data.data.results.forEach((result, index) => {
-          if (index < 5) {
+          if (index < 4) {
             getDiscogsArtistDetails(result.id);
           }
         });
@@ -55,7 +55,7 @@ const Searchbar = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        setDiscogsSearchResults((prev) => [...prev, data.data]);
+        setDiscogsSearchResults((prev) => [...prev, data.data]);  
       })
       .catch((err) => console.log(err));
   };
@@ -78,10 +78,12 @@ export default Searchbar;
 
 const StyledSearchForm = styled.form`
   display: flex;
+  font-family: "Zen Dots", cursive;
   justify-content: center;
   align-items: center;
 `;
 const StyledSearchBarInput = styled.input`
+  font-family: "Zen Dots", cursive;
   border: 1px solid black;
   border-radius: 50px;
   width: 850px;
