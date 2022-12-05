@@ -11,6 +11,8 @@ import SpotifyResults from "./SpotifyResults"
 import DiscogsResults from "./DiscogsResults";
 import getSpotifyContent from "../Functions/getSpotifyContent";
 import { useAuth0 } from "@auth0/auth0-react";
+import useInterval from "../Functions/use-interval.hook";
+import Timer from "./Timer";
 
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
@@ -92,7 +94,8 @@ const HomePage = () => {
 
 
       const getDiscogsContent = (discogsArtistId, page) => {
-    
+        console.log("getDiscogsContent fxn run!")
+        console.log(moreToFetch)
         fetch(`/getDiscogsContent/`, {
             method: "POST",
             headers: {
@@ -138,10 +141,12 @@ const HomePage = () => {
                       })
                   })
               }
-    
+              console.log("pages",discogsContent.paginationDetails.pages)
               setAllDiscogsTrackNames(discogsTrackNameArray)
               if (discogsContent.paginationDetails.pages > 1){
-                setMoreToFetch(2)
+                setMoreToFetch((prevNumPage) => prevNumPage+1)
+                
+
                 
               } 
             })
@@ -159,17 +164,18 @@ useEffect(() => {
   }
   },[isInMongo])
 
-  useEffect(() => {
-    if(moreToFetch){
-      // setTimeout(getDiscogsContent(selectedArtist.discogsArtistId, moreToFetch), 60000)
-      
-      
-    }
-    },[moreToFetch])
+  const functionexample = () => {
+    console.log("example run")
+  }
+    
+  useInterval(() => moreToFetch !== 0 && functionexample(),10000)
+  
+  
 
     return ( 
         <Page>
         <h1>Find hidden gems by your favourite musicians</h1>
+        {/* {moreToFetch !== 0 && <Timer functionToCall={() => getDiscogsContent(selectedArtist.discogsArtistId, moreToFetch)}/>} */}
         {submitted && <SearchResults />}
         {exactSpotifyNameMatch && <ArtistVerification />}     
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <SpotifyResults / >}

@@ -13,7 +13,7 @@ const Provider = ({children}) => {
     const [selectedArtist, setSelectedArtist] = useState()
     const [spotifyAlbums, setSpotifyAlbums] = useState()
     const [searchFormData, setSearchFormData] = useState()
-    const [moreToFetch, setMoreToFetch] = useState()
+    const [moreToFetch, setMoreToFetch] = useState(0)
     const [allSpotifyTrackNames, setAllSpotifyTrackNames] = useState()
     const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState()
     const [submitted, setSubmitted] = useState(false)
