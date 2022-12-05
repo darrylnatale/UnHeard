@@ -9,9 +9,9 @@ const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId }) =
     const formatProfileText = (profile) => {
         let formattedProfileText = profile
 
-
-        if (formattedProfileText.length > 250) {
-            formattedProfileText = profile.slice(0, 150) + "...";
+        
+        if (formattedProfileText.length > 100) {
+            formattedProfileText = profile.slice(0, 100) + "...";
           }
 
           
@@ -68,7 +68,7 @@ const StyledArtistButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  
+  overflow: auto;
   width: 425px;
   height: 250px;
   border-radius: 20px;
@@ -76,9 +76,11 @@ const StyledArtistButton = styled.button`
   margin: 25px 25px 0 25px;
   padding: 20px;
   border: none;
+  
 `;
 const StyledArtistName = styled.h1`
   font-size: 15px;
+  overflow: auto;
   text-decoration: underline;
   align-self: center;
 `;
@@ -89,6 +91,7 @@ const StyledImage = styled.img`
 
 const Bio = styled.div`
   display: flex;
+  overflow: auto;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
