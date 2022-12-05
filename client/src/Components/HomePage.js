@@ -1,6 +1,6 @@
 import { BsGem } from "react-icons/bs";
 import styled from "styled-components"
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import Found from "./Found"
 import { Context } from "../Context";
 import ArtistVerification from "./ArtistVerification"
@@ -17,7 +17,7 @@ import Timer from "./Timer";
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
-        selectedArtist, submitted, moreToFetch, setMoreToFetch,
+        selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound,
         exactSpotifyNameMatch, setSubmitted,
         spotifySearchResults,
         setSpotifyContent, setLastSearched,
@@ -92,6 +92,9 @@ const HomePage = () => {
 
 
 
+const showFoundSection = () => {
+  setShowFound(true)
+}
 
       const getDiscogsContent = (discogsArtistId, page) => {
         console.log("getDiscogsContent fxn run!")
@@ -186,7 +189,8 @@ useEffect(() => {
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <><SpotifyResults / ><StyledBsGem /></>}
         
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <DiscogsResults / >}
-        {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>}
+        {allDiscogsTrackNames && <CompareButton onClick={showFoundSection}>Compare Results!</CompareButton>}
+        {showFound && <Found/>}
         </Page>
     );
 }
@@ -216,6 +220,22 @@ overflow: auto;
     text-align: center;
   }
 `;
+const CompareButton = styled.button`
+box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  font-family: "Zen Dots", cursive;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  width: 425px;
+  height: 250px;
+  border-radius: 20px;
+  background: white;
+  margin: 25px 25px 0 25px;
+  padding: 20px;
+  border: none;
+  `
+
 const StyledBsGem = styled(BsGem)`
 font-size: 30px;
 `

@@ -79,17 +79,18 @@ const DiscogsResults = () => {
     { allDiscogsTrackNames ?
     <StyledDiscogsResults>
           <div>
-            <h1>Out of a total of <span>{filteredSongs.length}</span> tracks :</h1>
+            <h1>Out of a total of <span>{uniqueDiscogs.length}</span> tracks :</h1>
           </div>
           <Animation>
-              {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
+              {animationIndex > 1 && uniqueDiscogs.slice(0,animationIndex).map((testTrack, index) => {
            
-            return <Track key={index}>{testTrack} </Track>
+            return <Track key={index}>{testTrack} / </Track>
               })   
             }
           </Animation>
+          
     </StyledDiscogsResults> : 
-    <>Searching... This Might Take a Second </>
+    <>Searching The Rest of The Web... This Might Take Even Longer... </>
     }</>
     );
 }
@@ -102,17 +103,19 @@ padding: 20px 0;
 border: 1px solid black;
 border-radius: 10px;
 width: 100%;
-min-height: 30%;
-max-height: 30%;
+min-height: 40%;
+max-height: 40%;
+max-width: 80%;
 overflow:auto;
 font-family: "Zen Dots", cursive;
 h1{ 
-  font-size: 20px;
+  font-size: 18px;
 }
 span{
   color: red;
   font-size: 30px;
 }
+
 `
 const Animation = styled.div`
   display: flex;
@@ -124,8 +127,9 @@ const Animation = styled.div`
   font-size: 20px;
 `
 
-const Track = styled.span`
-margin: 0 10px;
+const Track = styled.div`
+margin: 0 5px;
+font-size: 18px;
 `
 
 

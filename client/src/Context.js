@@ -5,6 +5,7 @@ export const Context = createContext(null)
 
 const Provider = ({children}) => {
     const [animationIndex, setAnimationIndex] = useState(0)
+    const [showFound, setShowFound] = useState()
     const [mongoUser, setMongoUser] = useState(null)
     const [exactSpotifyNameMatch, setExactSpotifyNameMatch] = useState(null)
     const [albums, setAlbums] = useState()
@@ -66,7 +67,8 @@ const Provider = ({children}) => {
         setIsInMongo,
         mongoUser, setMongoUser,
         lastSearched, setLastSearched,
-        moreToFetch, setMoreToFetch
+        moreToFetch, setMoreToFetch,
+        showFound, setShowFound
     }}>
         {children}
     </Context.Provider>

@@ -39,13 +39,7 @@ const SpotifyResults = () => {
 
     let message = ""
 
-    if (uniqueSpotify.length < 40){
-      message = "Hmm, that's it?"
-    } else if (uniqueSpotify.length < 200){
-      message = "Not too bad! "
-    } else {
-      message = "That's a lot!"
-    }
+    
 
 
     return ( <>
@@ -54,12 +48,12 @@ const SpotifyResults = () => {
             
             <div>
             <h1>We found <span>{filteredSongs.length}</span> tracks by {selectedArtist.artistName} on Spotify...</h1></div>
-            <div>{message}</div>
+            
             <Animation>
             
         {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
            
-            return <Track key={index}>{testTrack} </Track>
+            return <Track key={index}>{testTrack} / </Track>
            
         })}
 
@@ -78,13 +72,14 @@ border-radius: 10px;
 padding: 20px 0; 
 border: 1px solid black;
 width: 100%;
-min-height: 30%;
-max-height: 30%;
+min-height: 40%;
+max-height: 40%;
+max-width: 80%;
 overflow:auto;
 font-family: "Zen Dots", cursive;
 
 h1{ 
-  font-size: 20px;
+  font-size: 18px;
 }
 span{
   color: red;
@@ -103,9 +98,9 @@ margin: 10px 0;
   font-size: 20px;
 `;
 
-const Track = styled.span`
-  margin: 0 10px;
-  text-align: center;
+const Track = styled.p`
+  margin: 0 10px 0 5px;
+font-size: 18px;
 
 `;
 

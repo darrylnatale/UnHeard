@@ -5,7 +5,8 @@ import { Context } from "../Context";
 const Searchbar = () => {
   const {
     setSubmitted,
-    setDiscogsSearchResults,
+    setDiscogsSearchResults, 
+    setShowFound,
     searchFormData,
     setSearchFormData,
     setSpotifySearchResults,
@@ -34,7 +35,7 @@ const Searchbar = () => {
       .then((data) => {
         setAllDiscogsTrackNames(null)
         setAllSpotifyTrackNames(null)
-        
+        setShowFound(false)
         setDiscogsSearchResults([]); // resets searchResults to empty array on click (move this to later in process)
         setSpotifySearchResults(null); // resets searchResults to null to reset (move later?)
         setDiscogsContent(null); // resets discogsContent to null to reset (move later?)

@@ -12,7 +12,7 @@ const SearchResults = () => {
       setDiscogsSearchResults, 
       setSelectedArtist,      
       setDiscogsContent,
-      setSpotifyContent, spotifyContent, setIsInMongo, setLastSearched  } = useContext(Context);
+      setSpotifyContent, spotifyContent, setIsInMongo, setSubmitted, setLastSearched  } = useContext(Context);
 
       
       
@@ -67,6 +67,7 @@ const SearchResults = () => {
                   
                   console.log(formattedDiscogsArtistName)
                   crossReference(formattedDiscogsArtistName, discogsArtistId)
+                  setSubmitted(false)
               }
               
               
@@ -141,7 +142,7 @@ const SearchResults = () => {
                           })}
           </StyledDiscogsSearchResults>
          
-        : <>Searching... This Might Take a Moment</>
+        : <>Searching Spotify... This Might Take a Second</>
         }
     </> );
 }

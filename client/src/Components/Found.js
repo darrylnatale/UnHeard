@@ -8,11 +8,12 @@ import { FiHeart } from "react-icons/fi";
 const Found = () => {
 
     const {allSpotifyTrackNames, spotifyAlbums, allDiscogsTrackNames, mongoUser} = useContext(Context)
+    
     const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
     const uniqueDiscogs = [...new Set(allDiscogsTrackNames)]
 
-    const filteredSpotify = filter(uniqueSpotify)    
-    const filteredDiscogs = filter(uniqueDiscogs)
+    const filteredSpotify = filter(uniqueSpotify).sort()   
+    const filteredDiscogs = filter(uniqueDiscogs).sort()
 
     const compare = (array1, array2) => {
     
@@ -21,11 +22,12 @@ const Found = () => {
         function findSingle(arr) {
         return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
         }
-        const result = findSingle(mergedFilteredArrays)
+        const result = findSingle(mergedFilteredArrays).sort()
         return result   
   }
 
-  const gems = compare(uniqueSpotify,uniqueDiscogs)
+
+  const gems = compare(filteredSpotify,filteredDiscogs)
 
   let message = ""
 
@@ -43,15 +45,16 @@ const Found = () => {
         <StyledContainer>
             
                 <h1>{message}</h1>
-            
+            <TrackListContainer>
             {gems.length > 0 && gems.map((gem, index) => {
-                return <StyledGemContainer>
-                <Gem key={index}>{gem}</Gem>
+                return <StyledGemContainer key={index}>
+                <Gem >{gem}</Gem>
                 <StyledHeartButton onClick={() => save(gem)}><FiHeart/></StyledHeartButton>
                 </StyledGemContainer>
             }
             )
             }
+            </TrackListContainer>
             {gems.length > 0 && <div>
             <Message><h1><span>Here's one we found on YouTube!</span></h1></Message>
             <YouTubeVideoSection gems={gems}/>
@@ -67,6 +70,12 @@ const Found = () => {
  
 export default Found;
 
+const TrackListContainer = styled.div`
+overflow: auto;
+max-height: 500px;
+border: 1px solid black;
+border-radius: 20px;
+`
 const StyledContainer = styled.div`
 padding: 20px;
 
