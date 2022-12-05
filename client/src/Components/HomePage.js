@@ -174,7 +174,10 @@ useEffect(() => {
 
     return ( 
         <Page>
-        <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
+        <CopyContainer>
+          <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
+          <div>UnHeard searches through a musician's entire catalog and shows you all their songs you <span>can't</span> find on Spotify!</div>
+        </CopyContainer>
         <StyledBsGem />
         {/* {moreToFetch !== 0 && <Timer functionToCall={() => getDiscogsContent(selectedArtist.discogsArtistId, moreToFetch)}/>} */}
         {submitted && <SearchResults />}
@@ -191,6 +194,7 @@ useEffect(() => {
 export default HomePage;
 
 const Page = styled.div`
+overflow: auto;
   font-family: "Zen Dots", cursive;
   display: flex;
   padding: 20px;
@@ -217,5 +221,13 @@ font-size: 30px;
 `
 const Copy = styled.div`
 text-decoration:underline
+`
+
+const CopyContainer = styled.div`
+max-width: 800px;
+margin-bottom: 20px;
+span{
+  color: red;
+}
 `
 

@@ -53,7 +53,7 @@ const Found = () => {
             )
             }
             {gems.length > 0 && <div>
-            <h1>Here's one we found on YouTube!</h1>
+            <Message><h1><span>Here's one we found on YouTube!</span></h1></Message>
             <YouTubeVideoSection gems={gems}/>
             </div>
             }
@@ -69,10 +69,12 @@ export default Found;
 
 const StyledContainer = styled.div`
 padding: 20px;
+
 margin: 10px 0;
-border-radius: 10px;
+
+
 padding: 20px 0; 
-border: 1px solid black;
+
 font-family: "Zen Dots", cursive;
 text-align: center;
 h1{ 
@@ -110,11 +112,6 @@ align-items: center;
 line-height: 2;
 margin-bottom: 10px;
 `
-const Number = styled.h1`
-color: red;
+const Message = styled.div`
+padding: 15px;
 `
-
-const CompareMessage = styled.div`
-text-align: center
-`
-

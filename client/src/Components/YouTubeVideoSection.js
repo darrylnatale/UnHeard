@@ -61,16 +61,17 @@ font-family: "Zen Dots", cursive;
   border-radius: var(--border-radius);
   box-shadow: 0 0 6px rgb(0 0 0 / 50%);
   background-color: rgba(0, 0, 0, 0.3);
-  
+  overflow: auto;
 `
 
 const StyledIFrame = styled.iframe`
 font-family: "Zen Dots", cursive;
+/* overflow: auto; */
     /* position: absolute; */
     top: 0;
     left: 0;
-    /* width: 100%;
-    height: 100%; */
+    width: 100%;
+    height: 100%;
     clip-path: inset(0% 0% 0% 0% round var(--border-radius));
   
 `
