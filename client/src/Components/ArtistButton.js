@@ -2,26 +2,52 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { Context } from "../Context";
 
-const ArtistButton = ({
-  thumb,
-  name,
-  checkIfInMongoHandler,
-  profile,
-  discogsArtistId,
-}) => {
-  const { setDiscogsArtistIdState, discogsArtistIdState } = useContext(Context);
+const ArtistButton = ({ thumb, name, checkIfInMongoHandler, profile, discogsArtistId }) => {
+  
+    const { setDiscogsArtistIdState, discogsArtistIdState, setDiscogsSearchResults,  } = useContext(Context);
 
-  let formattedProfileText = profile;
+    const formatProfileText = (profile) => {
+        let formattedProfileText = profile
 
-  if (formattedProfileText.length > 300) {
-    formattedProfileText = formattedProfileText.slice(0, 299) + "...";
-  }
+
+        if (formattedProfileText.length > 300) {
+            formattedProfileText = profile.slice(0, 299) + "...";
+          }
+
+          
+          formattedProfileText = formattedProfileText.replaceAll(']', '').replaceAll("/","")
+        
+        const array = formattedProfileText.split("")
+        const newArray = []
+        array.forEach((item, index) => {
+            if (item === "[" || item === "="){
+                
+            } else if (array[index-1] === "["){
+                
+            } else {
+                newArray.push(item)
+            }
+        })
+        formattedProfileText = newArray.join('')
+
+
+
+
+
+        return formattedProfileText
+    }
+
+    let formattedProfileText = formatProfileText(profile)
+  
+
+  
 
   return (
     <StyledArtistButton
       onClick={() => {
         checkIfInMongoHandler();
         setDiscogsArtistIdState(discogsArtistId);
+        setDiscogsSearchResults([])
         console.log("buttonclicke", discogsArtistIdState);
       }}
     >
@@ -38,14 +64,16 @@ export default ArtistButton;
 
 const StyledArtistButton = styled.button`
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  
   display: flex;
   justify-content: center;
   align-items: center;
+  
   width: 425px;
   height: 250px;
   border-radius: 20px;
   background: white;
-  margin: 25px;
+  margin: 25px 25px 0 25px;
   padding: 20px;
   border: none;
 `;

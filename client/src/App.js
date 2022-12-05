@@ -1,18 +1,17 @@
 import { useEffect, useContext, useState } from "react";
 import { Context } from "./Context";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+
 import styled from "styled-components";
 import GlobalStyles from "./Components/GlobalStyles";
 
 import Profile from "./Components/Profile";
 import GlobalFonts from "./fonts/fonts";
-import LoginButton from "./Components/LoginButton";
-import LogoutButton from "./Components/LogoutButton";
+
 import HomePage from "./Components/HomePage";
 import Header from "./Components/Header";
 const App = () => {
-  const { isLoading, error } = useAuth0();
+  
 
   const [testTracks, setTestTracks] = useState();
   const [tempTracks, setTempTracks] = useState([
@@ -58,14 +57,7 @@ const App = () => {
         <GlobalFonts />
         <GlobalStyles />
         <Header />
-        {/* {error && <p>Authentication Error</p>}
-        {!error && isLoading && <p>Loading...</p>}
-        {!error && !isLoading && 
-          <>
-            <LoginButton />
-            <LogoutButton />
-          </>
-        } */}
+        
 
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -78,4 +70,8 @@ const App = () => {
 
 export default App;
 
-const StyledApp = styled.div``;
+const StyledApp = styled.div`
+
+height: 100vh;
+background-color: #e9ecef;
+`;

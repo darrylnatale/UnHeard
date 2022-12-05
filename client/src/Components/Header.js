@@ -1,11 +1,26 @@
 import styled from "styled-components";
 import { BsGem } from "react-icons/bs";
 import Searchbar from "./Searchbar";
-
+import { Link } from "react-router-dom";
+import LoginButton from "./LoginButton";
+import LogoutButton from "./LogoutButton";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Header = () => {
-    return (
-      <>
+  const { isLoading, error, isAuthenticated } = useAuth0();
+    return (<>
+      <StyledCredentials>
+      {error && <p>Authentication Error</p>}
+        {!error && isLoading && <p>Loading...</p>}
+        {!error && !isLoading && 
+          <>
+            {isAuthenticated && <ProfileLink to="/profile">Profile</ProfileLink>}
+            <LoginButton />
+            <LogoutButton />
+          </>
+        }
+        </StyledCredentials>
+      <StyledLink to="/">
         <Wrapper>
           <StyledLogo>
             <Title>
@@ -25,12 +40,37 @@ const Header = () => {
         <SearchSticky>
           <Searchbar />
         </SearchSticky>
+      </StyledLink>
       </>
+      
     );
   };
   
   export default Header;
   
+  const StyledCredentials = styled.div`
+  text-align: right;
+  font-family: "Zen Dots", cursive;
+  font-size: 12px;
+  `
+  const ProfileLink = styled(Link)`
+  text-decoration: none;
+  padding: 3px 25px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  width: 100px;
+  height: 20px;
+  border-radius: 5px;
+  background: white;
+  margin: 15px;
+  border: none;
+  color: black;
+  
+  `
+  
+  const StyledLink = styled(Link)`
+  text-decoration: none;
+  
+  `
   const StyledLogo = styled.h1`
     font-family: "Zen Dots", cursive;
   `;

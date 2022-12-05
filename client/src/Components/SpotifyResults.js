@@ -9,17 +9,31 @@ const SpotifyResults = () => {
     const { animationIndex, setAnimationIndex, allSpotifyTrackNames, spotifyAlbums, spotifyContent, setAllSpotifyTrackNames, selectedArtist} = useContext(Context)
     const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
     const filteredSongs = filter(uniqueSpotify)
+
+    let speed = 1000
+
+    if (filteredSongs.length > 10){
+      speed = 500
+    } else if (filteredSongs.length > 50){
+      speed = 250
+    } else if (filteredSongs.length > 100){
+      speed = 20
+    } else if (filteredSongs.length > 250){
+      speed = 50
+    }
+
     
+
     useEffect(() => {
       let index2 = 0
       const interval = setInterval(() => {
-        
+        console.log(index2)
         setAnimationIndex(prevIndex => prevIndex + 1 )
         index2++      
-        if (index2 > 3300){
+        if (index2 > filteredSongs.length){
           return clearInterval(interval)
         }
-      }, 40 )
+      }, 10 )
     
     }, [])
 
@@ -34,38 +48,55 @@ const SpotifyResults = () => {
     }
 
 
-    return ( 
-        <div>
-          <div>We found {filteredSongs.length} tracks by {selectedArtist.artistName} on Spotify...</div>
-          <div>{message}</div>
-          <Animation>
+    return ( <>
+        { allSpotifyTrackNames ?
+          <StyledSpotifyResults>
+            
+            <div>We found {filteredSongs.length} tracks by {selectedArtist.artistName} on Spotify...</div>
+            <div>{message}</div>
+            <Animation>
+            
         {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} </Track>
            
         })}
+
     </Animation>
-        </div>
-        
-         );
+    
+        </StyledSpotifyResults>
+        : <>LOADING</>}
+         </>);
 }
  
 export default SpotifyResults;
 
+const StyledSpotifyResults = styled.div`
+border: 1px solid black;
+width: 100%;
+min-height: 30%;
+max-height: 30%;
+overflow:auto;
+
+`
 const Animation = styled.div`
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
-  font-size: 10px;
+  min-height:80%;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
 `;
 
-const Track = styled.div`
+const Track = styled.span`
   margin: 0 10px;
+  text-align: center;
+
 `;
 
-const Image = styled.img`
-  width: 100px;
-  border-radius: 15px;
+const Row = styled.div`
+  width: auto;
 `;
 
 const Album = styled.div`

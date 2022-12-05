@@ -113,12 +113,12 @@ useEffect(() => {
 
     return ( 
         <Page>
-        <p>Find hidden gems by your favourite musicians</p>
+        {/* <p>Find hidden gems by your favourite musicians</p> */}
         <SearchResults />
         {exactSpotifyNameMatch && <ArtistVerification />}     
         {allSpotifyTrackNames && <SpotifyResults / >}
-        {allDiscogsTrackNames && <DiscogsResults / >}
-        {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>}
+        {(allSpotifyTrackNames || allDiscogsTrackNames) && <DiscogsResults / >}
+        {/* {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>} */}
         </Page>
     );
 }
@@ -127,13 +127,15 @@ export default HomePage;
 
 const Page = styled.div`
   display: flex;
+  padding: 20px;
   align-items: center;
   justify-content: center;
   width: auto;
-  height: auto;
+  height: 100%;
   flex-direction: column;
   text-align: center;
   background-color: #e9ecef;
+  
   li {
     list-style: none;
   }

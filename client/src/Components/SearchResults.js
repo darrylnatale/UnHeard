@@ -2,13 +2,13 @@ import { Context } from "../Context";
 import { useContext } from "react";
 import styled from "styled-components";
 import ArtistButton from "./ArtistButton";
-import formatDiscogsArtistName from "../Functions/formatDiscogsArtistName";
 import getDiscogsContent from "../Functions/getDiscogsContent";
-import getSpotifyContent from "../Functions/getSpotifyContent";
+
 const SearchResults = () => {
     
     const { setExactSpotifyNameMatch, 
       discogsSearchResults, 
+      setDiscogsSearchResults, 
       setSelectedArtist,      
       setDiscogsContent,
       setSpotifyContent, spotifyContent, setIsInMongo } = useContext(Context);
@@ -117,6 +117,8 @@ const SearchResults = () => {
 export default SearchResults;
 
 const StyledDiscogsSearchResults = styled.div`
+ 
+
 display: flex;
 flex-wrap: wrap;
 max-width: 1200px;

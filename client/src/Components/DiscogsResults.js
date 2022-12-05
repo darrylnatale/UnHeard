@@ -7,7 +7,7 @@ import filter from "../Functions/filter";
 
 const DiscogsResults = () => {
 
-    const { animationIndex, setAnimationIndex, allDiscogsTrackNames, discogsAlbums, discogsContent, setAllDiscogsTrackNames, selectedArtist} = useContext(Context)
+    const { animationIndex, setAnimationIndex, discogsAlbums, discogsContent, setAllDiscogsTrackNames, selectedArtist, allDiscogsTrackNames} = useContext(Context)
     const uniqueDiscogs = [...new Set(allDiscogsTrackNames)];
     const filteredSongs = filter(uniqueDiscogs)
     
@@ -20,7 +20,7 @@ const DiscogsResults = () => {
         if (index2 > 3300){
           return clearInterval(interval)
         }
-      }, 40 )
+      }, 1000 )
     
     }, [])
 
@@ -75,25 +75,42 @@ const DiscogsResults = () => {
 
 
 
-    return (  <div>
-          <div>There are {filteredSongs.length} tracks by {selectedArtist.artistName}</div>
+    return ( <>
+    { allDiscogsTrackNames ?
+    <StyledDiscogsResults>
+          <div>
+            There are {filteredSongs.length} tracks by {selectedArtist.artistName}
+          </div>
           <Animation>
-        {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
+              {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} </Track>
-           
-        })}
-    </Animation>
-        </div> );
+              })   
+            }
+          </Animation>
+    </StyledDiscogsResults> : 
+    <>HI</>
+    }</>
+    );
 }
  
 export default DiscogsResults;
 
+const StyledDiscogsResults = styled.div`
+border: 1px solid black;
+width: 100%;
+min-height: 30%;
+max-height: 30%;
+overflow:auto;
+`
 const Animation = styled.div`
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
-  font-size: 10px;
+  min-height:80%;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
 `
 
 const Track = styled.div`

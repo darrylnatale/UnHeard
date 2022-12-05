@@ -1,7 +1,7 @@
 import { Context } from "../Context";
 import { useContext , useEffect, useState} from "react";
 import Video from "./Video";
-
+import styled from "styled-components";
 
 const YouTubeVideoSection = ({gems}) => {
   const {selectedArtist} = useContext(Context)
@@ -34,10 +34,10 @@ const YouTubeVideoSection = ({gems}) => {
     return ( <>
     
     {src && 
-    <>
+    <FrameWrapper>
       
       
-      <iframe
+      <StyledIFrame
       width="560"
       height="315"
       src={`https://www.youtube.com/embed/${src}`}
@@ -45,9 +45,31 @@ const YouTubeVideoSection = ({gems}) => {
       frameBorder="0"
       allowFullScreen
       />
-    </>
+    </FrameWrapper>
   }
     </>);
 }
  
 export default YouTubeVideoSection;
+
+const FrameWrapper = styled.div `
+--border-radius: 10px;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 6px rgb(0 0 0 / 50%);
+  background-color: rgba(0, 0, 0, 0.3);
+  
+`
+
+const StyledIFrame = styled.iframe`
+
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    /* width: 100%;
+    height: 100%; */
+    clip-path: inset(0% 0% 0% 0% round var(--border-radius));
+  
+`
