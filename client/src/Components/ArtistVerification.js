@@ -7,7 +7,7 @@ import getSpotifyContent from "../Functions/getSpotifyContent";
 
 const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
   
-  const {exactSpotifyNameMatch, discogsArtistIdState, setDiscogsContent, setSelectedArtist} = useContext(Context)
+  const {exactSpotifyNameMatch, discogsArtistIdState, setDiscogsContent,setIsInMongo, setSelectedArtist} = useContext(Context)
       
   const storeMatchedArtistIds = (spotifyArtistId, artistName) => {
         
@@ -24,8 +24,9 @@ const ArtistVerification = ({getAllContentFromSpotifyAndDiscogs}) => {
             if (data.status === 200){
               console.log("artistIds input in mongo, now show results")
               console.log(data.data)
-              
+              setIsInMongo(true)
               setSelectedArtist(data.data)
+              
               const spotifyArtistId = data.data.spotifyArtistId
               const discogsArtistId = data.data.discogsArtistId
               const artistName = data.data.artistName    

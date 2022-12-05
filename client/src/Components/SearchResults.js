@@ -3,6 +3,7 @@ import { useContext } from "react";
 import styled from "styled-components";
 import ArtistButton from "./ArtistButton";
 import getDiscogsContent from "../Functions/getDiscogsContent";
+import formatDiscogsArtistName from "../Functions/formatDiscogsArtistName"
 
 const SearchResults = () => {
     
@@ -21,7 +22,7 @@ const SearchResults = () => {
             fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
                   .then((res) => res.json())
                   .then((data) => {
-                    
+                    console.log(data)
                     
                     let suggestedSpotifyArtists = []
                     
@@ -55,10 +56,20 @@ const SearchResults = () => {
             })
             .then((res) => res.json())
             .then((data) => {
-              setIsInMongo(true)
-              setSelectedArtist(data.data)
-              console.log(data)
-              return data
+              if (data.data !== null){
+                setIsInMongo(true)
+                setSelectedArtist(data.data)
+                console.log(data)
+                return data
+              } else {
+                      console.log(discogsArtistId)
+                  const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
+                  
+                  console.log(formattedDiscogsArtistName)
+                  crossReference(formattedDiscogsArtistName, discogsArtistId)
+              }
+              
+              
               
               //     const spotifyArtistId = data.data.spotifyArtistId
               //     const discogsArtistId = data.data.discogsArtistId

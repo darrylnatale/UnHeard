@@ -15,7 +15,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
-        selectedArtist, submitted,
+        selectedArtist, submitted, moreToFetch, setMoreToFetch,
         exactSpotifyNameMatch,
         spotifySearchResults,
         setSpotifyContent, setLastSearched,
@@ -91,7 +91,7 @@ const HomePage = () => {
 
 
 
-      const getDiscogsContent = (discogsArtistId) => {
+      const getDiscogsContent = (discogsArtistId, page) => {
     
         fetch(`/getDiscogsContent/`, {
             method: "POST",
@@ -99,14 +99,14 @@ const HomePage = () => {
               Accept: "application/json",
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({discogsArtistId}),
+            body: JSON.stringify({discogsArtistId, page}),
           }) 
               .then((res) => res.json())
               .then((data) => {
-    
+                  console.log(data)
                 const discogsContent = data.data
                 const discogsTrackNameArray = []
-    
+                
                 if(discogsContent.masters){
                   discogsContent.masters.mainReleases.roles.main.forEach((discogsAlbumDetail) => {
                       discogsAlbumDetail.tracklist.forEach((track) => {
@@ -140,6 +140,10 @@ const HomePage = () => {
               }
     
               setAllDiscogsTrackNames(discogsTrackNameArray)
+              if (discogsContent.paginationDetails.pages > 1){
+                setMoreToFetch(2)
+                
+              } 
             })
             .catch((err) => console.log(err));
     }
@@ -155,12 +159,20 @@ useEffect(() => {
   }
   },[isInMongo])
 
+  useEffect(() => {
+    if(moreToFetch){
+      // setTimeout(getDiscogsContent(selectedArtist.discogsArtistId, moreToFetch), 60000)
+      
+      
+    }
+    },[moreToFetch])
+
     return ( 
         <Page>
         <h1>Find hidden gems by your favourite musicians</h1>
         {submitted && <SearchResults />}
         {exactSpotifyNameMatch && <ArtistVerification />}     
-        {allSpotifyTrackNames && <SpotifyResults / >}
+        {(allSpotifyTrackNames || allDiscogsTrackNames) && <SpotifyResults / >}
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <DiscogsResults / >}
         {allSpotifyTrackNames && allDiscogsTrackNames && <Found/>}
         </Page>

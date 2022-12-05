@@ -89,7 +89,7 @@ const DiscogsResults = () => {
             }
           </Animation>
     </StyledDiscogsResults> : 
-    <>HI</>
+    <>Searching... This Might Take a Second </>
     }</>
     );
 }

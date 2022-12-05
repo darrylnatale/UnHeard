@@ -13,6 +13,7 @@ const Provider = ({children}) => {
     const [selectedArtist, setSelectedArtist] = useState()
     const [spotifyAlbums, setSpotifyAlbums] = useState()
     const [searchFormData, setSearchFormData] = useState()
+    const [moreToFetch, setMoreToFetch] = useState()
     const [allSpotifyTrackNames, setAllSpotifyTrackNames] = useState()
     const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState()
     const [submitted, setSubmitted] = useState(false)
@@ -64,7 +65,8 @@ const Provider = ({children}) => {
         isInMongo, 
         setIsInMongo,
         mongoUser, setMongoUser,
-        lastSearched, setLastSearched
+        lastSearched, setLastSearched,
+        moreToFetch, setMoreToFetch
     }}>
         {children}
     </Context.Provider>

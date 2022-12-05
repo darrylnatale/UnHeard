@@ -13,9 +13,9 @@ const Found = () => {
     const filteredSpotify = filter(uniqueSpotify)    
     const filteredDiscogs = filter(uniqueDiscogs)
 
-    const compare = () => {
+    const compare = (array1, array2) => {
     
-        const mergedFilteredArrays = filteredSpotify.concat(filteredDiscogs)
+        const mergedFilteredArrays = array1.concat(array2)
         
         function findSingle(arr) {
         return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
@@ -24,7 +24,7 @@ const Found = () => {
         return result   
   }
 
-  const gems = compare()
+  const gems = compare(uniqueSpotify,uniqueDiscogs)
 
   let message = ""
 

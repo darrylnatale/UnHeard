@@ -328,7 +328,7 @@ try {
 
 
 .post("/getDiscogsContent", async (req, res) => {
-  
+  console.log(req.body)
   let discogsArtistId = req.body.discogsArtistId
 
   if (typeof req.body.discogsArtistId !== "number"){
@@ -339,7 +339,7 @@ try {
    
   
     try {
-
+      let paginationDetails = null
       // IDS
       const discogsMasterMainReleaseMainRoleIds = []
       const discogsMasterMainReleaseAppearanceRoleIds = []
@@ -377,7 +377,7 @@ try {
       // RELEASES ARE EITHER MASTERS OR RELEASES
       // MASTERS HAVE MAIN_RELEASES, RELEASES DO NOT
     if (artistReleases){    
-      
+      paginationDetails = artistReleases.pagination
       //artistReleases.pagination : {page: 1, pages: 54, per_page: 50, items: 2674, urls: {last: "http://...", next: "http://..."}}
       // console.log("artist releases fetched from api")
       // console.log("there are this many artist releases (masters and releases):", artistReleases.releases.length)
@@ -508,6 +508,7 @@ try {
         }
 
         const discogsContent = {
+          paginationDetails: paginationDetails,
           masters: {
             mainReleases: {
               roles: {

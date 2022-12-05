@@ -27,7 +27,7 @@ const SpotifyResults = () => {
     useEffect(() => {
       let index2 = 0
       const interval = setInterval(() => {
-        console.log(index2)
+        
         setAnimationIndex(prevIndex => prevIndex + 1 )
         index2++      
         if (index2 > filteredSongs.length){
