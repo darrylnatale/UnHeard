@@ -8,8 +8,83 @@ import filter from "../Functions/filter";
 const DiscogsResults = () => {
 
     const { animationIndex, setAnimationIndex, discogsAlbums, discogsContent, setAllDiscogsTrackNames, selectedArtist, allDiscogsTrackNames} = useContext(Context)
-    const uniqueDiscogs = [...new Set(allDiscogsTrackNames)];
-    const filteredSongs = filter(uniqueDiscogs)
+    const unique = [...new Set(allDiscogsTrackNames)];
+    unique.sort()
+
+    const cleanUp = (array) => {
+    
+      const tempWords = []
+      
+        array.forEach((item) => {      
+          const split = item.split("")
+          
+          const tempString = []
+          
+          split.forEach((char, index) => {
+              if ((char === " ") || (char === "-") || (char === "(") || (char === ")" )){
+                  
+              } else {
+              tempString.push(char)
+              }
+          })
+          
+          const joined = tempString.join()
+          
+          tempWords.push(joined) 
+        })
+          
+        return tempWords
+        
+      }
+      
+  const x = cleanUp(unique)
+  
+  const findDuplicates = x => x.filter((item, index) => x.indexOf(item) !== index)
+const duplicateElements = findDuplicates(x);
+
+const duplicateIndexes = (arr, el) => {
+
+  let duplicate = [];
+  for (let i = 0; i < arr.length; i++){
+      if (arr[i] == el){
+          duplicate.push(i)
+      } 
+  }
+  return duplicate
+}
+
+const indexesOfDuplicates = []
+
+duplicateElements.forEach((duplicateElement) => {
+    let indexesArray = duplicateIndexes(x, duplicateElement)
+    indexesOfDuplicates.push(indexesArray)
+})
+
+for (let i = 0; i< indexesOfDuplicates.length ; i++){
+  indexesOfDuplicates[i].shift()
+}
+
+let array = []
+indexesOfDuplicates.forEach((indexArray) => {
+    
+    indexArray.forEach((index) => {
+        array.push(index)
+    })
+})
+const newArray = [...new Set(array)];
+console.log(newArray)
+
+  
+  const indexes = new Set(newArray); // Faster lookups
+
+const filtered = unique.filter((_, i) => !indexes.has(i));
+// console.log(filtered)
+// console.log(indexesOfDuplicates)
+
+    
+    // const filtered = filter(unique).sort()
+    
+    
     
     useEffect(() => {
       let index2 = 0
@@ -24,65 +99,14 @@ const DiscogsResults = () => {
     
     }, [])
 
-//     const {discogsContent, discogsArtistIdState, setAllDiscogsTrackNames} = useContext(Context)
-    
-//     const discogsTrackNameArray = []
-    
-    
-
-//     if(discogsContent.masters){
-//         discogsContent.masters.mainReleases.roles.main.forEach((discogsAlbumDetail) => {
-//             discogsAlbumDetail.tracklist.forEach((track) => {
-//             if (track.artists){
-//                 track.artists.forEach((artistOnTrack) => {
-//                     if (artistOnTrack.id === discogsArtistIdState){
-//                         discogsTrackNameArray.push(track.title)
-//                         }
-//                     })            
-//             } else {
-//                 discogsTrackNameArray.push(track.title)
-                
-//             }
-//             })
-//         })
-//     }
- 
-//     if(discogsContent.releases){
-//         discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
-//             discogsAlbumDetail.tracklist.forEach((track) => {
-//                 if (track.artists){
-//                     track.artists.forEach((artistOnTrack) => {
-//                         if (artistOnTrack.id === discogsArtistIdState){
-//                             discogsTrackNameArray.push(track.title)
-//                         }
-//                     })     
-//                 } else {
-//                     discogsTrackNameArray.push(track.title)
-//                 }
-//             })
-//         })
-//     }
-
-
-// const uniqueDiscogs = [...new Set(discogsTrackNameArray)];
-
-
-
-// useEffect(() => {
-//     setAllDiscogsTrackNames(uniqueDiscogs)
-// }, [])
-
-
-
-
     return ( <>
     { allDiscogsTrackNames ?
     <StyledDiscogsResults>
           <div>
-            <h1>Out of a total of <span>{uniqueDiscogs.length}</span> tracks :</h1>
+            <h1>Out of a total of <span>{filtered.length}</span> tracks :</h1>
           </div>
           <Animation>
-              {animationIndex > 1 && uniqueDiscogs.slice(0,animationIndex).map((testTrack, index) => {
+              {animationIndex > 1 && filtered.slice(0,animationIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} / </Track>
               })   

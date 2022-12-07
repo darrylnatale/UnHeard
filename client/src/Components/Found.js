@@ -12,6 +12,7 @@ const Found = () => {
     const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
     const uniqueDiscogs = [...new Set(allDiscogsTrackNames)]
 
+    
     const filteredSpotify = filter(uniqueSpotify).sort()   
     const filteredDiscogs = filter(uniqueDiscogs).sort()
 

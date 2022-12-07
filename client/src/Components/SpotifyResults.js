@@ -8,7 +8,7 @@ const SpotifyResults = () => {
 
     const { animationIndex, setAnimationIndex, allSpotifyTrackNames, spotifyAlbums, spotifyContent, setAllSpotifyTrackNames, selectedArtist} = useContext(Context)
     const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
-    const filteredSongs = filter(uniqueSpotify)
+    const filteredSongs = filter(uniqueSpotify).sort()
 
     let speed = 1000
 
@@ -47,11 +47,11 @@ const SpotifyResults = () => {
           <StyledSpotifyResults>
             
             <div>
-            <h1>We found <span>{filteredSongs.length}</span> tracks by {selectedArtist.artistName} on Spotify...</h1></div>
+            <h1>We found <span>{uniqueSpotify.length}</span> tracks by {selectedArtist.artistName} on Spotify...</h1></div>
             
             <Animation>
             
-        {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
+        {animationIndex > 1 && uniqueSpotify.slice(0,animationIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} / </Track>
            

@@ -7,7 +7,7 @@ const Timer = (functionToCall) => {
 
     useInterval(() => functionToCall(), 15000)
 
-    return (null );
+    return (null);
 }
  
 export default Timer;

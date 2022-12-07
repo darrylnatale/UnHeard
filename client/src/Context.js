@@ -16,7 +16,8 @@ const Provider = ({children}) => {
     const [searchFormData, setSearchFormData] = useState()
     const [moreToFetch, setMoreToFetch] = useState(0)
     const [allSpotifyTrackNames, setAllSpotifyTrackNames] = useState()
-    const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState()
+    const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState([])
+    const [example, setExample ] = useState({page: 0, content: 0})
     const [submitted, setSubmitted] = useState(false)
     const [allTracksFromBoth, setAllTracksFromBoth] = useState()
     const [discogsSearchResults, setDiscogsSearchResults] = useState([])
@@ -34,7 +35,7 @@ const Provider = ({children}) => {
         exactSpotifyNameMatch,
         setExactSpotifyNameMatch,
         albums,
-        setAlbums,
+        setAlbums, example, setExample,
         correctGuess,
         setCorrectGuess,
         discogsSearchResults,

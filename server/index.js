@@ -330,7 +330,16 @@ try {
 .post("/getDiscogsContent", async (req, res) => {
   console.log(req.body)
   let discogsArtistId = req.body.discogsArtistId
+  
+  let page = req.body.page
 
+  if (!page){
+    console.log("no page", )
+    page = 1
+  }  else {
+    console.log("current page", page)
+  }
+  
   if (typeof req.body.discogsArtistId !== "number"){
     discogsArtistId = Number(req.body.discogsArtistId)
   } 
@@ -339,9 +348,11 @@ try {
    
   
     try {
-      let paginationDetails = null
+      
       // IDS
-      const discogsMasterMainReleaseMainRoleIds = []
+      const discogsMasterMainReleaseMainRoleIds = [] // DONE
+          const discogsMastersMainReleaseMainRole_VersionIds = [] // DONE
+              const discogsMastersMainReleaseMainRole_VersionIds_2 = [] // DONE
       const discogsMasterMainReleaseAppearanceRoleIds = []
       const discogsMasterMainReleaseTrackAppearanceRoleIds = []
 
@@ -350,34 +361,26 @@ try {
       const discogsReleasesTrackAppearanceRoleIds = []
 
       // DETAILS
-      const discogsMastersMainReleaseMainRole = []
+      const discogsMastersMainReleaseMainRole = [] // DONE
+        const discogsMastersMainReleaseMainRole_Versions = [] // DONE
       const discogsMastersMainReleaseAppearanceRole = []
       const discogsMastersMainReleaseTrackAppearanceRole = []
 
-      const discogsReleasesMainRole = []
-      const discogsReleasesAppearanceRole = []
-      const discogsReleasesTrackAppearanceRole = []
+      const discogsReleasesMainRole = [] // DONE
+      const discogsReleasesAppearanceRole = [] // DONE
+      const discogsReleasesTrackAppearanceRole = [] // DONE
 
 
 
-
-
-    
-    const discogsAlbumDetails = []
-    const discogsVersionIds = []
-    const discogsVersions = []
-
-    
-    
-    const discogsReleaseIds = []
-
-    const artistReleases = await db.getArtistReleases(discogsArtistId)
+    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 35})
     
     // IF THERE ARE MORE THAN 50 RESULTS, YOU WILL NEED PAGINATION. FOR NOW YOU LIMIT YOURSELF TO 50.
       // RELEASES ARE EITHER MASTERS OR RELEASES
       // MASTERS HAVE MAIN_RELEASES, RELEASES DO NOT
     if (artistReleases){    
+      
       paginationDetails = artistReleases.pagination
+      
       //artistReleases.pagination : {page: 1, pages: 54, per_page: 50, items: 2674, urls: {last: "http://...", next: "http://..."}}
       // console.log("artist releases fetched from api")
       // console.log("there are this many artist releases (masters and releases):", artistReleases.releases.length)
@@ -386,16 +389,15 @@ try {
 // IF TYPE IS MASTER, SEPARATE INTO MAIN & APPEARANCE GET THE MAIN_RELEASE BEFORE FETCHING THE DETAILS
           if (release.type === "master" && release.role === "Main"){
             // console.log("release type:", index, release.type, "main_release id:", release.main_release, "releaseid:", release.id)  
-            discogsMasterMainReleaseMainRoleIds.push(release.main_release)
-            
+            discogsMasterMainReleaseMainRoleIds.push(release.main_release)    
           } else if (release.type === "master" && release.role === "Appearance") {
             discogsMasterMainReleaseAppearanceRoleIds.push(release.main_release)
-          }  else if (release.type === "master" && release.role === "Track Appearance") {
+          } else if (release.type === "master" && release.role === "Track Appearance") {
             //UNSURE IF ROLE : TRACKAPPEARANCE EXISTS FOR MASTERS, check bigger dataset
             discogsMasterMainReleaseTrackAppearanceRoleIds.push(release.main_release)
           }
         
-          // GET THE REMAINING RELEASES THAT AREN'T MASTERS  
+          // SEPARATE THE REMAINING RELEASES THAT AREN'T MASTERS  
           if (release.type === "release" && release.role === "Main"){
             discogsReleasesMainRoleIds.push(release.id)
             // console.log("this is a main")
@@ -411,16 +413,7 @@ try {
             
           
       })
-      // console.log(discogsMasterMainReleaseMainRoleIds.length)
-      // console.log(discogsMasterMainReleaseAppearanceRoleIds.length)
-      // console.log(discogsMasterMainReleaseTrackAppearanceRoleIds.length)
-
-
-      // console.log(discogsReleasesMainRoleIds.length)
-      // console.log(discogsReleasesAppearanceRoleIds.length)
-      // console.log(discogsReleasesTrackAppearanceRoleIds.length)
-     
-      // don't change the i to be more than the length of the releases or it will break (eg 5 releases, 10 "i's is BAD)
+      
       
       // GET THE MASTER MAIN RELEASES WITH ROLE: MAIN 
       
@@ -433,34 +426,40 @@ try {
               
               if (artist.id === discogsArtistId){
                 discogsMastersMainReleaseMainRole.push(getMasters) 
-                
-                // getMasters.tracklist.forEach((track) => {
-                //   if (track.artists){
-                //   track.artists.forEach((artistOnTrack) => {
-                //     if (artistOnTrack.id === discogsArtistId){
-                //       console.log("executed if")
-                       
-                //     }
-                //   })
-                //   } 
-                // })
+                discogsMastersMainReleaseMainRole_VersionIds.push(getMasters.master_id)
               } 
             })
         }
-
-        // TODO: GET THE OTHER VERSIONS WITH ROLE: MAIN (VERSIONS LINK INSIDE ITEMS discogsMastersMainReleaseMainRole ARRAY)
         
-     
+        const getVersions = await db.getMasterVersions(discogsMastersMainReleaseMainRole_VersionIds[i])
+        if(getVersions){
+          getVersions.versions.forEach((version) => {
+            
+            discogsMastersMainReleaseMainRole_VersionIds_2.push(version.id)
+            
+            
+            
+          })
+        }
+        
+        
+       
           
       }
-
+      for (let i = 0; i < discogsMastersMainReleaseMainRole_VersionIds_2.length; i++) {
+        console.log(discogsMastersMainReleaseMainRole_VersionIds_2[i])
+        
+        const getVersionDetails = await db.getRelease(discogsMastersMainReleaseMainRole_VersionIds_2[i])
+        getVersionDetails && getVersionDetails.artists.forEach((artist) => {
+          if (artist.id === discogsArtistId){
+            discogsMastersMainReleaseMainRole_Versions.push(getVersionDetails)
+          }
+        })
+      }
+      
       // TO DO: GET THE MASTER MAIN RELEASES WITH ROLE: APPEARANCE 
             // THESE PROBABLY ONLY HAVE VOCALS OR WHATEVER
-      for (let i = 0; i < discogsMasterMainReleaseAppearanceRoleIds.length; i++) {
-        const getMasters = await db.getRelease(discogsMasterMainReleaseAppearanceRoleIds[i])
-        if (getMasters){
-        }
-      }
+      
           //AND POSSIBLY VERSIONS OF THESE
       
       // TO DO: GET THE MASTER MAIN RELEASES WITH ROLE: TRACK APPEARANCE (IF IT EXISTS) 
@@ -517,7 +516,7 @@ try {
                 trackAppearance: discogsMastersMainReleaseTrackAppearanceRole 
               }
             },
-            versions: null,
+            versions: discogsMastersMainReleaseMainRole_Versions,
           },
           releases: {
               roles: {
