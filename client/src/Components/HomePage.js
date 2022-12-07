@@ -141,13 +141,14 @@ const showFoundSection = () => {
                   })
               }
               console.log("pages",discogsContent.paginationDetails.pages)
-              console.log(discogsTrackNameArray.length)
+              
               setAllDiscogsTrackNames(prevArray => [...(prevArray || []), ...discogsTrackNameArray])
-              console.log(discogsTrackNameArray.length)
-              console.log("alldtracknamesstate", allDiscogsTrackNames.length)
-              if (discogsContent.paginationDetails.pages){
+              
+              
+              if (discogsContent.pagination.urls){
+                console.log(discogsContent.pagination.urls)
                 setMoreToFetch((prevNumPage) => prevNumPage+1)
-                console.log("moreTofetch", moreToFetch)
+              
 
                 
               } 
@@ -191,14 +192,48 @@ useEffect(() => {
 
   }
   
-  
+  const getArtistReleases = async (discogsArtistId, page) => {
+    
+    
+
+    try {
+      const response = await fetch(`/getArtistReleases`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({discogsArtistId, page}),
+      })
+      const data = await response.json();
+      
+      const pages = data.data.pagination.pages
+      
+      if (data.data.pagination.urls.next){
+      let nextPageUrl = data.data.pagination.urls.next
+      
+         for (let i = 0; i < pages; i++){
+          let nextPageResponse = await fetch(nextPageUrl)
+          const data = await nextPageResponse.json();
+          nextPageUrl = data.pagination.urls.next
+          console.log(i, nextPageUrl)
+          console.log(data)
+         }
+      } 
+    }
+    catch (err){
+console.log(err)
+    }
+    
+    // .catch((err) => console.log(err));
+  }
 
 
     return ( 
         <Page>
         <CopyContainer>
-          
-          <button onClick={startFetching}>xxx</button>
+          <button onClick={() => getArtistReleases(12373,1)}>getArtistDetails</button>
+          <button onClick={startFetching}>startFetching</button>
           <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
           <div>UnHeard searches through a musician's entire catalog and shows you all their songs you <span>can't</span> find on Spotify!</div>
         </CopyContainer>

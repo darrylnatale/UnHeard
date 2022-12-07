@@ -37,9 +37,9 @@ const DiscogsResults = () => {
         
       }
       
-  const x = cleanUp(unique)
+const x = cleanUp(unique)
   
-  const findDuplicates = x => x.filter((item, index) => x.indexOf(item) !== index)
+const findDuplicates = x => x.filter((item, index) => x.indexOf(item) !== index)
 const duplicateElements = findDuplicates(x);
 
 const duplicateIndexes = (arr, el) => {
@@ -72,18 +72,11 @@ indexesOfDuplicates.forEach((indexArray) => {
     })
 })
 const newArray = [...new Set(array)];
-console.log(newArray)
 
-  
-  const indexes = new Set(newArray); // Faster lookups
+const indexes = new Set(newArray); // Faster lookups
 
-const filtered = unique.filter((_, i) => !indexes.has(i));
-// console.log(filtered)
-// console.log(indexesOfDuplicates)
+const cleanedUp = unique.filter((_, i) => !indexes.has(i));
 
-    
-    // const filtered = filter(unique).sort()
-    
     
     
     useEffect(() => {
@@ -103,10 +96,10 @@ const filtered = unique.filter((_, i) => !indexes.has(i));
     { allDiscogsTrackNames ?
     <StyledDiscogsResults>
           <div>
-            <h1>Out of a total of <span>{filtered.length}</span> tracks :</h1>
+            <h1>Out of a total of <span>{cleanedUp.length}</span> tracks :</h1>
           </div>
           <Animation>
-              {animationIndex > 1 && filtered.slice(0,animationIndex).map((testTrack, index) => {
+              {animationIndex > 1 && cleanedUp.slice(0,animationIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} / </Track>
               })   
@@ -142,9 +135,9 @@ span{
 
 `
 const Animation = styled.div`
-  display: flex;
+  /* display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: wrap; */
   min-height:80%;
   justify-content: center;
   align-items: center;

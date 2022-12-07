@@ -7,20 +7,76 @@ import filter from "../Functions/filter";
 const SpotifyResults = () => {
 
     const { animationIndex, setAnimationIndex, allSpotifyTrackNames, spotifyAlbums, spotifyContent, setAllSpotifyTrackNames, selectedArtist} = useContext(Context)
-    const uniqueSpotify = [...new Set(allSpotifyTrackNames)];
-    const filteredSongs = filter(uniqueSpotify).sort()
+    const unique = [...new Set(allSpotifyTrackNames)];
+    unique.sort()
 
-    let speed = 1000
+    const cleanUp = (array) => {
+    
+      const tempWords = []
+      
+        array.forEach((item) => {      
+          const split = item.split("")
+          
+          const tempString = []
+          
+          split.forEach((char, index) => {
+              if ((char === " ") || (char === "-") || (char === "(") || (char === ")" )){
+                  
+              } else {
+              tempString.push(char)
+              }
+          })
+          
+          const joined = tempString.join()
+          
+          tempWords.push(joined) 
+        })
+          
+        return tempWords
+        
+      }
+      
+const x = cleanUp(unique)
+  
+const findDuplicates = x => x.filter((item, index) => x.indexOf(item) !== index)
+const duplicateElements = findDuplicates(x);
 
-    if (filteredSongs.length > 10){
-      speed = 500
-    } else if (filteredSongs.length > 50){
-      speed = 250
-    } else if (filteredSongs.length > 100){
-      speed = 20
-    } else if (filteredSongs.length > 250){
-      speed = 50
-    }
+const duplicateIndexes = (arr, el) => {
+
+  let duplicate = [];
+  for (let i = 0; i < arr.length; i++){
+      if (arr[i] == el){
+          duplicate.push(i)
+      } 
+  }
+  return duplicate
+}
+
+const indexesOfDuplicates = []
+
+duplicateElements.forEach((duplicateElement) => {
+    let indexesArray = duplicateIndexes(x, duplicateElement)
+    indexesOfDuplicates.push(indexesArray)
+})
+
+for (let i = 0; i< indexesOfDuplicates.length ; i++){
+  indexesOfDuplicates[i].shift()
+}
+
+let array = []
+indexesOfDuplicates.forEach((indexArray) => {
+    
+    indexArray.forEach((index) => {
+        array.push(index)
+    })
+})
+const newArray = [...new Set(array)];
+
+const indexes = new Set(newArray); // Faster lookups
+
+const cleanedUp = unique.filter((_, i) => !indexes.has(i));
+
+
 
     
 
@@ -30,7 +86,7 @@ const SpotifyResults = () => {
         
         setAnimationIndex(prevIndex => prevIndex + 1 )
         index2++      
-        if (index2 > filteredSongs.length){
+        if (index2 > cleanedUp.length){
           return clearInterval(interval)
         }
       }, 10 )
@@ -47,11 +103,11 @@ const SpotifyResults = () => {
           <StyledSpotifyResults>
             
             <div>
-            <h1>We found <span>{uniqueSpotify.length}</span> tracks by {selectedArtist.artistName} on Spotify...</h1></div>
+            <h1>We found <span>{cleanedUp.length}</span> tracks by {selectedArtist.artistName} on Spotify...</h1></div>
             
             <Animation>
             
-        {animationIndex > 1 && uniqueSpotify.slice(0,animationIndex).map((testTrack, index) => {
+        {animationIndex > 1 && cleanedUp.slice(0,animationIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} / </Track>
            

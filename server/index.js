@@ -326,6 +326,45 @@ try {
   client.close();
 })
 
+.post("/getArtistReleases", async (req, res) => {
+  console.log(req.body)
+  let discogsArtistId = req.body.discogsArtistId
+  
+  let page = req.body.page
+
+  if (!page){
+    console.log("no page", )
+    page = 1
+  }  else {
+    console.log("current page", page)
+  }
+  
+  if (typeof req.body.discogsArtistId !== "number"){
+    discogsArtistId = Number(req.body.discogsArtistId)
+  } 
+
+  
+  try {
+    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 100})    
+    if(artistReleases){
+        console.log(artistReleases.pagination)
+        res.status(200).json({status: 200, message: "artist releases", data: artistReleases })
+    } else {
+        res.status(400).json({status: 400, message: "not found", data: null })
+    }
+  }
+  catch (err){
+    res.status(404).json({status: 404, message: "problem with api", data: err })
+  }
+  
+})
+
+
+
+
+
+
+
 
 .post("/getDiscogsContent", async (req, res) => {
   console.log(req.body)
@@ -372,7 +411,7 @@ try {
 
 
 
-    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 35})
+    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 100})
     
     // IF THERE ARE MORE THAN 50 RESULTS, YOU WILL NEED PAGINATION. FOR NOW YOU LIMIT YOURSELF TO 50.
       // RELEASES ARE EITHER MASTERS OR RELEASES
@@ -416,7 +455,8 @@ try {
       
       
       // GET THE MASTER MAIN RELEASES WITH ROLE: MAIN 
-      
+      console.log(discogsMasterMainReleaseMainRoleIds.length)
+
       for (let i = 0; i < discogsMasterMainReleaseMainRoleIds.length; i++) {
         
         const getMasters = await db.getRelease(discogsMasterMainReleaseMainRoleIds[i])
@@ -430,7 +470,7 @@ try {
               } 
             })
         }
-        
+        console.log(discogsMastersMainReleaseMainRole_VersionIds.length)
         const getVersions = await db.getMasterVersions(discogsMastersMainReleaseMainRole_VersionIds[i])
         if(getVersions){
           getVersions.versions.forEach((version) => {
@@ -445,17 +485,19 @@ try {
         
        
           
-      }
-      for (let i = 0; i < discogsMastersMainReleaseMainRole_VersionIds_2.length; i++) {
-        console.log(discogsMastersMainReleaseMainRole_VersionIds_2[i])
+      } 
+      
+      // console.log("versions",discogsMastersMainReleaseMainRole_VersionIds_2.length)
+      // for (let i = 0; i < discogsMastersMainReleaseMainRole_VersionIds_2.length; i++) {
         
-        const getVersionDetails = await db.getRelease(discogsMastersMainReleaseMainRole_VersionIds_2[i])
-        getVersionDetails && getVersionDetails.artists.forEach((artist) => {
-          if (artist.id === discogsArtistId){
-            discogsMastersMainReleaseMainRole_Versions.push(getVersionDetails)
-          }
-        })
-      }
+        
+      //   const getVersionDetails = await db.getRelease(discogsMastersMainReleaseMainRole_VersionIds_2[i])
+      //   getVersionDetails && getVersionDetails.artists.forEach((artist) => {
+      //     if (artist.id === discogsArtistId){
+      //       discogsMastersMainReleaseMainRole_Versions.push(getVersionDetails)
+      //     }
+      //   })
+      // }
       
       // TO DO: GET THE MASTER MAIN RELEASES WITH ROLE: APPEARANCE 
             // THESE PROBABLY ONLY HAVE VOCALS OR WHATEVER
@@ -609,11 +651,7 @@ try {
   }
   })
 
-
-  
-  
-
-  .get('/searchSpotify/:artistName', (req, res) => {
+.get('/searchSpotify/:artistName', (req, res) => {
     const dataQueried = req.params.artistName
     
     spotifyApi.searchArtists(`${dataQueried}`)
