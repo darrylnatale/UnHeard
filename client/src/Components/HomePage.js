@@ -9,17 +9,17 @@ import Results from "./Results";
 import SearchResults from "./SearchResults"
 import SpotifyResults from "./SpotifyResults"
 import DiscogsResults from "./DiscogsResults";
-import getSpotifyContent from "../Functions/getSpotifyContent";
+import Releases from "./Releases";
 import { useAuth0 } from "@auth0/auth0-react";
-import useInterval from "../Functions/use-interval.hook";
-import Timer from "./Timer";
+
+
 
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
         selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, 
         exactSpotifyNameMatch, setSubmitted, setAnimationIndex, animationIndex,
-        spotifySearchResults,
+        spotifySearchResults, releases, setReleases,
         setSpotifyContent, setLastSearched,
         spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
          } = useContext(Context);
@@ -63,7 +63,7 @@ const HomePage = () => {
   },[isAuthenticated])
 
 
-         const getSpotifyContent = (spotifyArtistId, artistName) => {
+const getSpotifyContent = (spotifyArtistId, artistName) => {
           fetch(`/getSpotifyContent`, {
               method: "POST",
               headers: {
@@ -85,14 +85,11 @@ const HomePage = () => {
            .catch((err) => console.log(err));
       }
 
-
-
-
 const showFoundSection = () => {
   setShowFound(true)
 }
 
-      const getDiscogsContent = (discogsArtistId, page) => {
+const getDiscogsContent = (discogsArtistId, page) => {
         console.log("getDiscogsContent fxn run!")
         console.log("page", page)
         fetch(`/getDiscogsContent/`, {
@@ -157,33 +154,30 @@ const showFoundSection = () => {
     }
     
     
-    
-
-
 useEffect(() => {
   if(isInMongo){
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
-    getDiscogsContent(selectedArtist.discogsArtistId)
+    // getDiscogsContent(selectedArtist.discogsArtistId)
+    getArtistReleases(selectedArtist.discogsArtistId, 1)
   }
   },[isInMongo])
 
   
-    
-  // useInterval(() => moreToFetch !== 0 && functionexample(),10000)
+  
   
 
   
-  const startFetching = () => {
+const startFetching = () => {
     console.log("Clicked")
-    let index2 = 0
+    let index = 0
     const interval = setInterval(() => {
       
       setAnimationIndex(prevIndex => prevIndex + 1)
       
-      index2++      
+      index++      
       
-      getDiscogsContent(8760, index2) 
-      if (index2 > 230){
+      getDiscogsContent(8760, index) 
+      if (index > 230){
         console.log("interval stopped")
         return clearInterval(interval)
       }
@@ -192,10 +186,8 @@ useEffect(() => {
 
   }
   
-  const getArtistReleases = async (discogsArtistId, page) => {
-    
-    
-
+const getArtistReleases = async (discogsArtistId, page) => {
+    console.log("hi")
     try {
       const response = await fetch(`/getArtistReleases`, {
         method: "POST",
@@ -206,15 +198,20 @@ useEffect(() => {
         body: JSON.stringify({discogsArtistId, page}),
       })
       const data = await response.json();
+      setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
       
       const pages = data.data.pagination.pages
       
       if (data.data.pagination.urls.next){
-      let nextPageUrl = data.data.pagination.urls.next
+        setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
+        
+        let nextPageUrl = data.data.pagination.urls.next
       
-         for (let i = 0; i < pages; i++){
+        for (let i = 0; i < pages - 1 ; i++){
+          console.log(i, nextPageUrl )
           let nextPageResponse = await fetch(nextPageUrl)
           const data = await nextPageResponse.json();
+          setReleases(prevArray => [...(prevArray || []), ...data.releases])
           nextPageUrl = data.pagination.urls.next
           console.log(i, nextPageUrl)
           console.log(data)
@@ -222,23 +219,21 @@ useEffect(() => {
       } 
     }
     catch (err){
-console.log(err)
+      console.log(err)
     }
-    
-    // .catch((err) => console.log(err));
   }
 
 
     return ( 
         <Page>
         <CopyContainer>
-          <button onClick={() => getArtistReleases(12373,1)}>getArtistDetails</button>
+          <button onClick={() => getArtistReleases(86857,1)}>getArtistDetails</button>
           <button onClick={startFetching}>startFetching</button>
           <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
           <div>UnHeard searches through a musician's entire catalog and shows you all their songs you <span>can't</span> find on Spotify!</div>
         </CopyContainer>
         <StyledBsGem />
-        {/* {moreToFetch !== 0 && <Timer functionToCall={() => getDiscogsContent(selectedArtist.discogsArtistId, moreToFetch)}/>} */}
+        
         {submitted && <SearchResults />}
         
         {exactSpotifyNameMatch && <ArtistVerification getDiscogsContent={getDiscogsContent} getSpotifyContent={getSpotifyContent}/>}     
@@ -247,6 +242,7 @@ console.log(err)
         {(allSpotifyTrackNames || allDiscogsTrackNames) && <DiscogsResults / >}
         {allDiscogsTrackNames && <CompareButton onClick={showFoundSection}>Compare Results!</CompareButton>}
         {showFound && <Found/>}
+        {releases && <Releases />}
         </Page>
     );
 }

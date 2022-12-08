@@ -67,7 +67,7 @@ const ArtistVerification = ({getDiscogsContent, getSpotifyContent}) => {
      
 
 
-console.log(exactSpotifyNameMatch)
+
 
     return ( <StyledArtistVerificationContainer>
     

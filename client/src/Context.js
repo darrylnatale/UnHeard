@@ -9,7 +9,6 @@ const Provider = ({children}) => {
     const [mongoUser, setMongoUser] = useState(null)
     const [exactSpotifyNameMatch, setExactSpotifyNameMatch] = useState(null)
     const [albums, setAlbums] = useState()
-    const [correctGuess, setCorrectGuess] = useState(undefined)
     const [spotifySearchResults, setSpotifySearchResults] = useState()
     const [selectedArtist, setSelectedArtist] = useState()
     const [spotifyAlbums, setSpotifyAlbums] = useState()
@@ -17,7 +16,6 @@ const Provider = ({children}) => {
     const [moreToFetch, setMoreToFetch] = useState(0)
     const [allSpotifyTrackNames, setAllSpotifyTrackNames] = useState()
     const [allDiscogsTrackNames, setAllDiscogsTrackNames ] = useState([])
-    const [example, setExample ] = useState({page: 0, content: 0})
     const [submitted, setSubmitted] = useState(false)
     const [allTracksFromBoth, setAllTracksFromBoth] = useState()
     const [discogsSearchResults, setDiscogsSearchResults] = useState([])
@@ -26,8 +24,8 @@ const Provider = ({children}) => {
     const [discogsTrackNames, setDiscogsTrackNames] = useState()
     const [discogsArtistIdState, setDiscogsArtistIdState] = useState()
     const [lastSearched, setLastSearched] = useState()
-    
     const [isInMongo, setIsInMongo] = useState()
+    const [releases, setReleases] = useState([])
     
     return <Context.Provider value={{
         animationIndex,
@@ -35,9 +33,7 @@ const Provider = ({children}) => {
         exactSpotifyNameMatch,
         setExactSpotifyNameMatch,
         albums,
-        setAlbums, example, setExample,
-        correctGuess,
-        setCorrectGuess,
+        setAlbums, 
         discogsSearchResults,
         setDiscogsSearchResults,
         spotifySearchResults,
@@ -69,7 +65,8 @@ const Provider = ({children}) => {
         mongoUser, setMongoUser,
         lastSearched, setLastSearched,
         moreToFetch, setMoreToFetch,
-        showFound, setShowFound
+        showFound, setShowFound,
+        releases, setReleases
     }}>
         {children}
     </Context.Provider>

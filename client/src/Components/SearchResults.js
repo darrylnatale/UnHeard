@@ -8,7 +8,7 @@ import formatDiscogsArtistName from "../Functions/formatDiscogsArtistName"
 const SearchResults = () => {
     
     const { setExactSpotifyNameMatch, 
-      discogsSearchResults, 
+      discogsSearchResults, setDiscogsReleases,
       setDiscogsSearchResults, 
       setSelectedArtist,      
       setDiscogsContent,
@@ -36,8 +36,9 @@ const SearchResults = () => {
                       if (suggestedSpotifyArtists.length === 0){
                         console.log(discogsArtistId)
                         setDiscogsContent(getDiscogsContent(discogsArtistId))
+                        setDiscogsReleases()
                       } else {
-                        console.log("yes")
+                  
                         setExactSpotifyNameMatch(suggestedSpotifyArtists)
                       }
                    })

@@ -394,10 +394,12 @@ try {
               const discogsMastersMainReleaseMainRole_VersionIds_2 = [] // DONE
       const discogsMasterMainReleaseAppearanceRoleIds = []
       const discogsMasterMainReleaseTrackAppearanceRoleIds = []
+      const discogsMasterMainReleaseUnofficialReleaseRoleIds = []
 
       const discogsReleasesMainRoleIds = []
       const discogsReleasesAppearanceRoleIds = []
       const discogsReleasesTrackAppearanceRoleIds = []
+      const discogsReleasesUnofficialReleaseRoleIds = []
 
       // DETAILS
       const discogsMastersMainReleaseMainRole = [] // DONE

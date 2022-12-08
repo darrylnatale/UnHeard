@@ -1,6 +1,5 @@
 import { Context } from "../Context";
 import { useContext , useEffect, useState} from "react";
-import Video from "./Video";
 import styled from "styled-components";
 
 const YouTubeVideoSection = ({gems}) => {
