@@ -10,36 +10,14 @@ import GlobalFonts from "./fonts/fonts";
 
 import HomePage from "./Components/HomePage";
 import Header from "./Components/Header";
+
 const App = () => {
   
 
-  const [testTracks, setTestTracks] = useState();
-  const [tempTracks, setTempTracks] = useState([
-    "track 1",
-    "track 2",
-    "track 3",
-    "track 4",
-    "track 5",
-    "track 6",
-    "track 7",
-    "track 8",
-    "track 9",
-    "track 10",
-    "track 11",
-    "track 12",
-    "track 13",
-    "track 14",
-    "track 15",
-    "track 16",
-    "track 17",
-    "track 18",
-    "track 19",
-    "track 20",
-    "track 21",
-    "track 22",
-    "track 23",
-  ]);
-
+  
+  
+    document.title = "UnHeard - Find Rare Tracks By Musicians You Love";
+  
   const {} = useContext(Context);
 
   useEffect(() => {

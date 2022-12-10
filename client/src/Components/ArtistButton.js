@@ -7,34 +7,20 @@ const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId }) =
     const { setDiscogsArtistIdState, discogsArtistIdState, setDiscogsSearchResults,  } = useContext(Context);
 
     const formatProfileText = (profile) => {
-        let formattedProfileText = profile
-
-        
-        if (formattedProfileText.length > 100) {
-            formattedProfileText = profile.slice(0, 100) + "...";
-          }
-
-          
-          formattedProfileText = formattedProfileText.replaceAll(']', '').replaceAll("/","")
-        
-        const array = formattedProfileText.split("")
-        const newArray = []
-        array.forEach((item, index) => {
-            if (item === "[" || item === "="){
-                
-            } else if (array[index-1] === "["){
-                
-            } else {
-                newArray.push(item)
-            }
-        })
-        formattedProfileText = newArray.join('')
-
-
-
-
-
-        return formattedProfileText
+      let formattedProfileText = profile;
+    
+      // Limit the profile text to 100 characters and add ellipsis
+      if (formattedProfileText.length > 100) {
+        formattedProfileText = profile.slice(0, 100) + "...";
+      }
+    
+      // Remove square brackets and slashes
+      formattedProfileText = formattedProfileText.replace(/[\]/]/g, '');
+    
+      // Remove text between square brackets
+      formattedProfileText = formattedProfileText.replace(/\[[^\]]*]/g, '');
+    
+      return formattedProfileText;
     }
 
     let formattedProfileText = formatProfileText(profile)

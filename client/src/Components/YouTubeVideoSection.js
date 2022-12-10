@@ -6,10 +6,10 @@ const YouTubeVideoSection = ({gems}) => {
   const {selectedArtist} = useContext(Context)
   const [youTubeResults, setYouTubeResults] = useState()
   const [src, setSrc] = useState()
+  // console.error("POST https://play.google.com/log?format=json&hasfast=true&authuser=0 net::ERR_BLOCKED_BY_CLIENT");
 
     useEffect(() => {
 
-      const songQuery = selectedArtist.artistName + '%2B' + gems[0].replace(/ /g, '%2B')
       const options = {
         method: 'GET',
         headers: {
@@ -18,22 +18,27 @@ const YouTubeVideoSection = ({gems}) => {
         }
       };
       
-      fetch(`https://simple-youtube-search.p.rapidapi.com/search?query=${songQuery}&safesearch=false`, options)
-        .then(response => response.json())
-        .then(data => {
-          console.log(data)
-          console.log(songQuery)
-          setYouTubeResults(data)
-          setSrc(data.results[1].id)
-        })
-        .catch(err => console.error(err));
+      async function getYouTubeResults() {
+        for (let i = 0; i < gems.length; i++) {
+          const songQuery = selectedArtist.artistName + '%2B' + gems[i].replace(/ /g, '%2B')
+          try {
+            const response = await fetch(`https://simple-youtube-search.p.rapidapi.com/search?query=${songQuery}&safesearch=false`, options);
+            const data = await response.json();
+            setYouTubeResults([...(youTubeResults || []), data])
+            setSrc([...(src || []), data.results[0].id])
+          } catch (err) {
+            console.error(err);
+          }
+        }
+      }
+      getYouTubeResults()
     },[])
     
     
     return ( <>
     
-    {src && 
-    <FrameWrapper>
+    {src && src.map((src) => {
+      return <FrameWrapper>
       
       
       <StyledIFrame
@@ -45,6 +50,8 @@ const YouTubeVideoSection = ({gems}) => {
       allowFullScreen
       />
     </FrameWrapper>
+    })
+    
   }
     </>);
 }

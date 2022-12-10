@@ -18,32 +18,24 @@ const SearchResults = () => {
       
          
       const crossReference = (formattedDiscogsArtistName, discogsArtistId) => {
-        console.log(discogsArtistId)
-            fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
-                  .then((res) => res.json())
-                  .then((data) => {
-                    console.log(data)
-                    
-                    let suggestedSpotifyArtists = []
-                    
-                      data.data.body.artists.items.forEach((item) => {
-                        
-                            if (item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase()){
-                              suggestedSpotifyArtists.push(item)
-                            }                               
-                      }) 
-                      
-                      if (suggestedSpotifyArtists.length === 0){
-                        console.log(discogsArtistId)
-                        setDiscogsContent(getDiscogsContent(discogsArtistId))
-                        setDiscogsReleases()
-                      } else {
-                  
-                        setExactSpotifyNameMatch(suggestedSpotifyArtists)
-                      }
-                   })
-                   .catch((err) => console.log(err));
-                  }
+        fetch(`/searchSpotify/${formattedDiscogsArtistName}`) 
+          .then((res) => res.json())
+          .then((data) => {
+            // Create an array of suggested artists that match the formattedDiscogsArtistName
+            const suggestedSpotifyArtists = data.data.body.artists.items.filter(item => item.name.toLowerCase() === formattedDiscogsArtistName.toLowerCase());
+      
+            // If no exact matches were found, get the discogs content and set the discogs releases
+            if (suggestedSpotifyArtists.length === 0) {
+              console.log(discogsArtistId)
+              setDiscogsContent(getDiscogsContent(discogsArtistId))
+              setDiscogsReleases()
+            } else {
+              // Otherwise, set the exactSpotifyNameMatch with the suggested artists
+              setExactSpotifyNameMatch(suggestedSpotifyArtists)
+            }
+          })
+          .catch((err) => console.log(err));
+      }
 
         const checkIfInMongo = (discogsArtistId, discogsArtistName) => {
         
@@ -70,37 +62,6 @@ const SearchResults = () => {
                   crossReference(formattedDiscogsArtistName, discogsArtistId)
                   setSubmitted(false)
               }
-              
-              
-              
-              //     const spotifyArtistId = data.data.spotifyArtistId
-              //     const discogsArtistId = data.data.discogsArtistId
-              //     const artistName = data.data.artistName   
-              // console.log(getSpotifyContent(spotifyArtistId, artistName))
-            // IF IT EXISTS IN MONGO, PROCEED TO GETTING ALL CONTENT
-            //     if (data.data){
-                  
-                  
-            //       setSelectedArtist(data.data)
-
-            //       const spotifyArtistId = data.data.spotifyArtistId
-            //       const discogsArtistId = data.data.discogsArtistId
-            //       const artistName = data.data.artistName    
-
-                   
-            //       getSpotifyContent(spotifyArtistId, artistName)
-            //       setDiscogsContent(getDiscogsContent(discogsArtistId))
-
-                  
-            
-            // // ELSE CROSS REFERENCE THE ARTIST WITH THE SPOTIFY API
-            // //     } else {                
-            //       console.log(discogsArtistId)
-            //       const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
-                  
-                  
-            //       crossReference(formattedDiscogsArtistName, discogsArtistId)
-            //     }
                })
             .catch((err) => console.log(err));  
           }

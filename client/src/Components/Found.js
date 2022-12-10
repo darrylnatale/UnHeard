@@ -4,6 +4,7 @@ import styled from "styled-components";
 import filter from "../Functions/filter";
 import YouTubeVideoSection from "./YouTubeVideoSection";
 import { FiHeart } from "react-icons/fi";
+import compare from "../Functions/compare";
 
 const Found = () => {
 
@@ -16,16 +17,18 @@ const Found = () => {
     const filteredSpotify = filter(uniqueSpotify).sort()   
     const filteredDiscogs = filter(uniqueDiscogs).sort()
 
-    const compare = (array1, array2) => {
+  //   const compare = (array1, array2) => {
     
-        const mergedFilteredArrays = array1.concat(array2)
+  //       const mergedFilteredArrays = array1.concat(array2)
         
-        function findSingle(arr) {
-        return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
-        }
-        const result = findSingle(mergedFilteredArrays).sort()
-        return result   
-  }
+  //       function findSingle(arr) {
+  //       return arr.filter(i => arr.filter(j => i.toLowerCase() === j.toLowerCase()).length === 1)
+  //       }
+  //       const result = findSingle(mergedFilteredArrays).sort()
+  //       return result   
+  // }
+
+  
 
 
   const gems = compare(filteredSpotify,filteredDiscogs)

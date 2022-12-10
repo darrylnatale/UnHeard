@@ -1,13 +1,18 @@
 import styled from "styled-components";
 import { BsGem } from "react-icons/bs";
 import Searchbar from "./Searchbar";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import LoginButton from "./LoginButton";
 import LogoutButton from "./LogoutButton";
 import { useAuth0 } from "@auth0/auth0-react";
 
+
 const Header = () => {
   const { isLoading, error, isAuthenticated } = useAuth0();
+
+
+
+
     return (<>
       <StyledCredentials>
       {error && <p>Authentication Error</p>}
@@ -21,8 +26,9 @@ const Header = () => {
         }
         </StyledCredentials>
       
+        <StyledLink to="/" >
         <Wrapper>
-        <StyledLink to="/" onClick={() => window.location.reload()} >
+        
           <StyledLogo>
             <Title>
               <span>U</span>
@@ -37,8 +43,9 @@ const Header = () => {
               </Gem>
             </Title>
           </StyledLogo>
-          </StyledLink>
+          
         </Wrapper>
+        </StyledLink>
         <SearchSticky>
           <Searchbar />
         </SearchSticky>
@@ -71,7 +78,7 @@ const Header = () => {
   
   const StyledLink = styled(Link)`
   text-decoration: none;
-  
+  color: black;
   `
   const StyledLogo = styled.h1`
     font-family: "Zen Dots", cursive;
