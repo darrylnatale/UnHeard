@@ -4,6 +4,14 @@ import {useState, createContext} from "react"
 export const Context = createContext(null)
 
 const Provider = ({children}) => {
+    const [allData, setAllData] = useState({
+        artistName: null,
+        albums: [],
+        tracks: null,
+        spotifyArtistId: null,
+        discogsArtistId: null,
+
+    })
     const [animationIndex, setAnimationIndex] = useState(0)
     const [showFound, setShowFound] = useState()
     const [mongoUser, setMongoUser] = useState(null)
@@ -66,7 +74,8 @@ const Provider = ({children}) => {
         lastSearched, setLastSearched,
         moreToFetch, setMoreToFetch,
         showFound, setShowFound,
-        releases, setReleases
+        releases, setReleases,
+        allData, setAllData
     }}>
         {children}
     </Context.Provider>

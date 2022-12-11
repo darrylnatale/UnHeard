@@ -359,7 +359,6 @@ try {
   
 })
 
-
 .post("/getTrackAppearances", async (req, res) => {
   
   console.log(req.body)
@@ -408,11 +407,7 @@ try {
   
 })
 
-
-
-
-
-  .post("/getDiscogsContent", async (req, res) => {
+.post("/getDiscogsContent", async (req, res) => {
     console.log(req.body)
     let discogsArtistId = req.body.discogsArtistId
     
@@ -591,16 +586,25 @@ try {
   // !! IF SPOTIFYARTISTID IS NULL , MEANS THE ARTIST DOES NOT EXIST ON SPOTIFY - INCLUDE LOGIC
 
   try {
+    const albumIds = []
+    
     const tracks = []
     const albums = []
-    const albumIds = []
+    
     const firstPageAlbumResults = await spotifyApi.getArtistAlbums(spotifyArtistId, { limit: 20, offset: 0 })
     
     if (firstPageAlbumResults){
       const {total, items} = firstPageAlbumResults.body
-      items.forEach((item) => {
-        albums.push(item)
-        albumIds.push(item.id)
+      items.forEach((item, index) => {
+        const renamedItem = Object.assign({}, item, {
+          albumName: item.name,
+        });
+
+        renamedItem.availableOn = "spotify"
+        delete renamedItem.available_markets
+        delete renamedItem.name
+        albums.push(renamedItem)
+        albumIds.push(renamedItem.id)
       })
       
       if (total > 20){
@@ -609,44 +613,73 @@ try {
             if (additionalResults){
               const {items} = additionalResults.body
               items.forEach((item) => {
-                albums.push(item)
-                albumIds.push(item.id)
+                const renamedItem = Object.assign({}, item, {
+                  albumName: item.name,
+                });
+                renamedItem.availableOn = "spotify"
+                delete renamedItem.available_markets
+                delete renamedItem.name
+                albums.push(renamedItem)
+                albumIds.push(renamedItem.id)
               }) 
             }
           }
       }
       
-      const totalAlbumsFound = albumIds.length
-      
-      if (totalAlbumsFound){
-        for (let i = 0; i < Math.ceil(totalAlbumsFound / 20); i++){
-          const albumDetails = await spotifyApi.getAlbums(albumIds.slice(20 * i, (i+1) * 20))
-          if (albumDetails){
-        const {albums} = albumDetails.body
-        
-        albums.forEach((album) => {  
-        const trackFullDetailsOnAlbums = album.tracks.items
-        
-        trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
-          let isByArtistSearched = false
-          const artistsOnTrack = trackFullDetailOnAlbum.artists 
-          
-          artistsOnTrack.forEach((artistOnTrack) => { 
-             if (artistOnTrack.name === artistName){
-                  isByArtistSearched = true
-                } 
-                })
-            
-          isByArtistSearched && tracks.push(trackFullDetailOnAlbum)
-                  
+      // Get the track details for each album
+const totalAlbumsFound = albumIds.length
+
+if (totalAlbumsFound) {
+  for (let i = 0; i < Math.ceil(totalAlbumsFound / 20); i++) {
+    const albumDetails = await spotifyApi.getAlbums(albumIds.slice(20 * i, (i+1) * 20))
+    const {albums: albumTracks} = albumDetails.body
+
+    // Add the tracks by the artist to the tracks array
+    albumTracks.forEach((album) => {  
+      const trackFullDetailsOnAlbums = album.tracks.items
+      const albumTracks = []
+      trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
+        let isByArtistSearched = false
+        const artistsOnTrack = trackFullDetailOnAlbum.artists
+
+        artistsOnTrack.forEach((artistOnTrack) => { 
+          if (artistOnTrack.name === artistName) {
+            isByArtistSearched = true
+          } 
         })
+        
+        
+
+        const renamedTrackFullDetailOnAlbum = Object.assign({}, trackFullDetailOnAlbum, {
+          trackName: trackFullDetailOnAlbum.name,
+        });
+        renamedTrackFullDetailOnAlbum.availableOn = "spotify"
+        renamedTrackFullDetailOnAlbum.onAlbum = album.id
+        delete renamedTrackFullDetailOnAlbum.available_markets
+        delete renamedTrackFullDetailOnAlbum.is_local
+        delete renamedTrackFullDetailOnAlbum.explicit
+        delete renamedTrackFullDetailOnAlbum.name
+
+        
+
+        
+        isByArtistSearched && tracks.push(renamedTrackFullDetailOnAlbum)
+        isByArtistSearched && albumTracks.push(renamedTrackFullDetailOnAlbum)
+
       })
-      }
+
+      // Find the matching album in the albums array and add the tracks array as a new key-value pair
+      albums.forEach((albumInArray) => {
+        if (albumInArray.id === album.id) {
+          albumInArray.tracks = albumTracks
         }
-      }
-      res.status(200).json({status: 200, message: "Spotify Content Found", data: {spotifyArtistName: artistName, spotifyAlbums: albums, spotifyTracks: tracks}})  
+      })
+    })
+  }
+}
+
+      res.status(200).json({status: 200, message: "Spotify Content Found", data: {spotifyArtistName: artistName, spotifyArtistId: spotifyArtistId, spotifyAlbums: albums, spotifyTracks: tracks}})  
     } else { 
-      console.log("mybad")
       res.status(400).json({status: 400, message: "Error Finding Spotify Content" })
     }
   } catch (err) 

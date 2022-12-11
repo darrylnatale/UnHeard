@@ -11,7 +11,7 @@ import SpotifyResults from "./SpotifyResults"
 import DiscogsResults from "./DiscogsResults";
 import Releases from "./Releases";
 import { useAuth0 } from "@auth0/auth0-react";
-
+import ResultsTable from "./ResultsTable";
 
 
 const HomePage = () => {
@@ -19,7 +19,7 @@ const HomePage = () => {
     const {
         selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, 
         exactSpotifyNameMatch, setSubmitted, setAnimationIndex, animationIndex,
-        spotifySearchResults, releases, setReleases,
+        spotifySearchResults, releases, setReleases, allData, setAllData,
         setSpotifyContent, setLastSearched, setDiscogsContent,
         spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
          } = useContext(Context);
@@ -81,13 +81,22 @@ const getSpotifyContent = (spotifyArtistId, artistName) => {
             if (data.data){
                   setSubmitted(false)
                   setAllSpotifyTrackNames(data.data.spotifyTracks.map((spotifyTrack) => spotifyTrack.name))
-                  // setSpotifyAlbums(data.data.spotifyAlbums)
+                  
+                  
+                  setAllData(prevState => ({
+                    ...prevState,
+                    artistName: data.data.spotifyArtistName,
+                    spotifyArtistId: data.data.spotifyArtistId,
+                    albums: [...prevState.albums, data.data.spotifyAlbums],
+                    tracks: data.data.spotifyTracks
+                  }));
+                  
               }
            })
            .catch((err) => console.log(err));
       }
 
-
+      
 
 const getDiscogsContent = (discogsArtistId, page) => {
         console.log("getDiscogsContent fxn run!")
@@ -137,6 +146,7 @@ const getDiscogsContent = (discogsArtistId, page) => {
               
               
               setAllDiscogsTrackNames(prevArray => [...(prevArray || []), ...discogsTrackNameArray])
+              
               return discogsContent
               
                
@@ -148,14 +158,10 @@ const getDiscogsContent = (discogsArtistId, page) => {
 useEffect(() => {
   if(isInMongo){
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
-    getDiscogsContent(selectedArtist.discogsArtistId)
+    // getDiscogsContent(selectedArtist.discogsArtistId)
     getArtistReleases(selectedArtist.discogsArtistId, 1)
   }
   },[isInMongo])
-
-  
-  
-  
 
   
 const startFetching = () => {
@@ -192,11 +198,17 @@ const getArtistReleases = async (discogsArtistId, page) => {
       
       const pages = data.data.pagination.pages
 
-      setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
-      console.log("releases",releases)
+      // setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
+      // console.log("releases",releases)
+      setAllData(prevState => ({
+        ...prevState,
+        albums: [...prevState.albums, data.data.releases]
+      }))
       
       if (data.data.pagination.urls.next){
-        setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
+        // setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
+        
+        
         
         let nextPageUrl = data.data.pagination.urls.next
       
@@ -205,9 +217,14 @@ const getArtistReleases = async (discogsArtistId, page) => {
           let nextPageResponse = await fetch(nextPageUrl)
           const data = await nextPageResponse.json();
           console.log("data",data)
-          setReleases(prevArray => [...(prevArray || []), ...data.releases])
+          // setReleases(prevArray => [...(prevArray || []), ...data.releases])
+          setAllData(prevState => ({
+            ...prevState,
+            albums: [...prevState.albums, data.releases]
+          }))
           nextPageUrl = data.pagination.urls.next
           console.log(i, nextPageUrl)
+          
          }
       } 
     }
@@ -232,7 +249,7 @@ const getArtistReleases = async (discogsArtistId, page) => {
     })
     .catch((err) => console.log(err));
   }
-
+// console.log(allData)
 // console.log(releases)
     return ( 
         <Page>
@@ -248,11 +265,12 @@ const getArtistReleases = async (discogsArtistId, page) => {
         {submitted && <SearchResults />}
         
         {exactSpotifyNameMatch && <ArtistVerification getDiscogsContent={getDiscogsContent} getSpotifyContent={getSpotifyContent}/>}     
-        {(allSpotifyTrackNames || isInMongo) && <><SpotifyResults / ><StyledBsGem /></>}
+        {allData && <ResultsTable />}
+        {/* {(allSpotifyTrackNames || isInMongo) && <><SpotifyResults / ><StyledBsGem /></>}
         
         {(allSpotifyTrackNames || isInMongo) && <DiscogsResults / >}
         {isInMongo && <CompareButton onClick={showFoundSection}>Compare Results!</CompareButton>}
-        {showFound && <Found/>}
+        {showFound && <Found/>} */}
         {/* {releases && <Releases />} */}
         </Page>
     );

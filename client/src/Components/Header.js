@@ -31,7 +31,7 @@ const Header = () => {
         
           <StyledLogo>
             <Title>
-              <span>UUU</span>
+              <span>U</span>
               <span>N</span>
               <span>H</span>
               <span>E</span>
