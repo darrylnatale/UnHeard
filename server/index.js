@@ -427,36 +427,38 @@ try {
 
 
       if (discogsArtistId){ 
-        const x = await db.getMaster(albumId)
-        if(x){
-          console.log(x)
-        }
-        // const getMasters = await db.getRelease(albumId)
-          if (getMasters){
-            console.log(getMasters)
-              getMasters.artists.forEach((artist) => {
-                  console.log("getMasters.master_id",getMasters.master_id)
+
+        const getMasterReleaseDetails = await db.getRelease(albumId)
+          if (getMasterReleaseDetails){
+            console.log(getMasterReleaseDetails)
+              getMasterReleaseDetails.artists.forEach((artist) => {
+                  console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
                   console.log(artist.id, typeof artist.id)
                   console.log(artist.name, artist.id)
                   console.log(discogsArtistId, typeof discogsArtistId)
                 if (artist.id === discogsArtistId){
                   console.log("artist.id matched")
-                  masters.push(getMasters) 
+                  masters.push(getMasterReleaseDetails) 
                   console.log("masters",masters)
-                  console.log("getMasters.master_id",getMasters.master_id)
-                  versionIds.push(getMasters.master_id)
+                  console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
+                  versionIds.push(getMasterReleaseDetails.master_id)
                   console.log("versionIds",versionIds)
                 } 
               })
           }   
-
+console.log("versionIds.length",versionIds.length)
           for (let i = 0; i < versionIds.length; i++){
-            // const getVersions = await db.getMasterVersions(versionId)
+            console.log("i",i)
+            const getVersions = await db.getMasterVersions(versionIds[i])
+            console.log("getVersionss", getVersions)
             if(getVersions){
+              console.log("getVersions",getVersions)
               getVersions.versions.forEach((version) => {
                 versionIds2.push(version.id)
               })
-            }  
+            }   else {
+              console.log("no versions")
+            }
           }
           
         
@@ -464,7 +466,7 @@ try {
         console.log("versions",versionIds2.length)
         for (let i = 0; i < versionIds2.length; i++) {
           
-          
+          if (versionIds2[i] !== albumId){
           const getVersionDetails = await db.getRelease(versionIds2[i])
           getVersionDetails && getVersionDetails.artists.forEach((artist) => {
             if (artist.id === discogsArtistId){
@@ -472,6 +474,7 @@ try {
             }
           })
         }
+      }
         
         const discogsMasters = {
           masters: masters,
@@ -575,16 +578,16 @@ try {
 
         
           
-          const getMasters = await db.getRelease(albumId)
-          if (getMasters){
-            console.log(getMasters)
-              getMasters.artists.forEach((artist) => {
-                  console.log(getMasters.master_id)
+          const getMasterReleaseDetails = await db.getRelease(albumId)
+          if (getMasterReleaseDetails){
+            console.log(getMasterReleaseDetails)
+              getMasterReleaseDetails.artists.forEach((artist) => {
+                  console.log(getMasterReleaseDetails.master_id)
 
                 if (artist.id === discogsArtistId){
-                  masters.push(getMasters) 
-                  console.log(getMasters.master_id)
-                  versionIds.push(getMasters.master_id)
+                  masters.push(getMasterReleaseDetails) 
+                  console.log(getMasterReleaseDetails.master_id)
+                  versionIds.push(getMasterReleaseDetails.master_id)
                 } 
               })
           }

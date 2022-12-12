@@ -3,7 +3,7 @@ import { Context } from "../Context";
 import { useContext } from "react";
 
 const ResultsTable = () => {
-
+  console.log("resultstableloaded")
     const {allData, setAllData} = useContext(Context)
     console.log("alldata",allData)
     const combinedAlbums = [].concat(...allData.albums);

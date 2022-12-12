@@ -17,7 +17,7 @@ import ResultsTable from "./ResultsTable";
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
-        selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, 
+        selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, discogsContentFetched, setDiscogsContentFetched, 
         exactSpotifyNameMatch, setSubmitted, setTimerIndex, timerIndex,
         spotifySearchResults, releases, setReleases, allData, setAllData,
         setSpotifyContent, setLastSearched, setDiscogsContent,
@@ -154,7 +154,9 @@ const getDiscogsMasters = (discogsArtistId, albumId, page) => {
     
     
 useEffect(() => {
+  
   if(isInMongo){
+    
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
     // getDiscogsMasters(selectedArtist.discogsArtistId)
     getArtistReleases(selectedArtist.discogsArtistId, 1)
@@ -162,7 +164,10 @@ useEffect(() => {
   },[isInMongo])
 
   useEffect(() => {
+    console.log("useeffect")
+    
     if(allData.albums.length > 0){
+      console.log("allData.albums.length")
       const combinedAlbums = [].concat(...allData.albums);
 
       const discogsMasters = []
@@ -181,32 +186,37 @@ useEffect(() => {
     console.log("discogsMastersMainReleaseIds.length",discogsMastersMainReleaseIds.length)
       startFetching(allData.discogsArtistId, discogsMastersMainReleaseIds)
     }
-    },[allData])
+    },[discogsContentFetched])
   
-    
+    useEffect(()=> {
+      
+    })
+
 const startFetching = (discogsArtistId, discogsMasters) => {
+  let index = 0
+    console.log("Clicked")
+    console.log("timerindex above interval", index)
     
-  console.log("Clicked")
-    console.log("discogsArtistId",discogsArtistId)
-    console.log("discogsMasters", discogsMasters)
-    
-    let index = 0
-    console.log("index",index)
     const interval = setInterval(() => {
+      console.log("intervalrun")
+      // setTimerIndex(prevIndex => prevIndex + 1)
+     
       
-      setTimerIndex(prevIndex => prevIndex + 1)
       
-      index++      
-      console.log("index",index)
+      console.log("timerIndex in interval",index)
       console.log("discogsMastersindex", discogsMasters[index])
       console.log("discogsMasters.length", discogsMasters.length)
-      console.log("discogsArtistId", discogsArtistId)
-      getDiscogsMasters(discogsArtistId, discogsMasters[index-1])   
+      
+      getDiscogsMasters(discogsArtistId, discogsMasters[index])   
                       
 
       if (index >= discogsMasters.length - 1){
+        console.log("index in if", index)
         console.log("interval stopped")
         return clearInterval(interval)
+      } else {
+        index++
+        console.log("index in else", index)
       }
 
     }, 10000 )
@@ -261,18 +271,17 @@ const getArtistReleases = async (discogsArtistId, page) => {
               return renamedData
           })
           
-
-
-
           setAllData(prevState => ({
             ...prevState,
             albums: [...prevState.albums, renamedReleases]
           }))
+
           nextPageUrl = data.pagination.urls.next
           console.log(i, nextPageUrl)
           
          }
-      } 
+      }
+      setDiscogsContentFetched(true) 
     }
     catch (err){
       console.log(err)

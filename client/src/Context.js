@@ -12,6 +12,7 @@ const Provider = ({children}) => {
         discogsArtistId: null,
 
     })
+    const [discogsContentFetched, setDiscogsContentFetched] = useState(false)
     const [timerIndex, setTimerIndex] = useState(0)
     const [showFound, setShowFound] = useState()
     const [mongoUser, setMongoUser] = useState(null)
@@ -75,7 +76,8 @@ const Provider = ({children}) => {
         moreToFetch, setMoreToFetch,
         showFound, setShowFound,
         releases, setReleases,
-        allData, setAllData
+        allData, setAllData,
+        discogsContentFetched, setDiscogsContentFetched
     }}>
         {children}
     </Context.Provider>
