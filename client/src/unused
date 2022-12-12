@@ -265,7 +265,7 @@ useEffect(() => {
   let index2 = 0
   const interval = setInterval(() => {
     
-    setAnimationIndex(prevIndex => prevIndex + 1 )
+    setTimerIndex(prevIndex => prevIndex + 1 )
     index2++      
     if (index2 > 3300){
       return clearInterval(interval)

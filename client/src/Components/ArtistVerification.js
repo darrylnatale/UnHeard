@@ -5,7 +5,7 @@ import Results from "./Results";
 import getDiscogsContent from "../Functions/getDiscogsContent";
 import getSpotifyContent from "../Functions/getSpotifyContent";
 
-const ArtistVerification = ({getDiscogsContent, getSpotifyContent}) => {
+const ArtistVerification = ({getDiscogsMasters, getSpotifyContent}) => {
   
   const {exactSpotifyNameMatch, discogsArtistIdState, setExactSpotifyNameMatch, setDiscogsContent,setIsInMongo, setSelectedArtist} = useContext(Context)
       
@@ -33,7 +33,7 @@ const ArtistVerification = ({getDiscogsContent, getSpotifyContent}) => {
               const artistName = data.data.artistName    
 
               getSpotifyContent(spotifyArtistId, artistName)
-              getDiscogsContent(discogsArtistId)
+              getDiscogsMasters(discogsArtistId)
             }
            })
            .catch((err) => console.log(err));
@@ -56,7 +56,7 @@ const ArtistVerification = ({getDiscogsContent, getSpotifyContent}) => {
               
               setExactSpotifyNameMatch(null)
               const discogsArtistId = data.data.discogsArtistId
-              getDiscogsContent(discogsArtistId)
+              getDiscogsMasters(discogsArtistId)
               
     
             }

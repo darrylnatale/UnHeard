@@ -4,11 +4,26 @@ import { useContext } from "react";
 
 const ResultsTable = () => {
 
-    const {allData, setAllData, releases} = useContext(Context)
+    const {allData, setAllData} = useContext(Context)
     console.log("alldata",allData)
-    console.log("releases",releases)
-
     const combinedAlbums = [].concat(...allData.albums);
+
+    const discogsMasters = []
+        const discogsMastersMainReleaseIds = []
+    const discogsReleases = []
+    
+
+    combinedAlbums.forEach((album) => {
+        if (album.availableOn === "discogs" && album.type === "master"){
+            discogsMasters.push(album)
+            discogsMastersMainReleaseIds.push(album.main_release)
+        } else if (album.availableOn === "discogs" && album.type === "release"){
+            discogsReleases.push(album)
+        }
+    })
+
+    
+    
 
       
     //   setAllData(prevState => ({
@@ -96,8 +111,8 @@ const ResultsTable = () => {
         ))}
         {combinedAlbums.map((album, index) => (
           <tr key={index}>
-            <td>{album.title && <>songs to go here</>}</td>
-            <td>{album.title && album.title}</td>   
+            <td>{album.albumName && <>songs to go here</>}</td>
+            <td>{album.albumName && album.albumName}</td>   
           </tr>
         ))}
       </tbody>

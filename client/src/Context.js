@@ -12,7 +12,7 @@ const Provider = ({children}) => {
         discogsArtistId: null,
 
     })
-    const [animationIndex, setAnimationIndex] = useState(0)
+    const [timerIndex, setTimerIndex] = useState(0)
     const [showFound, setShowFound] = useState()
     const [mongoUser, setMongoUser] = useState(null)
     const [exactSpotifyNameMatch, setExactSpotifyNameMatch] = useState(null)
@@ -36,8 +36,8 @@ const Provider = ({children}) => {
     const [releases, setReleases] = useState([])
     
     return <Context.Provider value={{
-        animationIndex,
-        setAnimationIndex,
+        timerIndex,
+        setTimerIndex,
         exactSpotifyNameMatch,
         setExactSpotifyNameMatch,
         albums,

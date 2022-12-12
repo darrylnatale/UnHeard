@@ -18,7 +18,7 @@ const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
         selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, 
-        exactSpotifyNameMatch, setSubmitted, setAnimationIndex, animationIndex,
+        exactSpotifyNameMatch, setSubmitted, setTimerIndex, timerIndex,
         spotifySearchResults, releases, setReleases, allData, setAllData,
         setSpotifyContent, setLastSearched, setDiscogsContent,
         spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
@@ -62,9 +62,10 @@ const HomePage = () => {
     }
   },[isAuthenticated])
 
-  const showFoundSection = () => {
+const showFoundSection = () => {
     setShowFound(true)
   }
+
 const getSpotifyContent = (spotifyArtistId, artistName) => {
           fetch(`/getSpotifyContent`, {
               method: "POST",
@@ -82,7 +83,6 @@ const getSpotifyContent = (spotifyArtistId, artistName) => {
                   setSubmitted(false)
                   setAllSpotifyTrackNames(data.data.spotifyTracks.map((spotifyTrack) => spotifyTrack.name))
                   
-                  
                   setAllData(prevState => ({
                     ...prevState,
                     artistName: data.data.spotifyArtistName,
@@ -96,58 +96,56 @@ const getSpotifyContent = (spotifyArtistId, artistName) => {
            .catch((err) => console.log(err));
       }
 
-      
-
-const getDiscogsContent = (discogsArtistId, page) => {
-        console.log("getDiscogsContent fxn run!")
-        console.log("page", page)
-        fetch(`/getDiscogsContent/`, {
+const getDiscogsMasters = (discogsArtistId, albumId, page) => {
+        console.log("getDiscogsMasters fxn run!")
+        
+        fetch(`/getDiscogsMasters/`, {
             method: "POST",
             headers: {
               Accept: "application/json",
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({discogsArtistId, page}),
+            body: JSON.stringify({discogsArtistId, albumId, page}),
           }) 
               .then((res) => res.json())
               .then((data) => {
-                setDiscogsContent(data.data)
-                const discogsContent = data.data
-                const discogsTrackNameArray = []
+                console.log(data)
+                // setDiscogsContent(data.data)
+                // const discogsContent = data.data
+                // const discogsTrackNameArray = []
 
-                console.log(discogsContent.masters.mainReleases.roles.main)
-                if (discogsContent.masters) {
-                  discogsContent.masters.mainReleases.roles.main.forEach(
-                    (discogsAlbumDetail) => {
-                      discogsAlbumDetail.tracklist.forEach((track) => {
-                        const artistId = track.artists
-                          ? track.artists.find((artist) => artist.id === discogsArtistId)
-                          : null;
-                        if (!artistId) {
-                          discogsTrackNameArray.push(track.title);
-                        }
-                      });
-                    }
-                  );
-                }
+                // if (discogsContent.masters) {
+                //   discogsContent.masters.mainReleases.roles.main.forEach(
+                //     (discogsAlbumDetail) => {
+                //       discogsAlbumDetail.tracklist.forEach((track) => {
+                //         const artistId = track.artists
+                //           ? track.artists.find((artist) => artist.id === discogsArtistId)
+                //           : null;
+                //         if (!artistId) {
+                //           discogsTrackNameArray.push(track.title);
+                //         }
+                //       });
+                //     }
+                //   );
+                // }
            
-                if (discogsContent.releases) {
-                  discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
-                    discogsAlbumDetail.tracklist.forEach((track) => {
-                      const artistId = track.artists
-                        ? track.artists.find((artist) => artist.id === discogsArtistId)
-                        : null;
-                      if (!artistId) {
-                        discogsTrackNameArray.push(track.title);
-                      }
-                    });
-                  });
-                }
+                // if (discogsContent.releases) {
+                //   discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
+                //     discogsAlbumDetail.tracklist.forEach((track) => {
+                //       const artistId = track.artists
+                //         ? track.artists.find((artist) => artist.id === discogsArtistId)
+                //         : null;
+                //       if (!artistId) {
+                //         discogsTrackNameArray.push(track.title);
+                //       }
+                //     });
+                //   });
+                // }
               
               
-              setAllDiscogsTrackNames(prevArray => [...(prevArray || []), ...discogsTrackNameArray])
+              // setAllDiscogsTrackNames(prevArray => [...(prevArray || []), ...discogsTrackNameArray])
               
-              return discogsContent
+              // return discogsContent
               
                
             })
@@ -158,28 +156,60 @@ const getDiscogsContent = (discogsArtistId, page) => {
 useEffect(() => {
   if(isInMongo){
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
-    // getDiscogsContent(selectedArtist.discogsArtistId)
+    // getDiscogsMasters(selectedArtist.discogsArtistId)
     getArtistReleases(selectedArtist.discogsArtistId, 1)
   }
   },[isInMongo])
 
+  useEffect(() => {
+    if(allData.albums.length > 0){
+      const combinedAlbums = [].concat(...allData.albums);
+
+      const discogsMasters = []
+        const discogsMastersMainReleaseIds = []
+      const discogsReleases = []
+    
+
+    combinedAlbums.forEach((album) => {
+        if (album.availableOn === "discogs" && album.type === "master" && album.role === "Main"){
+            discogsMasters.push(album)
+            discogsMastersMainReleaseIds.push(album.main_release)
+        } else if (album.availableOn === "discogs" && album.type === "release"){
+            discogsReleases.push(album)
+        }
+    })
+    console.log("discogsMastersMainReleaseIds.length",discogsMastersMainReleaseIds.length)
+      startFetching(allData.discogsArtistId, discogsMastersMainReleaseIds)
+    }
+    },[allData])
   
-const startFetching = () => {
-    console.log("Clicked")
+    
+const startFetching = (discogsArtistId, discogsMasters) => {
+    
+  console.log("Clicked")
+    console.log("discogsArtistId",discogsArtistId)
+    console.log("discogsMasters", discogsMasters)
+    
     let index = 0
+    console.log("index",index)
     const interval = setInterval(() => {
       
-      setAnimationIndex(prevIndex => prevIndex + 1)
+      setTimerIndex(prevIndex => prevIndex + 1)
       
       index++      
-      
-      getDiscogsContent(8760, index) 
-      if (index > 230){
+      console.log("index",index)
+      console.log("discogsMastersindex", discogsMasters[index])
+      console.log("discogsMasters.length", discogsMasters.length)
+      console.log("discogsArtistId", discogsArtistId)
+      getDiscogsMasters(discogsArtistId, discogsMasters[index-1])   
+                      
+
+      if (index >= discogsMasters.length - 1){
         console.log("interval stopped")
         return clearInterval(interval)
       }
 
-    }, 90000 )
+    }, 10000 )
 
   }
   
@@ -198,17 +228,23 @@ const getArtistReleases = async (discogsArtistId, page) => {
       
       const pages = data.data.pagination.pages
 
-      // setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
-      // console.log("releases",releases)
+      const renamedReleases = data.data.releases.map((release) => {
+          
+          const renamedRelease = Object.assign({}, release, {albumName: release.title})
+          renamedRelease.availableOn = "discogs"
+          delete renamedRelease.title
+          
+          return renamedRelease
+        })
+
       setAllData(prevState => ({
         ...prevState,
-        albums: [...prevState.albums, data.data.releases]
+        discogsArtistId: discogsArtistId,
+        albums: [...prevState.albums, renamedReleases]
       }))
       
       if (data.data.pagination.urls.next){
         // setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
-        
-        
         
         let nextPageUrl = data.data.pagination.urls.next
       
@@ -217,10 +253,20 @@ const getArtistReleases = async (discogsArtistId, page) => {
           let nextPageResponse = await fetch(nextPageUrl)
           const data = await nextPageResponse.json();
           console.log("data",data)
-          // setReleases(prevArray => [...(prevArray || []), ...data.releases])
+          const renamedReleases = data.releases.map((release) => {
+            const renamedData = Object.assign({},
+              release, {albumName: release.title})
+              renamedData.availableOn = "discogs"
+              delete renamedData.title
+              return renamedData
+          })
+          
+
+
+
           setAllData(prevState => ({
             ...prevState,
-            albums: [...prevState.albums, data.releases]
+            albums: [...prevState.albums, renamedReleases]
           }))
           nextPageUrl = data.pagination.urls.next
           console.log(i, nextPageUrl)
@@ -253,25 +299,27 @@ const getArtistReleases = async (discogsArtistId, page) => {
 // console.log(releases)
     return ( 
         <Page>
-        <CopyContainer>
           <button onClick={() => getArtistReleases(86857,1)}>getTrackAppearances</button>
-          {/* <button onClick={() => getArtistReleases(86857,1)}>getArtistDetails</button>
-          <button onClick={startFetching}>startFetching</button> */}
+          <button onClick={startFetching}>startFetching</button>
+        {/* <CopyContainer>
+          
+          
+          
           <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
           <div>UnHeard searches through a musician's entire catalog and shows you all their songs you <span>can't</span> find on Spotify!</div>
-        </CopyContainer>
-        <StyledBsGem />
+        </CopyContainer> */}
+        {/* <StyledBsGem /> */}
         
         {submitted && <SearchResults />}
         
-        {exactSpotifyNameMatch && <ArtistVerification getDiscogsContent={getDiscogsContent} getSpotifyContent={getSpotifyContent}/>}     
+        {exactSpotifyNameMatch && <ArtistVerification getDiscogsMasters={getDiscogsMasters} getSpotifyContent={getSpotifyContent}/>}     
         {allData && <ResultsTable />}
         {/* {(allSpotifyTrackNames || isInMongo) && <><SpotifyResults / ><StyledBsGem /></>}
         
         {(allSpotifyTrackNames || isInMongo) && <DiscogsResults / >}
         {isInMongo && <CompareButton onClick={showFoundSection}>Compare Results!</CompareButton>}
-        {showFound && <Found/>} */}
-        {/* {releases && <Releases />} */}
+        {showFound && <Found/>}
+        {releases && <Releases />} */}
         </Page>
     );
 }

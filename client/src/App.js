@@ -6,7 +6,7 @@ import styled from "styled-components";
 import GlobalStyles from "./Components/GlobalStyles";
 
 import Profile from "./Components/Profile";
-import GlobalFonts from "./fonts/fonts";
+
 
 import HomePage from "./Components/HomePage";
 import Header from "./Components/Header";
@@ -32,7 +32,6 @@ const App = () => {
   return (
     <BrowserRouter>
       <StyledApp>
-        <GlobalFonts />
         <GlobalStyles />
         <Header />
         

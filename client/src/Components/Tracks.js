@@ -5,7 +5,7 @@ import filter from "../Functions/filter";
 
 const Tracks = ({uniqueTracks, site}) => {
     
-    const {animationIndex, selectedArtist} = useContext(Context)
+    const {timerIndex, selectedArtist} = useContext(Context)
 
     const filteredSongs = filter(uniqueTracks)
     console.log(selectedArtist)
@@ -14,7 +14,7 @@ const Tracks = ({uniqueTracks, site}) => {
     <h1>There are {filteredSongs.length} tracks by {selectedArtist.artistName} on {site}</h1>
        
        <Animation>
-        {animationIndex > 1 && filteredSongs.slice(0,animationIndex).map((testTrack, index) => {
+        {timerIndex > 1 && filteredSongs.slice(0,timerIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} </Track>
            

@@ -407,18 +407,99 @@ try {
   
 })
 
-.post("/getDiscogsContent", async (req, res) => {
-    console.log(req.body)
+.post("/getDiscogsMasters", async (req, res) => {
+  
     let discogsArtistId = req.body.discogsArtistId
-    
-    let page = req.body.page
+    let albumId = req.body.albumId
+    console.log("discogsArtistId", discogsArtistId)
+    console.log("albumId", albumId)
 
-    if (!page){
-      console.log("no page", )
-      page = 1
-    }  else {
-      console.log("current page", page)
-    }
+    if (typeof req.body.discogsArtistId !== "number"){
+      discogsArtistId = Number(req.body.discogsArtistId)
+    } 
+
+    try {
+        
+      const versionIds = []
+      const versionIds2 =[]
+      const masters = []
+      const versions =[]
+
+
+      if (discogsArtistId){ 
+        const x = await db.getMaster(albumId)
+        if(x){
+          console.log(x)
+        }
+        // const getMasters = await db.getRelease(albumId)
+          if (getMasters){
+            console.log(getMasters)
+              getMasters.artists.forEach((artist) => {
+                  console.log("getMasters.master_id",getMasters.master_id)
+                  console.log(artist.id, typeof artist.id)
+                  console.log(artist.name, artist.id)
+                  console.log(discogsArtistId, typeof discogsArtistId)
+                if (artist.id === discogsArtistId){
+                  console.log("artist.id matched")
+                  masters.push(getMasters) 
+                  console.log("masters",masters)
+                  console.log("getMasters.master_id",getMasters.master_id)
+                  versionIds.push(getMasters.master_id)
+                  console.log("versionIds",versionIds)
+                } 
+              })
+          }   
+
+          for (let i = 0; i < versionIds.length; i++){
+            // const getVersions = await db.getMasterVersions(versionId)
+            if(getVersions){
+              getVersions.versions.forEach((version) => {
+                versionIds2.push(version.id)
+              })
+            }  
+          }
+          
+        
+        
+        console.log("versions",versionIds2.length)
+        for (let i = 0; i < versionIds2.length; i++) {
+          
+          
+          const getVersionDetails = await db.getRelease(versionIds2[i])
+          getVersionDetails && getVersionDetails.artists.forEach((artist) => {
+            if (artist.id === discogsArtistId){
+              versions.push(getVersionDetails)
+            }
+          })
+        }
+        
+        const discogsMasters = {
+          masters: masters,
+          versions: versions,
+        }
+        console.log("discogsMasters",discogsMasters)
+      res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsMasters })
+      }
+      else { 
+        res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
+      }
+    } catch (err) 
+    {res.status(404).json({status: 404, message: err })}
+})
+
+.post("/getDiscogsContent", async (req, res) => {
+    console.log("reqbody",req.body)
+    let discogsArtistId = req.body.discogsArtistId
+    let albumId = req.body.albumId
+    console.log("albumId", albumId)
+    // let page = req.body.page
+
+    // if (!page){
+    //   console.log("no page", )
+    //   page = 1
+    // }  else {
+    //   console.log("current page", page)
+    // }
     
     if (typeof req.body.discogsArtistId !== "number"){
       discogsArtistId = Number(req.body.discogsArtistId)
@@ -429,144 +510,139 @@ try {
     
       try {
         
-        // IDS
-        const discogsMasterMainReleaseMainRoleIds = [] // DONE
-            const discogsMastersMainReleaseMainRole_VersionIds = [] // DONE
-                const discogsMastersMainReleaseMainRole_VersionIds_2 = [] // DONE
-        const discogsMasterMainReleaseAppearanceRoleIds = []
-        const discogsMasterMainReleaseTrackAppearanceRoleIds = []
-        const discogsMasterMainReleaseUnofficialReleaseRoleIds = []
+        const versionIds = []
+        const versionIds2 =[]
+        const masters = []
+        const versions =[]
+        // const discogsReleasesMainRoleIds = []
+        // const discogsReleasesAppearanceRoleIds = []
+        // const discogsReleasesTrackAppearanceRoleIds = []
+        // const discogsReleasesUnofficialReleaseRoleIds = []
 
-        const discogsReleasesMainRoleIds = []
-        const discogsReleasesAppearanceRoleIds = []
-        const discogsReleasesTrackAppearanceRoleIds = []
-        const discogsReleasesUnofficialReleaseRoleIds = []
+        // // DETAILS
+        // const discogsMastersMainReleaseMainRole = [] // DONE
+        //   const discogsMastersMainReleaseMainRole_Versions = [] // DONE
+        // const discogsMastersMainReleaseAppearanceRole = []
+        // const discogsMastersMainReleaseTrackAppearanceRole = []
 
-        // DETAILS
-        const discogsMastersMainReleaseMainRole = [] // DONE
-          const discogsMastersMainReleaseMainRole_Versions = [] // DONE
-        const discogsMastersMainReleaseAppearanceRole = []
-        const discogsMastersMainReleaseTrackAppearanceRole = []
-
-        const discogsReleasesMainRole = [] // DONE
-        const discogsReleasesAppearanceRole = [] // DONE
-        const discogsReleasesTrackAppearanceRole = [] // DONE
+        // const discogsReleasesMainRole = [] // DONE
+        // const discogsReleasesAppearanceRole = [] // DONE
+        // const discogsReleasesTrackAppearanceRole = [] // DONE
 
 
 
-      const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 100})
+      // const artistReleases = await db.getArtistReleases(discogsArtistId, 
+      //   // {page: page, per_page: 100}
+      //   )
       
-      if (artistReleases){    
+      if (discogsArtistId){    
         
-        paginationDetails = artistReleases.pagination
+        // paginationDetails = artistReleases.pagination
         
-        artistReleases.releases.forEach((release, index) => {
+  //       artistReleases.releases.forEach((release, index) => {
           
-  // IF TYPE IS MASTER, SEPARATE INTO MAIN & APPEARANCE GET THE MAIN_RELEASE BEFORE FETCHING THE DETAILS
-            if (release.type === "master" && release.role === "Main"){
-              // console.log("release type:", index, release.type, "main_release id:", release.main_release, "releaseid:", release.id)  
-              discogsMasterMainReleaseMainRoleIds.push(release.main_release)    
-            } else if (release.type === "master" && release.role === "Appearance") {
-              discogsMasterMainReleaseAppearanceRoleIds.push(release.main_release)
-            } else if (release.type === "master" && release.role === "Track Appearance") {
-              //UNSURE IF ROLE : TRACKAPPEARANCE EXISTS FOR MASTERS, check bigger dataset
-              discogsMasterMainReleaseTrackAppearanceRoleIds.push(release.main_release)
-            }
+  // // IF TYPE IS MASTER, SEPARATE INTO MAIN & APPEARANCE GET THE MAIN_RELEASE BEFORE FETCHING THE DETAILS
+  //           if (release.type === "master" && release.role === "Main"){
+  //             // console.log("release type:", index, release.type, "main_release id:", release.main_release, "releaseid:", release.id)  
+  //             discogsMasterMainReleaseMainRoleIds.push(release.main_release)    
+  //           } else if (release.type === "master" && release.role === "Appearance") {
+  //             discogsMasterMainReleaseAppearanceRoleIds.push(release.main_release)
+  //           } else if (release.type === "master" && release.role === "Track Appearance") {
+  //             //UNSURE IF ROLE : TRACKAPPEARANCE EXISTS FOR MASTERS, check bigger dataset
+  //             discogsMasterMainReleaseTrackAppearanceRoleIds.push(release.main_release)
+  //           }
           
-            // SEPARATE THE REMAINING RELEASES THAT AREN'T MASTERS  
-            if (release.type === "release" && release.role === "Main"){
-              discogsReleasesMainRoleIds.push(release.id)
-              // console.log("this is a main")
+  //           // SEPARATE THE REMAINING RELEASES THAT AREN'T MASTERS  
+  //           if (release.type === "release" && release.role === "Main"){
+  //             discogsReleasesMainRoleIds.push(release.id)
+  //             // console.log("this is a main")
               
-            } else if (release.type === "release" && release.role === "Appearance"){
-                // console.log("this is an appearance")
-              discogsReleasesAppearanceRoleIds.push(release.id)
-            } else if (release.type === "release" && release.role === "TrackAppearance"){
-              // console.log("this is an trackAppearance")
-              discogsReleasesTrackAppearanceRoleIds.push(release.id)
-            } 
+  //           } else if (release.type === "release" && release.role === "Appearance"){
+  //               // console.log("this is an appearance")
+  //             discogsReleasesAppearanceRoleIds.push(release.id)
+  //           } else if (release.type === "release" && release.role === "TrackAppearance"){
+  //             // console.log("this is an trackAppearance")
+  //             discogsReleasesTrackAppearanceRoleIds.push(release.id)
+  //           } 
               
               
             
-        })
+  //       })
         
         
         // GET THE MASTER MAIN RELEASES WITH ROLE: MAIN 
-        console.log(discogsMasterMainReleaseMainRoleIds.length)
+        // console.log(discogsMasterMainReleaseMainRoleIds.length)
 
-        for (let i = 0; i < discogsMasterMainReleaseMainRoleIds.length; i++) {
+        
           
-          const getMasters = await db.getRelease(discogsMasterMainReleaseMainRoleIds[i])
+          const getMasters = await db.getRelease(albumId)
           if (getMasters){
-            
+            console.log(getMasters)
               getMasters.artists.forEach((artist) => {
-                
+                  console.log(getMasters.master_id)
+
                 if (artist.id === discogsArtistId){
-                  discogsMastersMainReleaseMainRole.push(getMasters) 
-                  discogsMastersMainReleaseMainRole_VersionIds.push(getMasters.master_id)
+                  masters.push(getMasters) 
+                  console.log(getMasters.master_id)
+                  versionIds.push(getMasters.master_id)
                 } 
               })
           }
-          console.log(discogsMastersMainReleaseMainRole_VersionIds.length)
-          const getVersions = await db.getMasterVersions(discogsMastersMainReleaseMainRole_VersionIds[i])
-          if(getVersions){
-            getVersions.versions.forEach((version) => {
-              discogsMastersMainReleaseMainRole_VersionIds_2.push(version.id)
-            })
-          }  
-        } 
+          // console.log(discogsMastersMainReleaseMainRole_VersionIds.length)
+          for (let i = 0; i < versionIds.length; i++){
+            const getVersions = await db.getMasterVersions(versionId)
+            if(getVersions){
+              getVersions.versions.forEach((version) => {
+                versionIds2.push(version.id)
+              })
+            }  
+          }
+          
         
-        // console.log("versions",discogsMastersMainReleaseMainRole_VersionIds_2.length)
-        // for (let i = 0; i < discogsMastersMainReleaseMainRole_VersionIds_2.length; i++) {
+        
+        console.log("versions",versionIds2.length)
+        for (let i = 0; i < versionIds2.length; i++) {
           
           
-        //   const getVersionDetails = await db.getRelease(discogsMastersMainReleaseMainRole_VersionIds_2[i])
-        //   getVersionDetails && getVersionDetails.artists.forEach((artist) => {
-        //     if (artist.id === discogsArtistId){
-        //       discogsMastersMainReleaseMainRole_Versions.push(getVersionDetails)
-        //     }
-        //   })
-        // }
+          const getVersionDetails = await db.getRelease(versionIds2[i])
+          getVersionDetails && getVersionDetails.artists.forEach((artist) => {
+            if (artist.id === discogsArtistId){
+              versions.push(getVersionDetails)
+            }
+          })
+        }
         
           
           
             //GET RELEASES WITH ROLE: MAIN    
-          for (let i = 0; i < discogsReleasesMainRoleIds.length; i++) {
-            const getReleases = await db.getRelease(discogsReleasesMainRoleIds[i])
-            if (getReleases){
+          // for (let i = 0; i < discogsReleasesMainRoleIds.length; i++) {
+          //   const getReleases = await db.getRelease(discogsReleasesMainRoleIds[i])
+          //   if (getReleases){
 
-              getReleases.artists.forEach((artist) => {
-                if (artist.id === discogsArtistId){
-                  discogsReleasesMainRole.push(getReleases) 
-                }
-              })
-            }
-          }
+          //     getReleases.artists.forEach((artist) => {
+          //       if (artist.id === discogsArtistId){
+          //         discogsReleasesMainRole.push(getReleases) 
+          //       }
+          //     })
+          //   }
+          // }
           // TO DO: GET RELEASES WITH ROLE: APPEARANCE (IF IT EXISTS) 
           
           
           
 
           const discogsContent = {
-            paginationDetails: paginationDetails,
             masters: {
               mainReleases: {
                 roles: {
-                  main: discogsMastersMainReleaseMainRole,
-                  appearance: discogsMastersMainReleaseAppearanceRole,
-                  trackAppearance: discogsMastersMainReleaseTrackAppearanceRole,
-                  trackAppearanceIds: discogsMasterMainReleaseTrackAppearanceRoleIds 
+                  main: masters,
+                  appearance: masters,
+                  trackAppearance: versions,
+                  trackAppearanceIds: versions 
                 }
               },
-              versions: discogsMastersMainReleaseMainRole_Versions,
+              versions: versions,
             },
-            releases: {
-                roles: {
-                  main: discogsReleasesMainRole,
-                  appearance: discogsReleasesAppearanceRole,
-                  trackAppearance: discogsReleasesTrackAppearanceRole
-                }
-            }
           }
           console.log(discogsContent)
         res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsContent })

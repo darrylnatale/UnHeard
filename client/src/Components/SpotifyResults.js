@@ -6,7 +6,7 @@ import filter from "../Functions/filter";
 
 const SpotifyResults = () => {
 
-    const { animationIndex, setAnimationIndex, allSpotifyTrackNames, spotifyAlbums, spotifyContent, setAllSpotifyTrackNames, selectedArtist} = useContext(Context)
+    const { timerIndex, setTimerIndex, allSpotifyTrackNames, spotifyAlbums, spotifyContent, setAllSpotifyTrackNames, selectedArtist} = useContext(Context)
     const unique = [...new Set(allSpotifyTrackNames)];
     unique.sort()
 
@@ -84,7 +84,7 @@ const cleanedUp = unique.filter((_, i) => !indexes.has(i));
       let index2 = 0
       const interval = setInterval(() => {
         
-        setAnimationIndex(prevIndex => prevIndex + 1 )
+        setTimerIndex(prevIndex => prevIndex + 1 )
         index2++      
         if (index2 > cleanedUp.length){
           return clearInterval(interval)
@@ -107,7 +107,7 @@ const cleanedUp = unique.filter((_, i) => !indexes.has(i));
             
             <Animation>
             
-        {animationIndex > 1 && cleanedUp.slice(0,animationIndex).map((testTrack, index) => {
+        {timerIndex > 1 && cleanedUp.slice(0,timerIndex).map((testTrack, index) => {
            
             return <Track key={index}>{testTrack} / </Track>
            

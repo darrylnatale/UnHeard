@@ -10,7 +10,7 @@ import filter from "../Functions/filter";
 
 const DiscogsResults = () => {
 
-    const { animationIndex, setAnimationIndex, selectedArtist, allDiscogsTrackNames} = useContext(Context)
+    const { timerIndex, setTimerIndex, selectedArtist, allDiscogsTrackNames} = useContext(Context)
     const unique = [...new Set(allDiscogsTrackNames)];
     unique.sort()
       
@@ -30,7 +30,7 @@ const DiscogsResults = () => {
       let index2 = 0
       const interval = setInterval(() => {
         
-        setAnimationIndex(prevIndex => prevIndex + 1 )
+        setTimerIndex(prevIndex => prevIndex + 1 )
         index2++      
         if (index2 > 3300){
           return clearInterval(interval)
@@ -47,7 +47,7 @@ const DiscogsResults = () => {
               <h1>Out of a total of <span>{finalTrackArray.length}</span> tracks :</h1>
             </div>
             <Animation>
-                {animationIndex > 1 && finalTrackArray.slice(0,animationIndex).map((testTrack, index) => {
+                {timerIndex > 1 && finalTrackArray.slice(0,timerIndex).map((testTrack, index) => {
             
               return <Track key={index}>{testTrack} / </Track>
                 })   
