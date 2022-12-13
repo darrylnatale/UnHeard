@@ -7,7 +7,7 @@ const Provider = ({children}) => {
     const [allData, setAllData] = useState({
         artistName: null,
         albums: [],
-        tracks: null,
+        tracks: [],
         spotifyArtistId: null,
         discogsArtistId: null,
 

@@ -110,42 +110,40 @@ const getDiscogsMasters = (discogsArtistId, albumId, page) => {
               .then((res) => res.json())
               .then((data) => {
                 console.log(data)
-                // setDiscogsContent(data.data)
-                // const discogsContent = data.data
-                // const discogsTrackNameArray = []
+                
+                // assign the masters to allData
+                
 
-                // if (discogsContent.masters) {
-                //   discogsContent.masters.mainReleases.roles.main.forEach(
-                //     (discogsAlbumDetail) => {
-                //       discogsAlbumDetail.tracklist.forEach((track) => {
-                //         const artistId = track.artists
-                //           ? track.artists.find((artist) => artist.id === discogsArtistId)
-                //           : null;
-                //         if (!artistId) {
-                //           discogsTrackNameArray.push(track.title);
-                //         }
-                //       });
-                //     }
-                //   );
-                // }
-           
-                // if (discogsContent.releases) {
-                //   discogsContent.releases.roles.main.forEach((discogsAlbumDetail) => {
-                //     discogsAlbumDetail.tracklist.forEach((track) => {
-                //       const artistId = track.artists
-                //         ? track.artists.find((artist) => artist.id === discogsArtistId)
-                //         : null;
-                //       if (!artistId) {
-                //         discogsTrackNameArray.push(track.title);
-                //       }
-                //     });
-                //   });
-                // }
-              
-              
-              // setAllDiscogsTrackNames(prevArray => [...(prevArray || []), ...discogsTrackNameArray])
-              
-              // return discogsContent
+                const renamedMasters = data.data.masters.map((master) => {
+          
+                  const renamedMaster = Object.assign({}, master, {albumName: master.title})
+                  renamedMaster.availableOn = "discogs"
+                  delete renamedMaster.title
+                  delete renamedMaster.status
+                  delete renamedMaster.stats
+                  
+                  return renamedMaster
+                })
+                
+                const tracks = []
+                renamedMasters.forEach((renamedMaster) => {
+                  renamedMaster.tracklist.forEach((tracklistItem) => {
+                    const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+                    renamedTrackListItem.availableOn = "discogs"
+                    renamedTrackListItem.onAlbum = renamedMaster
+                    delete renamedTrackListItem.title
+                    tracks.push(renamedTrackListItem)
+                  })
+                })
+                console.log(tracks)
+
+                setAllData(prevState => ({
+                  ...prevState,
+                  albums: [...prevState.albums, renamedMasters],
+                  tracks: [...prevState.tracks, tracks]
+                }))
+                console.log(renamedMasters)
+                // get the versions details (loop through the pages if necessary)
               
                
             })
@@ -163,7 +161,7 @@ useEffect(() => {
   }
   },[isInMongo])
 
-  useEffect(() => {
+useEffect(() => {
     console.log("useeffect")
     
     if(allData.albums.length > 0){
@@ -188,7 +186,7 @@ useEffect(() => {
     }
     },[discogsContentFetched])
   
-    useEffect(()=> {
+useEffect(()=> {
       
     })
 
@@ -219,7 +217,7 @@ const startFetching = (discogsArtistId, discogsMasters) => {
         console.log("index in else", index)
       }
 
-    }, 10000 )
+    }, 3000 )
 
   }
   
@@ -243,6 +241,8 @@ const getArtistReleases = async (discogsArtistId, page) => {
           const renamedRelease = Object.assign({}, release, {albumName: release.title})
           renamedRelease.availableOn = "discogs"
           delete renamedRelease.title
+          delete renamedRelease.status
+          delete renamedRelease.stats
           
           return renamedRelease
         })
@@ -268,6 +268,8 @@ const getArtistReleases = async (discogsArtistId, page) => {
               release, {albumName: release.title})
               renamedData.availableOn = "discogs"
               delete renamedData.title
+              delete renamedData.status
+              delete renamedData.stats
               return renamedData
           })
           
