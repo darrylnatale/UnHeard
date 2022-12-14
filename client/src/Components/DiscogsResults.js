@@ -15,6 +15,7 @@ const DiscogsResults = () => {
     unique.sort()
       
     const cleanedUp = cleanUp(unique)
+    
   
     const duplicateElements = findDuplicates(cleanedUp);
 
