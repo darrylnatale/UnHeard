@@ -118,6 +118,7 @@ const getDiscogsMasters = (discogsArtistId, albumId, page) => {
           
                   const renamedMaster = Object.assign({}, master, {albumName: master.title})
                   renamedMaster.availableOn = "discogs"
+                  renamedMaster.otherVersions = data.data.otherVersions
                   delete renamedMaster.title
                   delete renamedMaster.status
                   delete renamedMaster.stats
@@ -126,13 +127,32 @@ const getDiscogsMasters = (discogsArtistId, albumId, page) => {
                 })
                 
                 const tracks = []
+
                 renamedMasters.forEach((renamedMaster) => {
                   renamedMaster.tracklist.forEach((tracklistItem) => {
+                    if (tracklistItem.artists) {
+                      tracklistItem.artists.forEach((artist) => {
+                      console.log(artist.id, discogsArtistId)
+                      if (Number(artist.id) === discogsArtistId){
+                        const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+                    renamedTrackListItem.availableOn = "discogs"
+                    renamedTrackListItem.onAlbum = renamedMaster
+                    renamedTrackListItem.artists = [{name: allData.artistName}]
+                    delete renamedTrackListItem.title
+                    tracks.push(renamedTrackListItem)
+                      }
+                    })
+                  } else {
+                    console.log(tracklistItem)
                     const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
                     renamedTrackListItem.availableOn = "discogs"
                     renamedTrackListItem.onAlbum = renamedMaster
+                    renamedTrackListItem.artists = [{name: allData.artistName}]
+                    console.log(allData)
                     delete renamedTrackListItem.title
                     tracks.push(renamedTrackListItem)
+                  }
+                    
                   })
                 })
                 console.log(tracks)
@@ -169,26 +189,46 @@ useEffect(() => {
       const combinedAlbums = [].concat(...allData.albums);
 
       const discogsMasters = []
-        const discogsMastersMainReleaseIds = []
-      const discogsReleases = []
+        const discogsMastersMainRoleMainReleaseIds = []
+        const discogsMastersUnofficialReleaseRoleMainReleaseIds = []
+        const discogsMastersTrackAppearanceRoleMainReleaseIds = []
+        const discogsMastersRemixRoleMainReleaseIds = []
+      
+        const discogsReleases = []
+    console.log(discogsMasters)
+    console.log(discogsMastersMainRoleMainReleaseIds)
     
 
-    combinedAlbums.forEach((album) => {
+    combinedAlbums.forEach((album,index) => {
+      console.log(index)
         if (album.availableOn === "discogs" && album.type === "master" && album.role === "Main"){
-            discogsMasters.push(album)
-            discogsMastersMainReleaseIds.push(album.main_release)
-        } else if (album.availableOn === "discogs" && album.type === "release"){
+          
+           discogsMasters.push(album)
+            discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+        } else if (album.availableOn === "discogs" && album.type === "master" && album.role === "UnofficialRelease"){
+            discogsMasters.push(album)  
+            discogsMastersUnofficialReleaseRoleMainReleaseIds.push(album.main_release)
+            discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+        } else if (album.availableOn === "discogs" && album.type === "master" && album.role === "TrackAppearance"){
+          discogsMasters.push(album)  
+          discogsMastersTrackAppearanceRoleMainReleaseIds.push(album.main_release)
+          discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+      } else if (album.availableOn === "discogs" && album.type === "master" && album.role === "Remix"){
+        discogsMasters.push(album)  
+        discogsMastersRemixRoleMainReleaseIds.push(album.main_release)
+        discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+      } else if (album.availableOn === "discogs" && album.type === "release"){
+          console.log("releaseindex",album.albumName)
             discogsReleases.push(album)
-        }
+        } 
     })
-    console.log("discogsMastersMainReleaseIds.length",discogsMastersMainReleaseIds.length)
-      startFetching(allData.discogsArtistId, discogsMastersMainReleaseIds)
+    console.log("unofficial", discogsMastersUnofficialReleaseRoleMainReleaseIds)
+    console.log("discogsMastersMainRoleMainReleaseIds.length",discogsMastersMainRoleMainReleaseIds.length)
+      startFetching(allData.discogsArtistId, discogsMastersMainRoleMainReleaseIds)
     }
     },[discogsContentFetched])
   
-useEffect(()=> {
-      
-    })
+
 
 const startFetching = (discogsArtistId, discogsMasters) => {
   let index = 0
@@ -198,9 +238,6 @@ const startFetching = (discogsArtistId, discogsMasters) => {
     const interval = setInterval(() => {
       console.log("intervalrun")
       // setTimerIndex(prevIndex => prevIndex + 1)
-     
-      
-      
       console.log("timerIndex in interval",index)
       console.log("discogsMastersindex", discogsMasters[index])
       console.log("discogsMasters.length", discogsMasters.length)

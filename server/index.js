@@ -410,6 +410,7 @@ try {
 .post("/getDiscogsMasters", async (req, res) => {
   console.log("function run")
     let discogsArtistId = req.body.discogsArtistId
+    console.log(typeof discogsArtistId)
     let albumId = req.body.albumId
     console.log("discogsArtistId", discogsArtistId)
     console.log("albumId", albumId)
@@ -421,46 +422,57 @@ try {
     try {
         
       const masterIds = []
+      let versionsPagination = null
       const versionIds =[]
       
       const masters = []
-      const versions =[]
+      const versions = []
 
 
       if (discogsArtistId){ 
 
         const getMasterReleaseDetails = await db.getRelease(albumId)
           if (getMasterReleaseDetails){
-            // console.log(getMasterReleaseDetails)
-              getMasterReleaseDetails.artists.forEach((artist) => {
-                  console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
-                  console.log("artistid and typeof ", artist.id, typeof artist.id)
-                  console.log("artist name and artist id ",artist.name, artist.id)
-                  console.log("discogsArtistId and typeof ", discogsArtistId, typeof discogsArtistId)
-                if (artist.id === discogsArtistId){
-                  console.log("artist.id matched")
-                  masters.push(getMasterReleaseDetails) 
-                  // console.log("masters",masters)
-                  console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
-                  masterIds.push(getMasterReleaseDetails.master_id)
-                  console.log("masterIds",masterIds)
-                } 
-              })
+            masters.push(getMasterReleaseDetails) 
+            masterIds.push(getMasterReleaseDetails.master_id)
+              // getMasterReleaseDetails.artists.forEach((artist) => {
+              //     console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
+              //     console.log("artistid and typeof ", artist.id, typeof artist.id)
+              //     console.log("artist name and artist id ",artist.name, artist.id)
+              //     console.log("discogsArtistId and typeof ", discogsArtistId, typeof discogsArtistId)
+              //   if (artist.id === discogsArtistId){
+              //     console.log("artist.id matched")
+              //     masters.push(getMasterReleaseDetails) 
+                  
+              //     console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
+              //     masterIds.push(getMasterReleaseDetails.master_id)
+                  
+              //   } 
+              // })
+              // getMasterReleaseDetails.tracklist.forEach((tracklistItem)=> {
+              //   tracklistItem.artists && tracklistItem.artists.forEach((artist) => {
+                  
+              //     if (Number(artist.id) === discogsArtistId){
+                    
+              //       masters.push(getMasterReleaseDetails)
+              //       masterIds.push(getMasterReleaseDetails.master_id)
+              //     }
+              //   })
+              // })
           }   
-          console.log("versionIds outside ",masterIds)
-          console.log("versionIds.length",masterIds.length)
+          
 
-          // this will be 0 for now unless you increase the number of ids you send and don't do it one at a time
+          // this will be 1 for now unless you increase the number of ids you send and don't do it one at a time
           for (let i = 0; i < masterIds.length; i++){
             console.log("i",i)
             const getVersions = await db.getMasterVersions(masterIds[i])
-            // console.log("getVersionss", getVersions)
+            
             if(getVersions){
               console.log("getversionspag", getVersions.pagination)
-              // console.log("getVersions",getVersions)
+              versionsPagination = getVersions.pagination
               getVersions.versions.forEach((version) => {
                 if (version.id !== albumId)
-                versionIds.push(getVersions)
+                versionIds.push(version)
               })
             }   else {
               
@@ -484,7 +496,7 @@ try {
         
         const discogsMasters = {
           masters: masters,
-          otherVersions: versionIds,
+          otherVersions: {versionsPagination: versionsPagination, versionIds: versionIds},
         }
         // console.log("discogsMasters",discogsMasters)
         console.log("masterIdss end ",masterIds)
