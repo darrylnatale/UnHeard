@@ -1,16 +1,20 @@
 import styled from "styled-components";
 import { Context } from "../Context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import filter from "../Functions/filter";
 import cleanUp from "../Functions/cleanUp";
 import findDuplicates from "../Functions/findDuplicates";
+import { useEffect } from "react";
+
 
 const ResultsTable = () => {
-  
+
+    
     const {allData, setAllData} = useContext(Context)
     const combinedAlbums = [].concat(...allData.albums);
     const combinedTracks = [].concat(...allData.tracks);
+    const [option, setOption] = useState(combinedTracks)
     console.log("alldata",allData)
     console.log("combinedalbums",combinedAlbums)
     console.log("combinedtracks",combinedTracks)
@@ -56,29 +60,34 @@ cleanedUp.forEach((item, i) => {
   }
 });
 
-// Print the list of indexes
-console.log("indexes to remove (minor spelling variations)", indexes);
-// Array to be modified
+
+
 
 // Create a new array containing only the elements that are not being removed
-const newArr = uniqueTracks.filter((_, i) => !indexes.includes(i));
+const spellChecked = uniqueTracks.filter((_, i) => !indexes.includes(i));
 
 
-const filtered = filter(newArr)
+const filtered = filter(spellChecked)
 
-console.log(newArr)
+
+
+// useEffect(() => {
+// setOption(combinedTracks)
+// }, [combinedTracks])
+
   if (allData.albums && allData.artistName){
     
   return (
     <>
-    <button onClick={() => compared()}>sort a-z</button>
       <button onClick={() => compared()}>sort a-z</button>
-      <button onClick={() => compared()}>sort a-z</button>
-      <button onClick={() => compared()}>sort a-z</button>
-      <button onClick={() => compared()}>sort a-z</button>
+      <button onClick={() => setOption(combinedTracks)}>combinedTracks</button>
+      <button onClick={() => setOption(uniqueTracks)}>uniqueTracks</button>
+      <button onClick={() => setOption(spellChecked)}>spellChecked</button>
+      <button onClick={() => setOption(filtered)}>filtered</button>
+      <div>{option.length} SHOWING FOUND (option)</div>
       <div>{combinedTracks.length} TRACKS FOUND (combinedTracks)</div>
       <div>{uniqueTracks.length} UNIQUE TRACKS FOUND (uniqueTracks)</div>
-      <div>{newArr.length} SPELLCHECKED TRACKS FOUND (newArr)</div>
+      <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
       <div>{filtered.length} AFTER FILTERED TRACKS FOUND (filtered)</div>
     <table>
       <thead>
@@ -92,14 +101,14 @@ console.log(newArr)
         </tr>
       </thead>
       <tbody>
-        {combinedTracks.map((track, index) => (
+        {option.map((track, index) => (
           <tr key={index}>
             <td>{index}</td>
             <td>{track.artists && track.artists.map((artist) => <>{artist.name} </>)}</td>
             <td>{track.trackName}</td>
             <td>{combinedAlbums.find((album) => album.id === track.onAlbum || album.id === track.onAlbum.id).albumName}</td>   
             <td>{track.availableOn}</td>   
-            <td>{track.availableOn === "discogs" && track.onAlbum.videos && track.onAlbum.videos.length > 0 ? <a href={track.onAlbum.videos[0].uri}>YouTube Link</a> : <a href={track.external_urls.spotify}>Spotify Link</a>}</td>  
+            <td>{track.availableOn === "discogs" && track.onAlbum.videos && track.onAlbum.videos.length > 0 ? <a href={track.onAlbum.videos[0].uri}>YouTube Link</a> : track.availableOn === "spotify" && <a href={track.external_urls.spotify}>Spotify Link</a>}</td>  
           </tr>
         ))}
       </tbody>

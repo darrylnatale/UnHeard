@@ -35,6 +35,7 @@ const Provider = ({children}) => {
     const [lastSearched, setLastSearched] = useState()
     const [isInMongo, setIsInMongo] = useState()
     const [releases, setReleases] = useState([])
+    const [discogsMastersDone, setDiscogsMastersDone] = useState(false)
     
     return <Context.Provider value={{
         timerIndex,
@@ -77,7 +78,8 @@ const Provider = ({children}) => {
         showFound, setShowFound,
         releases, setReleases,
         allData, setAllData,
-        discogsContentFetched, setDiscogsContentFetched
+        discogsContentFetched, setDiscogsContentFetched,
+        discogsMastersDone, setDiscogsMastersDone
     }}>
         {children}
     </Context.Provider>

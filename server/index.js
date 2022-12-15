@@ -408,7 +408,7 @@ try {
 })
 
 .post("/getDiscogsMasters", async (req, res) => {
-  console.log("function run")
+    console.log("function run")
     let discogsArtistId = req.body.discogsArtistId
     console.log(typeof discogsArtistId)
     let albumId = req.body.albumId
@@ -419,15 +419,22 @@ try {
       discogsArtistId = Number(req.body.discogsArtistId)
     } 
 
+    if (typeof req.body.albumId !== "number"){
+      albumId = Number(req.body.albumId)
+    } 
+    console.log(typeof discogsArtistId)
+    
     try {
         
       const masterIds = []
-      let versionsPagination = null
       const versionIds =[]
       
+
       const masters = []
       const versions = []
-
+      
+      
+      let versionsPagination = null
 
       if (discogsArtistId){ 
 
@@ -435,30 +442,11 @@ try {
           if (getMasterReleaseDetails){
             masters.push(getMasterReleaseDetails) 
             masterIds.push(getMasterReleaseDetails.master_id)
-              // getMasterReleaseDetails.artists.forEach((artist) => {
-              //     console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
-              //     console.log("artistid and typeof ", artist.id, typeof artist.id)
-              //     console.log("artist name and artist id ",artist.name, artist.id)
-              //     console.log("discogsArtistId and typeof ", discogsArtistId, typeof discogsArtistId)
-              //   if (artist.id === discogsArtistId){
-              //     console.log("artist.id matched")
-              //     masters.push(getMasterReleaseDetails) 
-                  
-              //     console.log("getMasterReleaseDetails.master_id",getMasterReleaseDetails.master_id)
-              //     masterIds.push(getMasterReleaseDetails.master_id)
-                  
-              //   } 
-              // })
-              // getMasterReleaseDetails.tracklist.forEach((tracklistItem)=> {
-              //   tracklistItem.artists && tracklistItem.artists.forEach((artist) => {
-                  
-              //     if (Number(artist.id) === discogsArtistId){
-                    
-              //       masters.push(getMasterReleaseDetails)
-              //       masterIds.push(getMasterReleaseDetails.master_id)
-              //     }
-              //   })
-              // })
+          
+          
+
+
+            
           }   
           
 
@@ -474,9 +462,7 @@ try {
                 if (version.id !== albumId)
                 versionIds.push(version)
               })
-            }   else {
-              
-            }
+            }   
           }
           
         
@@ -676,7 +662,94 @@ try {
       {res.status(404).json({status: 404, message: err })}
       })
 
+.post("/getDiscogsReleases", async (req, res) => {
 
+  console.log("getDiscogsReleases run")
+  let discogsArtistId = req.body.discogsArtistId
+  console.log(typeof discogsArtistId)
+  let albumId = req.body.albumId
+  console.log("discogsArtistId", discogsArtistId)
+  console.log("albumId", albumId)
+
+  if (typeof req.body.discogsArtistId !== "number"){
+    discogsArtistId = Number(req.body.discogsArtistId)
+  } 
+
+  if (typeof req.body.albumId !== "number"){
+    albumId = Number(req.body.albumId)
+  } 
+  console.log(typeof discogsArtistId)
+
+  try {
+        
+    const releaseIds = []
+    const versionIds =[]
+    
+
+    const releases = []
+    const versions = []
+    
+    
+    let versionsPagination = null
+
+    if (discogsArtistId){ 
+
+      const getReleaseDetails = await db.getRelease(albumId)
+        if (getReleaseDetails){
+          releases.push(getReleaseDetails) 
+          releaseIds.push(getReleaseDetails.id)
+        
+        
+
+
+          
+        }   
+        
+
+        // this will be 1 for now unless you increase the number of ids you send and don't do it one at a time
+        for (let i = 0; i < releaseIds.length; i++){
+          console.log("i",i)
+          const getVersions = await db.getMasterVersions(releaseIds[i])
+          
+          if(getVersions){
+            console.log("getversionspag", getVersions.pagination)
+            versionsPagination = getVersions.pagination
+            getVersions.versions.forEach((version) => {
+              if (version.id !== albumId)
+              versionIds.push(version)
+            })
+          }   
+        }
+        
+      
+        // THIS SECTION WORKS - YOU NEED TO MOVE IT TO ANOTHER FUNCTION AND SLOW IT DOWN OR IT WILL CAUSE A 429 
+      console.log("versionids.length",versionIds.length)
+    //   for (let i = 0; i < versionIds.length; i++) {
+        
+    //     if (versionIds[i] !== albumId){
+    //     const getVersionDetails = await db.getRelease(versionIds[i])
+    //     getVersionDetails && getVersionDetails.artists.forEach((artist) => {
+    //       if (artist.id === discogsArtistId){
+    //         versions.push(getVersionDetails)
+    //       }
+    //     })
+    //   }
+    // }
+      
+      const discogsReleases = {
+        releases: releases,
+        otherVersions: {versionsPagination: versionsPagination, versionIds: versionIds},
+      }
+      // console.log("discogsReleases",discogsReleases)
+      console.log("releaseIdss end ",releaseIds)
+    res.status(200).json({status: 200, message: "Discogs Releases Found", data: discogsReleases })
+    }
+    else { 
+      res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
+    }
+  } catch (err) 
+  {res.status(404).json({status: 404, message: err })}
+})
 .get("/loginToSpotify", (req, res) => newSpotifyToken())
 
 .post('/getSpotifyContent', async (req, res) => {

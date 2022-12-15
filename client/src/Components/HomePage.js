@@ -18,7 +18,7 @@ const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
         selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, discogsContentFetched, setDiscogsContentFetched, 
-        exactSpotifyNameMatch, setSubmitted, setTimerIndex, timerIndex,
+        exactSpotifyNameMatch, setSubmitted, setTimerIndex, timerIndex, discogsMastersDone, setDiscogsMastersDone,
         spotifySearchResults, releases, setReleases, allData, setAllData,
         setSpotifyContent, setLastSearched, setDiscogsContent,
         spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
@@ -98,6 +98,7 @@ const getSpotifyContent = (spotifyArtistId, artistName) => {
 
 const getDiscogsMasters = (discogsArtistId, albumId, page) => {
         console.log("getDiscogsMasters fxn run!")
+        console.log(discogsArtistId, albumId, page)
         
         fetch(`/getDiscogsMasters/`, {
             method: "POST",
@@ -119,10 +120,19 @@ const getDiscogsMasters = (discogsArtistId, albumId, page) => {
                   const renamedMaster = Object.assign({}, master, {albumName: master.title})
                   renamedMaster.availableOn = "discogs"
                   renamedMaster.otherVersions = data.data.otherVersions
+                  renamedMaster.artistName = master.artists_sort
                   delete renamedMaster.title
                   delete renamedMaster.status
                   delete renamedMaster.stats
-                  
+                  delete renamedMaster.blocked_from_sale
+                  delete renamedMaster.community
+                  delete renamedMaster.companies
+                  delete renamedMaster.date_changed
+                  delete renamedMaster.estimated_weight
+                  delete renamedMaster.format_quantity
+                  delete renamedMaster.lowest_price
+                  delete renamedMaster.num_for_sale
+                  delete renamedMaster.series
                   return renamedMaster
                 })
                 
@@ -132,43 +142,124 @@ const getDiscogsMasters = (discogsArtistId, albumId, page) => {
                   renamedMaster.tracklist.forEach((tracklistItem) => {
                     if (tracklistItem.artists) {
                       tracklistItem.artists.forEach((artist) => {
-                      console.log(artist.id, discogsArtistId)
+                      
                       if (Number(artist.id) === discogsArtistId){
                         const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
                     renamedTrackListItem.availableOn = "discogs"
                     renamedTrackListItem.onAlbum = renamedMaster
-                    renamedTrackListItem.artists = [{name: allData.artistName}]
+                    renamedTrackListItem.artists = [{name: renamedMaster.artistName}]
                     delete renamedTrackListItem.title
                     tracks.push(renamedTrackListItem)
                       }
                     })
                   } else {
-                    console.log(tracklistItem)
+                    
                     const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
                     renamedTrackListItem.availableOn = "discogs"
                     renamedTrackListItem.onAlbum = renamedMaster
-                    renamedTrackListItem.artists = [{name: allData.artistName}]
-                    console.log(allData)
+                    renamedTrackListItem.artists = [{name: renamedMaster.artistName}]
                     delete renamedTrackListItem.title
                     tracks.push(renamedTrackListItem)
                   }
                     
                   })
                 })
-                console.log(tracks)
+
 
                 setAllData(prevState => ({
                   ...prevState,
                   albums: [...prevState.albums, renamedMasters],
                   tracks: [...prevState.tracks, tracks]
                 }))
-                console.log(renamedMasters)
+                
                 // get the versions details (loop through the pages if necessary)
               
                
             })
             .catch((err) => console.log(err));
     }
+
+const getDiscogsReleases = (discogsArtistId, albumId, page) => {
+      console.log("getDiscogsReleases fxn run!")
+      console.log(discogsArtistId, albumId, page)
+      fetch(`/getDiscogsReleases/`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({discogsArtistId, albumId, page}),
+        }) 
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data)
+              
+              
+              
+
+              // const renamedMasters = data.data.masters.map((master) => {
+        
+              //   const renamedMaster = Object.assign({}, master, {albumName: master.title})
+              //   renamedMaster.availableOn = "discogs"
+              //   renamedMaster.otherVersions = data.data.otherVersions
+              //   renamedMaster.artistName = master.artists_sort
+              //   delete renamedMaster.title
+              //   delete renamedMaster.status
+              //   delete renamedMaster.stats
+              //   delete renamedMaster.blocked_from_sale
+              //   delete renamedMaster.community
+              //   delete renamedMaster.companies
+              //   delete renamedMaster.date_changed
+              //   delete renamedMaster.estimated_weight
+              //   delete renamedMaster.format_quantity
+              //   delete renamedMaster.lowest_price
+              //   delete renamedMaster.num_for_sale
+              //   delete renamedMaster.series
+              //   return renamedMaster
+              // })
+              
+              const tracks = []
+
+              // renamedMasters.forEach((renamedMaster) => {
+              //   renamedMaster.tracklist.forEach((tracklistItem) => {
+              //     if (tracklistItem.artists) {
+              //       tracklistItem.artists.forEach((artist) => {
+                    
+              //       if (Number(artist.id) === discogsArtistId){
+              //         const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+              //     renamedTrackListItem.availableOn = "discogs"
+              //     renamedTrackListItem.onAlbum = renamedMaster
+              //     renamedTrackListItem.artists = [{name: renamedMaster.artistName}]
+              //     delete renamedTrackListItem.title
+              //     tracks.push(renamedTrackListItem)
+              //       }
+              //     })
+              //   } else {
+                  
+              //     const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+              //     renamedTrackListItem.availableOn = "discogs"
+              //     renamedTrackListItem.onAlbum = renamedMaster
+              //     renamedTrackListItem.artists = [{name: renamedMaster.artistName}]
+              //     delete renamedTrackListItem.title
+              //     tracks.push(renamedTrackListItem)
+              //   }
+                  
+              //   })
+              // })
+
+
+              // setAllData(prevState => ({
+              //   ...prevState,
+              //   albums: [...prevState.albums, renamedMasters],
+              //   tracks: [...prevState.tracks, tracks]
+              // }))
+              
+              // get the versions details (loop through the pages if necessary)
+            
+             
+          })
+          .catch((err) => console.log(err));
+  }
     
     
 useEffect(() => {
@@ -176,90 +267,114 @@ useEffect(() => {
   if(isInMongo){
     
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
-    // getDiscogsMasters(selectedArtist.discogsArtistId)
     getArtistReleases(selectedArtist.discogsArtistId, 1)
   }
   },[isInMongo])
 
 useEffect(() => {
-    console.log("useeffect")
+  console.log("useeffect 1 ")
     
     if(allData.albums.length > 0){
-      console.log("allData.albums.length")
+      
       const combinedAlbums = [].concat(...allData.albums);
 
       const discogsMasters = []
-        const discogsMastersMainRoleMainReleaseIds = []
-        const discogsMastersUnofficialReleaseRoleMainReleaseIds = []
-        const discogsMastersTrackAppearanceRoleMainReleaseIds = []
-        const discogsMastersRemixRoleMainReleaseIds = []
-      
-        const discogsReleases = []
-    console.log(discogsMasters)
-    console.log(discogsMastersMainRoleMainReleaseIds)
-    
+        const discogsMastersMainReleaseIds = []
 
-    combinedAlbums.forEach((album,index) => {
-      console.log(index)
+    combinedAlbums.forEach((album) => {
         if (album.availableOn === "discogs" && album.type === "master" && album.role === "Main"){
-          
            discogsMasters.push(album)
-            discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+            discogsMastersMainReleaseIds.push(album.main_release)
         } else if (album.availableOn === "discogs" && album.type === "master" && album.role === "UnofficialRelease"){
             discogsMasters.push(album)  
-            discogsMastersUnofficialReleaseRoleMainReleaseIds.push(album.main_release)
-            discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+    
+            discogsMastersMainReleaseIds.push(album.main_release)
         } else if (album.availableOn === "discogs" && album.type === "master" && album.role === "TrackAppearance"){
           discogsMasters.push(album)  
-          discogsMastersTrackAppearanceRoleMainReleaseIds.push(album.main_release)
-          discogsMastersMainRoleMainReleaseIds.push(album.main_release)
+          
+          discogsMastersMainReleaseIds.push(album.main_release)
       } else if (album.availableOn === "discogs" && album.type === "master" && album.role === "Remix"){
         discogsMasters.push(album)  
-        discogsMastersRemixRoleMainReleaseIds.push(album.main_release)
-        discogsMastersMainRoleMainReleaseIds.push(album.main_release)
-      } else if (album.availableOn === "discogs" && album.type === "release"){
-          console.log("releaseindex",album.albumName)
-            discogsReleases.push(album)
-        } 
+        
+        discogsMastersMainReleaseIds.push(album.main_release)
+      } 
     })
-    console.log("unofficial", discogsMastersUnofficialReleaseRoleMainReleaseIds)
-    console.log("discogsMastersMainRoleMainReleaseIds.length",discogsMastersMainRoleMainReleaseIds.length)
-      startFetching(allData.discogsArtistId, discogsMastersMainRoleMainReleaseIds)
+
+      startFetchingMasters(allData.discogsArtistId, discogsMastersMainReleaseIds)
     }
     },[discogsContentFetched])
   
+useEffect(() => {
+  console.log("useeffect 2 ")
+  if(allData.albums.length > 0){
+      
+    const combinedAlbums = [].concat(...allData.albums);
 
+      const discogsReleases = []
+        const discogsReleasesMainRoleIds = []
+  
 
-const startFetching = (discogsArtistId, discogsMasters) => {
+  combinedAlbums.forEach((album) => {
+          if (album.availableOn === "discogs" && album.type === "release" && album.role === "Main"){
+            discogsReleasesMainRoleIds.push(album.id)
+          } else if (album.availableOn === "discogs" && album.type === "release" && album.role === "Appearance"){
+              
+          } else if (album.availableOn === "discogs" && album.type === "release" && album.role === "TrackAppearance"){
+            
+          } 
+  })
+
+  console.log(discogsReleasesMainRoleIds)
+    startFetchingReleases(allData.discogsArtistId, discogsReleasesMainRoleIds)
+  }
+}, [discogsMastersDone])
+
+const startFetchingMasters = (discogsArtistId, discogsMastersArray) => {
   let index = 0
-    console.log("Clicked")
-    console.log("timerindex above interval", index)
+    
     
     const interval = setInterval(() => {
-      console.log("intervalrun")
-      // setTimerIndex(prevIndex => prevIndex + 1)
-      console.log("timerIndex in interval",index)
-      console.log("discogsMastersindex", discogsMasters[index])
-      console.log("discogsMasters.length", discogsMasters.length)
+    
       
-      getDiscogsMasters(discogsArtistId, discogsMasters[index])   
+      getDiscogsMasters(discogsArtistId, discogsMastersArray[index])   
                       
 
-      if (index >= discogsMasters.length - 1){
-        console.log("index in if", index)
-        console.log("interval stopped")
+      if (index >= discogsMastersArray.length - 1){
+        console.log("done masters")
+        setDiscogsMastersDone(true)
         return clearInterval(interval)
       } else {
         index++
-        console.log("index in else", index)
+        
       }
 
     }, 3000 )
 
   }
   
+const startFetchingReleases = (discogsArtistId, discogsReleasesArray) => {
+    let index = 0
+      
+      
+      const interval = setInterval(() => {
+      
+        
+        getDiscogsReleases(discogsArtistId, discogsReleasesArray[index])   
+                        
+  
+        if (index >= discogsReleasesArray.length - 1){
+          console.log("done releases")
+          return clearInterval(interval)
+        } else {
+          index++
+          
+        }
+  
+      }, 3000 )
+  
+    }
 const getArtistReleases = async (discogsArtistId, page) => {
-    console.log("getArtistReleases Fxn Run")
+    
     try {
       const response = await fetch(`/getArtistReleases`, {
         method: "POST",
@@ -280,6 +395,15 @@ const getArtistReleases = async (discogsArtistId, page) => {
           delete renamedRelease.title
           delete renamedRelease.status
           delete renamedRelease.stats
+          delete renamedRelease.blocked_from_sale
+          delete renamedRelease.community
+          delete renamedRelease.companies
+          delete renamedRelease.date_changed
+          delete renamedRelease.estimated_weight
+          delete renamedRelease.format_quantity
+          delete renamedRelease.lowest_price
+          delete renamedRelease.num_for_sale
+          delete renamedRelease.series
           
           return renamedRelease
         })
@@ -296,10 +420,10 @@ const getArtistReleases = async (discogsArtistId, page) => {
         let nextPageUrl = data.data.pagination.urls.next
       
         for (let i = 0; i < pages - 1 ; i++){
-          console.log(i, nextPageUrl )
+          
           let nextPageResponse = await fetch(nextPageUrl)
           const data = await nextPageResponse.json();
-          console.log("data",data)
+          
           const renamedReleases = data.releases.map((release) => {
             const renamedData = Object.assign({},
               release, {albumName: release.title})
@@ -307,6 +431,15 @@ const getArtistReleases = async (discogsArtistId, page) => {
               delete renamedData.title
               delete renamedData.status
               delete renamedData.stats
+              delete renamedData.blocked_from_sale
+              delete renamedData.community
+              delete renamedData.companies
+              delete renamedData.date_changed
+              delete renamedData.estimated_weight
+              delete renamedData.format_quantity
+              delete renamedData.lowest_price
+              delete renamedData.num_for_sale
+              delete renamedData.series
               return renamedData
           })
           
@@ -316,7 +449,7 @@ const getArtistReleases = async (discogsArtistId, page) => {
           }))
 
           nextPageUrl = data.pagination.urls.next
-          console.log(i, nextPageUrl)
+          
           
          }
       }
@@ -327,28 +460,9 @@ const getArtistReleases = async (discogsArtistId, page) => {
     }
   }
 
-  const getTrackAppearances = (idArray, param2) => {
-    
-    fetch(`/getTrackAppearances`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({idArray, param2}),
-    })
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data.data)
-    })
-    .catch((err) => console.log(err));
-  }
-// console.log(allData)
-// console.log(releases)
+
     return ( 
         <Page>
-          <button onClick={() => getArtistReleases(86857,1)}>getTrackAppearances</button>
-          <button onClick={startFetching}>startFetching</button>
         {/* <CopyContainer>
           
           
