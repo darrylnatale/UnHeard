@@ -71,9 +71,72 @@ const filtered = filter(spellChecked)
 
 
 
-// useEffect(() => {
-// setOption(combinedTracks)
-// }, [combinedTracks])
+
+
+const oneTime = (tracks) => {
+  // Create an empty object to store the unique track names
+  var oneTime = {};
+
+  // Loop through the array of tracks
+  for (var i = 0; i < tracks.length; i++) {
+    // Get the track name
+    var trackName = tracks[i].trackName;
+
+    // If the track name hasn't been seen before, add it to the unique tracks object
+    if (!oneTime[trackName]) {
+      oneTime[trackName] = 1;
+    } else {
+      oneTime[trackName] += 1 
+    }
+  }
+  var y = []
+  for (var trackName in oneTime){
+    if (oneTime[trackName] <= 1){
+y.push(trackName)
+    }
+  }
+
+  // Return the array of unique track names
+  return y;
+}
+var t = [  {trackName: "track1"},  {trackName: "track2"},  {trackName: "track3"},  {trackName: "track2"},  {trackName: "track3"},];
+
+const x = oneTime(combinedTracks)
+
+const cleanedUp2 = cleanUp(x) 
+const indexes2 = [];
+
+// Set to hold the items that have already been seen
+const seen2 = new Set();
+
+// Iterate over the array
+cleanedUp2.forEach((item, i) => {
+  // If the item has already been seen, add its index to the list of indexes
+  if (seen2.has(item)) {
+    indexes2.push(i);
+  }
+  // Otherwise, add the item to the set of seen items
+  else {
+    seen2.add(item);
+  }
+});
+
+const spellChecked2 = x.filter((_, i) => !indexes2.includes(i));
+
+const filterff = (uniqueTracks) => {
+
+  const filters = ["Remaster", "Remaaster","- Live", "Dub", "(Live)", "Acoustic", "Alternate Take", "Outtake", "- Take", "Maxi", "Mix", "Version", "Remix", "Edit", "Dub Mix", "Live at", "Club Mix", "World Tour", "Vocal", `12"`, `7"`, "Instrumental"]
+  const filteredSongs = uniqueTracks.filter((song) => {
+      
+      return filters.every(filter => !song.toLowerCase().includes(filter.toLowerCase()))
+  }
+      );
+
+  return filteredSongs;
+}
+const filtered2 = filterff(spellChecked2)
+
+
 
   if (allData.albums && allData.artistName){
     
@@ -89,6 +152,7 @@ const filtered = filter(spellChecked)
       <div>{uniqueTracks.length} UNIQUE TRACKS FOUND (uniqueTracks)</div>
       <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
       <div>{filtered.length} AFTER FILTERED TRACKS FOUND (filtered)</div>
+      <div>{filtered2.length} RAREST TRACKS FOUND (filtered2)</div>
     <table>
       <thead>
         <tr>
@@ -98,6 +162,7 @@ const filtered = filter(spellChecked)
           <th>Appears On</th>
           <th>Available On</th>
           <th>Link</th>
+          <th>Role</th>
         </tr>
       </thead>
       <tbody>
@@ -109,6 +174,7 @@ const filtered = filter(spellChecked)
             <td>{combinedAlbums.find((album) => album.id === track.onAlbum || album.id === track.onAlbum.id).albumName}</td>   
             <td>{track.availableOn}</td>   
             <td>{track.availableOn === "discogs" && track.onAlbum.videos && track.onAlbum.videos.length > 0 ? <a href={track.onAlbum.videos[0].uri}>YouTube Link</a> : track.availableOn === "spotify" && <a href={track.external_urls.spotify}>Spotify Link</a>}</td>  
+            <td>{track.role && <>{track.role}</>}</td>  
           </tr>
         ))}
       </tbody>

@@ -663,13 +663,13 @@ try {
       })
 
 .post("/getDiscogsReleases", async (req, res) => {
-
+  console.log(req.body)
   console.log("getDiscogsReleases run")
+  let role = req.body.role
   let discogsArtistId = req.body.discogsArtistId
   console.log(typeof discogsArtistId)
   let albumId = req.body.albumId
-  console.log("discogsArtistId", discogsArtistId)
-  console.log("albumId", albumId)
+  
 
   if (typeof req.body.discogsArtistId !== "number"){
     discogsArtistId = Number(req.body.discogsArtistId)
@@ -695,52 +695,80 @@ try {
     if (discogsArtistId){ 
 
       const getReleaseDetails = await db.getRelease(albumId)
-        if (getReleaseDetails){
-          releases.push(getReleaseDetails) 
-          releaseIds.push(getReleaseDetails.id)
-        
-        
-
-
+        console.log(role)
+        if (getReleaseDetails && role === "Main"){
           
-        }   
-        
-
-        // this will be 1 for now unless you increase the number of ids you send and don't do it one at a time
-        for (let i = 0; i < releaseIds.length; i++){
-          console.log("i",i)
-          const getVersions = await db.getMasterVersions(releaseIds[i])
+          const renamedRelease = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+                renamedRelease.availableOn = "discogs"
+                renamedRelease.artistName = getReleaseDetails.artists_sort
+                renamedRelease.role = "Main"
+                delete renamedRelease.title
+                delete renamedRelease.status
+                delete renamedRelease.stats
+                delete renamedRelease.blocked_from_sale
+                delete renamedRelease.community
+                delete renamedRelease.companies
+                delete renamedRelease.date_changed
+                delete renamedRelease.estimated_weight
+                delete renamedRelease.format_quantity
+                delete renamedRelease.lowest_price
+                delete renamedRelease.num_for_sale
+                delete renamedRelease.series
           
-          if(getVersions){
-            console.log("getversionspag", getVersions.pagination)
-            versionsPagination = getVersions.pagination
-            getVersions.versions.forEach((version) => {
-              if (version.id !== albumId)
-              versionIds.push(version)
-            })
-          }   
+          releases.push(renamedRelease) 
+          releaseIds.push(renamedRelease.id)
+          
+        } else if (getReleaseDetails && role === "Appearance"){
+          const renamedRelease = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+              renamedRelease.availableOn = "discogs"
+              renamedRelease.role = "Appearance"
+              renamedRelease.artistName = getReleaseDetails.artists_sort
+              delete renamedRelease.title
+              delete renamedRelease.status
+              delete renamedRelease.stats
+              delete renamedRelease.blocked_from_sale
+              delete renamedRelease.community
+              delete renamedRelease.companies
+              delete renamedRelease.date_changed
+              delete renamedRelease.estimated_weight
+              delete renamedRelease.format_quantity
+              delete renamedRelease.lowest_price
+              delete renamedRelease.num_for_sale
+              delete renamedRelease.series
+              delete renamedRelease.data_quality
+              delete renamedRelease.identifiers
+
+              releases.push(renamedRelease) 
+              releaseIds.push(renamedRelease.id)
+        } else if (getReleaseDetails && role === "TrackAppearance"){
+              
+              const renamedRelease = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+              renamedRelease.availableOn = "discogs"
+              renamedRelease.role = "TrackAppearance"
+              renamedRelease.artistName = getReleaseDetails.artists_sort
+              delete renamedRelease.title
+              delete renamedRelease.status
+              delete renamedRelease.stats
+              delete renamedRelease.blocked_from_sale
+              delete renamedRelease.community
+              delete renamedRelease.companies
+              delete renamedRelease.date_changed
+              delete renamedRelease.estimated_weight
+              delete renamedRelease.format_quantity
+              delete renamedRelease.lowest_price
+              delete renamedRelease.num_for_sale
+              delete renamedRelease.series
+              delete renamedRelease.data_quality
+              delete renamedRelease.identifiers
+
+              releases.push(renamedRelease) 
+              releaseIds.push(renamedRelease.id)
         }
         
       
-        // THIS SECTION WORKS - YOU NEED TO MOVE IT TO ANOTHER FUNCTION AND SLOW IT DOWN OR IT WILL CAUSE A 429 
-      console.log("versionids.length",versionIds.length)
-    //   for (let i = 0; i < versionIds.length; i++) {
-        
-    //     if (versionIds[i] !== albumId){
-    //     const getVersionDetails = await db.getRelease(versionIds[i])
-    //     getVersionDetails && getVersionDetails.artists.forEach((artist) => {
-    //       if (artist.id === discogsArtistId){
-    //         versions.push(getVersionDetails)
-    //       }
-    //     })
-    //   }
-    // }
-      
       const discogsReleases = {
         releases: releases,
-        otherVersions: {versionsPagination: versionsPagination, versionIds: versionIds},
       }
-      // console.log("discogsReleases",discogsReleases)
       console.log("releaseIdss end ",releaseIds)
     res.status(200).json({status: 200, message: "Discogs Releases Found", data: discogsReleases })
     }
