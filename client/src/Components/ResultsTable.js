@@ -153,7 +153,7 @@ const filtered2 = filterff(spellChecked2)
       <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
       <div>{filtered.length} AFTER FILTERED TRACKS FOUND (filtered)</div>
       <div>{filtered2.length} RAREST TRACKS FOUND (filtered2)</div>
-    <table>
+    <StyledTable>
       <thead>
         <tr>
           <th>Index No.</th>
@@ -162,23 +162,31 @@ const filtered2 = filterff(spellChecked2)
           <th>Appears On</th>
           <th>Available On</th>
           <th>Link</th>
-          <th>Role</th>
+          <th>Track Role</th>
+          <th>Album Role</th>
         </tr>
       </thead>
       <tbody>
         {option.map((track, index) => (
           <tr key={index}>
             <td>{index}</td>
-            <td>{track.artists && track.artists.map((artist) => <>{artist.name} </>)}</td>
+            <td>{track.artists && track.artists.map((artist, index) => {
+              if (index > 0){
+                return <>{artist.name} & </>
+              } else {
+                return <> {artist.name}</>
+              }
+            })}</td>
             <td>{track.trackName}</td>
             <td>{combinedAlbums.find((album) => album.id === track.onAlbum || album.id === track.onAlbum.id).albumName}</td>   
             <td>{track.availableOn}</td>   
             <td>{track.availableOn === "discogs" && track.onAlbum.videos && track.onAlbum.videos.length > 0 ? <a href={track.onAlbum.videos[0].uri}>YouTube Link</a> : track.availableOn === "spotify" && <a href={track.external_urls.spotify}>Spotify Link</a>}</td>  
-            <td>{track.role && <>{track.role}</>}</td>  
+            <td>{track.trackRole && <>track role: {track.trackRole}</>}</td> 
+            <td>{track.onAlbum ? <>album role: {track.onAlbum.role}</> : <>no role</>}</td>  
           </tr>
         ))}
       </tbody>
-    </table>
+    </StyledTable>
     </>
   );
 };
@@ -187,3 +195,12 @@ const filtered2 = filterff(spellChecked2)
     };
 
 export default ResultsTable;
+
+const StyledTable = styled.table`
+text-align: left;
+
+td, th {
+  padding: 10px 15px; 
+  text-align: left;
+}
+`

@@ -442,11 +442,6 @@ try {
           if (getMasterReleaseDetails){
             masters.push(getMasterReleaseDetails) 
             masterIds.push(getMasterReleaseDetails.master_id)
-          
-          
-
-
-            
           }   
           
 
@@ -681,96 +676,116 @@ try {
   console.log(typeof discogsArtistId)
 
   try {
-        
-    const releaseIds = []
-    const versionIds =[]
-    
-
-    const releases = []
-    const versions = []
-    
-    
-    let versionsPagination = null
-
+    let release = null
     if (discogsArtistId){ 
 
       const getReleaseDetails = await db.getRelease(albumId)
         console.log(role)
         if (getReleaseDetails && role === "Main"){
           
-          const renamedRelease = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
-                renamedRelease.availableOn = "discogs"
-                renamedRelease.artistName = getReleaseDetails.artists_sort
-                renamedRelease.role = "Main"
-                delete renamedRelease.title
-                delete renamedRelease.status
-                delete renamedRelease.stats
-                delete renamedRelease.blocked_from_sale
-                delete renamedRelease.community
-                delete renamedRelease.companies
-                delete renamedRelease.date_changed
-                delete renamedRelease.estimated_weight
-                delete renamedRelease.format_quantity
-                delete renamedRelease.lowest_price
-                delete renamedRelease.num_for_sale
-                delete renamedRelease.series
-          
-          releases.push(renamedRelease) 
-          releaseIds.push(renamedRelease.id)
+          release = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+                release.availableOn = "discogs"
+                release.artistName = getReleaseDetails.artists_sort
+                release.role = "Main"
+                delete release.title
+                delete release.status
+                delete release.stats
+                delete release.blocked_from_sale
+                delete release.community
+                delete release.companies
+                delete release.date_changed
+                delete release.estimated_weight
+                delete release.format_quantity
+                delete release.lowest_price
+                delete release.num_for_sale
+                delete release.series
           
         } else if (getReleaseDetails && role === "Appearance"){
-          const renamedRelease = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
-              renamedRelease.availableOn = "discogs"
-              renamedRelease.role = "Appearance"
-              renamedRelease.artistName = getReleaseDetails.artists_sort
-              delete renamedRelease.title
-              delete renamedRelease.status
-              delete renamedRelease.stats
-              delete renamedRelease.blocked_from_sale
-              delete renamedRelease.community
-              delete renamedRelease.companies
-              delete renamedRelease.date_changed
-              delete renamedRelease.estimated_weight
-              delete renamedRelease.format_quantity
-              delete renamedRelease.lowest_price
-              delete renamedRelease.num_for_sale
-              delete renamedRelease.series
-              delete renamedRelease.data_quality
-              delete renamedRelease.identifiers
+          release = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+              release.availableOn = "discogs"
+              release.role = "Appearance"
+              release.artistName = getReleaseDetails.artists_sort
+              delete release.title
+              delete release.status
+              delete release.stats
+              delete release.blocked_from_sale
+              delete release.community
+              delete release.companies
+              delete release.date_changed
+              delete release.estimated_weight
+              delete release.format_quantity
+              delete release.lowest_price
+              delete release.num_for_sale
+              delete release.series
+              delete release.data_quality
+              delete release.identifiers
 
-              releases.push(renamedRelease) 
-              releaseIds.push(renamedRelease.id)
+              
+              
         } else if (getReleaseDetails && role === "TrackAppearance"){
               
-              const renamedRelease = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
-              renamedRelease.availableOn = "discogs"
-              renamedRelease.role = "TrackAppearance"
-              renamedRelease.artistName = getReleaseDetails.artists_sort
-              delete renamedRelease.title
-              delete renamedRelease.status
-              delete renamedRelease.stats
-              delete renamedRelease.blocked_from_sale
-              delete renamedRelease.community
-              delete renamedRelease.companies
-              delete renamedRelease.date_changed
-              delete renamedRelease.estimated_weight
-              delete renamedRelease.format_quantity
-              delete renamedRelease.lowest_price
-              delete renamedRelease.num_for_sale
-              delete renamedRelease.series
-              delete renamedRelease.data_quality
-              delete renamedRelease.identifiers
-
-              releases.push(renamedRelease) 
-              releaseIds.push(renamedRelease.id)
+          release = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+              release.availableOn = "discogs"
+              release.role = "TrackAppearance"
+              release.artistName = getReleaseDetails.artists_sort
+              delete release.title
+              delete release.status
+              delete release.stats
+              delete release.blocked_from_sale
+              delete release.community
+              delete release.companies
+              delete release.date_changed
+              delete release.estimated_weight
+              delete release.format_quantity
+              delete release.lowest_price
+              delete release.num_for_sale
+              delete release.series
+              delete release.data_quality
+              delete release.identifiers
+        } else if (getReleaseDetails && role === "UnofficialRelease"){
+          release = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+          release.availableOn = "discogs"
+          release.role = "UnofficialRelease"
+          release.artistName = getReleaseDetails.artists_sort
+          delete release.title
+          delete release.status
+          delete release.stats
+          delete release.blocked_from_sale
+          delete release.community
+          delete release.companies
+          delete release.date_changed
+          delete release.estimated_weight
+          delete release.format_quantity
+          delete release.lowest_price
+          delete release.num_for_sale
+          delete release.series
+          delete release.data_quality
+          delete release.identifiers
+        } else if (getReleaseDetails && role === "Producer"){
+          release = Object.assign({}, getReleaseDetails, {albumName: getReleaseDetails.title})
+          release.availableOn = "discogs"
+          release.role = "Producer"
+          release.artistName = getReleaseDetails.artists_sort
+          delete release.title
+          delete release.status
+          delete release.stats
+          delete release.blocked_from_sale
+          delete release.community
+          delete release.companies
+          delete release.date_changed
+          delete release.estimated_weight
+          delete release.format_quantity
+          delete release.lowest_price
+          delete release.num_for_sale
+          delete release.series
+          delete release.data_quality
+          delete release.identifiers
         }
         
       
-      const discogsReleases = {
-        releases: releases,
-      }
-      console.log("releaseIdss end ",releaseIds)
-    res.status(200).json({status: 200, message: "Discogs Releases Found", data: discogsReleases })
+      
+      
+    res.status(200).json({status: 200, message: "Discogs Releases Found", data: release })
     }
     else { 
       res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
