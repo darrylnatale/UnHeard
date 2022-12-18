@@ -408,61 +408,38 @@ try {
 })
 
 .post("/getDiscogsMasters", async (req, res) => {
-    console.log("function run")
-    let discogsArtistId = req.body.discogsArtistId
-    console.log(typeof discogsArtistId)
-    let albumId = req.body.albumId
-    console.log("discogsArtistId", discogsArtistId)
-    console.log("albumId", albumId)
-
-    if (typeof req.body.discogsArtistId !== "number"){
-      discogsArtistId = Number(req.body.discogsArtistId)
-    } 
-
-    if (typeof req.body.albumId !== "number"){
-      albumId = Number(req.body.albumId)
-    } 
-    console.log(typeof discogsArtistId)
     
+
+    let discogsArtistId = Number(req.body.discogsArtistId)    
+    let albumId = Number(req.body.albumId)
+    let albumOverview = req.body.albumOverview
+      
     try {
         
-      const masterIds = []
-      const versionIds =[]
-      
-
-      const masters = []
+      let master = null
       const versions = []
-      
-      
       let versionsPagination = null
 
       if (discogsArtistId){ 
 
         const getMasterReleaseDetails = await db.getRelease(albumId)
-          if (getMasterReleaseDetails){
-            masters.push(getMasterReleaseDetails) 
-            masterIds.push(getMasterReleaseDetails.master_id)
-          }   
           
-
-          // this will be 1 for now unless you increase the number of ids you send and don't do it one at a time
-          for (let i = 0; i < masterIds.length; i++){
-            console.log("i",i)
-            const getVersions = await db.getMasterVersions(masterIds[i])
+          master = getMasterReleaseDetails
+          
+          
+        const getVersions = await db.getMasterVersions(master.master_id)
             
-            if(getVersions){
-              console.log("getversionspag", getVersions.pagination)
               versionsPagination = getVersions.pagination
               getVersions.versions.forEach((version) => {
                 if (version.id !== albumId)
-                versionIds.push(version)
+                versions.push(version)
               })
-            }   
-          }
+            
+         
           
         
           // THIS SECTION WORKS - YOU NEED TO MOVE IT TO ANOTHER FUNCTION AND SLOW IT DOWN OR IT WILL CAUSE A 429 
-        console.log("versionids.length",versionIds.length)
+        
       //   for (let i = 0; i < versionIds.length; i++) {
           
       //     if (versionIds[i] !== albumId){
@@ -475,16 +452,36 @@ try {
       //   }
       // }
         
+      const renamedMaster = Object.assign({}, master, {albumName: master.title})
+                  renamedMaster.availableOn = "discogs"
+                  renamedMaster.otherVersions = {versionsPagination: versionsPagination, versions: versions}
+                  renamedMaster.artistName = master.artists_sort
+                  renamedMaster.albumOverview = albumOverview
+                  delete renamedMaster.title
+                  delete renamedMaster.status
+                  delete renamedMaster.stats
+                  delete renamedMaster.blocked_from_sale
+                  delete renamedMaster.community
+                  delete renamedMaster.companies
+                  delete renamedMaster.date_changed
+                  delete renamedMaster.estimated_weight
+                  delete renamedMaster.format_quantity
+                  delete renamedMaster.lowest_price
+                  delete renamedMaster.num_for_sale
+                  delete renamedMaster.series
+
+        master = renamedMaster
+
         const discogsMasters = {
-          masters: masters,
-          otherVersions: {versionsPagination: versionsPagination, versionIds: versionIds},
+          master: master,
+          otherVersions: {versionsPagination: versionsPagination, versions: versions},
         }
-        // console.log("discogsMasters",discogsMasters)
-        console.log("masterIdss end ",masterIds)
-      res.status(200).json({status: 200, message: "Discogs Content Found", data: discogsMasters })
+        
+        
+      res.status(200).json({status: 200, message: "Discogs Master Found", data: discogsMasters })
       }
       else { 
-        res.status(400).json({status: 400, message: "Problem Finding Discogs Content" })
+        res.status(400).json({status: 400, message: "Problem Finding Master Content" })
       }
     } catch (err) 
     {res.status(404).json({status: 404, message: err })}
@@ -658,22 +655,15 @@ try {
       })
 
 .post("/getDiscogsReleases", async (req, res) => {
-  console.log(req.body)
-  console.log("getDiscogsReleases run")
-  let role = req.body.role
-  let discogsArtistId = req.body.discogsArtistId
-  console.log(typeof discogsArtistId)
-  let albumId = req.body.albumId
   
-
-  if (typeof req.body.discogsArtistId !== "number"){
-    discogsArtistId = Number(req.body.discogsArtistId)
-  } 
-
-  if (typeof req.body.albumId !== "number"){
-    albumId = Number(req.body.albumId)
-  } 
-  console.log(typeof discogsArtistId)
+  console.log("getDiscogsReleases run")
+  let albumOverview = req.body.albumOverview
+  let role = req.body.albumOverview.role
+  let discogsArtistId = Number(req.body.discogsArtistId)
+  let albumId = Number(req.body.albumId)
+  
+console.log(role, discogsArtistId, albumId)
+  
 
   try {
     let release = null
@@ -687,6 +677,7 @@ try {
                 release.availableOn = "discogs"
                 release.artistName = getReleaseDetails.artists_sort
                 release.role = "Main"
+                release.albumOverview = albumOverview
                 delete release.title
                 delete release.status
                 delete release.stats
@@ -705,6 +696,7 @@ try {
               release.availableOn = "discogs"
               release.role = "Appearance"
               release.artistName = getReleaseDetails.artists_sort
+              release.albumOverview = albumOverview
               delete release.title
               delete release.status
               delete release.stats
@@ -728,6 +720,7 @@ try {
               release.availableOn = "discogs"
               release.role = "TrackAppearance"
               release.artistName = getReleaseDetails.artists_sort
+              release.albumOverview = albumOverview
               delete release.title
               delete release.status
               delete release.stats
@@ -747,6 +740,7 @@ try {
           release.availableOn = "discogs"
           release.role = "UnofficialRelease"
           release.artistName = getReleaseDetails.artists_sort
+          release.albumOverview = albumOverview
           delete release.title
           delete release.status
           delete release.stats
@@ -766,6 +760,7 @@ try {
           release.availableOn = "discogs"
           release.role = "Producer"
           release.artistName = getReleaseDetails.artists_sort
+          release.albumOverview = albumOverview
           delete release.title
           delete release.status
           delete release.stats
@@ -973,18 +968,3 @@ if (totalAlbumsFound) {
   console.log(`Example app listening on port ${port}`)
 })
 
-// db.getRelease("1105977", function(err, data){
-//   console.log(data)
-// })
-
-// db.getArtistReleases("86857", function(err, data){
-//   console.log(data.releases.length)
-//   console.log(data.releases.forEach((release) => {
-//     console.log("releaseid", release)
-//   }))
-// })
-
-// db.getRelease("702665", function(err, data){
-//   console.log(data)
-  
-// })
