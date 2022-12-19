@@ -142,6 +142,7 @@ const filtered2 = filterff(spellChecked2)
     
   return (
     <>
+
       <button onClick={() => compared()}>sort a-z</button>
       <button onClick={() => setOption(combinedTracks)}>combinedTracks</button>
       <button onClick={() => setOption(uniqueTracks)}>uniqueTracks</button>
@@ -187,6 +188,7 @@ const filtered2 = filterff(spellChecked2)
         ))}
       </tbody>
     </StyledTable>
+    
     </>
   );
 };
@@ -197,6 +199,7 @@ const filtered2 = filterff(spellChecked2)
 export default ResultsTable;
 
 const StyledTable = styled.table`
+
 text-align: left;
 
 td, th {
