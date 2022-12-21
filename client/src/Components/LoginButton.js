@@ -16,7 +16,7 @@ const LoginButton = () => {
 export default LoginButton;
 
 const StyledButton = styled.button`
-font-family: "Zen Dots", cursive;
+
 box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   width: 100px;
   height: 20px;

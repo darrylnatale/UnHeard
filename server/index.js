@@ -845,9 +845,14 @@ if (totalAlbumsFound) {
 
     // Add the tracks by the artist to the tracks array
     albumTracks.forEach((album) => {  
-      const trackFullDetailsOnAlbums = album.tracks.items
+      const renamedAlbum = Object.assign({}, album, {
+        albumName: album.name,
+      });
+
+      const trackFullDetailsOnAlbums = renamedAlbum.tracks.items
       const albumTracks = []
       trackFullDetailsOnAlbums.forEach((trackFullDetailOnAlbum) => {
+
         let isByArtistSearched = false
         const artistsOnTrack = trackFullDetailOnAlbum.artists
 
@@ -863,7 +868,7 @@ if (totalAlbumsFound) {
           trackName: trackFullDetailOnAlbum.name,
         });
         renamedTrackFullDetailOnAlbum.availableOn = "spotify"
-        renamedTrackFullDetailOnAlbum.onAlbum = album.id
+        renamedTrackFullDetailOnAlbum.onAlbum = renamedAlbum
         delete renamedTrackFullDetailOnAlbum.available_markets
         delete renamedTrackFullDetailOnAlbum.is_local
         delete renamedTrackFullDetailOnAlbum.explicit

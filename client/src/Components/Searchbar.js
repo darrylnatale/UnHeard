@@ -85,12 +85,12 @@ export default Searchbar;
 
 const StyledSearchForm = styled.form`
   display: flex;
-  font-family: "Zen Dots", cursive;
+  
   justify-content: center;
   align-items: center;
 `;
 const StyledSearchBarInput = styled.input`
-  font-family: "Zen Dots", cursive;
+  
   border: 1px solid black;
   border-radius: 50px;
   width: 850px;

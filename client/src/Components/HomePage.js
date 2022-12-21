@@ -4,12 +4,8 @@ import { useContext, useEffect, useState } from "react";
 import Found from "./Found"
 import { Context } from "../Context";
 import ArtistVerification from "./ArtistVerification"
-import NotFound from "./NotFound"
-import Results from "./Results";
+
 import SearchResults from "./SearchResults"
-import SpotifyResults from "./SpotifyResults"
-import DiscogsResults from "./DiscogsResults";
-import Releases from "./Releases";
 import { useAuth0 } from "@auth0/auth0-react";
 import ResultsTable from "./ResultsTable";
 
@@ -589,9 +585,9 @@ const getArtistReleases = async (discogsArtistId, page) => {
         
         {exactSpotifyNameMatch && <ArtistVerification getDiscogsMasters={getDiscogsMasters} getSpotifyContent={getSpotifyContent}/>}     
         {allData && <ResultsTable />}
-        {/* {(allSpotifyTrackNames || isInMongo) && <><SpotifyResults / ><StyledBsGem /></>}
+        {/* 
         
-        {(allSpotifyTrackNames || isInMongo) && <DiscogsResults / >}
+        
         {isInMongo && <CompareButton onClick={showFoundSection}>Compare Results!</CompareButton>}
         {showFound && <Found/>}
         {releases && <Releases />} */}
@@ -603,7 +599,7 @@ export default HomePage;
 
 const Page = styled.div`
 overflow: auto;
-  font-family: "Zen Dots", cursive;
+  font-family:Radio;
   display: flex;
   padding: 20px;
   align-items: center;
@@ -619,6 +615,7 @@ overflow: auto;
   }
 
   h1 {
+    
     font-size: 30px;
     margin-bottom: 50px;
     text-align: center;
@@ -626,7 +623,7 @@ overflow: auto;
 `;
 const CompareButton = styled.button`
 box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  font-family: "Zen Dots", cursive;
+  
   display: flex;
   justify-content: center;
   align-items: center;

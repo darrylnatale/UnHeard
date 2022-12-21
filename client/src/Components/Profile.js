@@ -37,7 +37,7 @@ export default Profile;
 
 const StyledContainer = styled.div`
     text-align: center;
-  font-family: "Zen Dots", cursive;
+  
   font-size: 22px;
   margin-top: 20px;
   line-height: 2;

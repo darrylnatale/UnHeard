@@ -22,12 +22,28 @@ article, aside, canvas, details, embed,
 figure, figcaption, footer, header, hgroup, 
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
+
+	@font-face {
+    font-family: "PPEiko";
+    src: url(../fonts/PPEiko.woff) format("woff");
+    src: url(../fonts/PPEiko.woff2) format("woff2");
+  }
+
+  @font-face {
+    font-family: "RadioBold";
+    src: url(../fonts/PPRadioGrotesk-Bold.woff) format("woff");
+  }
 	
+  @font-face {
+    font-family: "Radio";
+    src: url(../fonts/PPRadioGrotesk-Regular.woff) format("woff");
+  }
+
 	margin: 0;
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
+	font-family: RadioBold;
 	vertical-align: baseline;
 	
 	

@@ -1,0 +1,28 @@
+@font-face {
+    font-family: "PPEiko";
+    src: url(../fonts/PPEiko.woff) format("woff");
+    src: url(../fonts/PPEiko.woff2) format("woff2");
+  }
+
+@font-face {
+  font-family: Neue;
+  src: url(../fonts/PPNeueMachina.woff) format("woff");
+}
+
+@font-face {
+  font-family: "RadioBold";
+  src: url(../fonts/PPRadioGrotesk-Bold.woff) format("woff");
+}
+
+@font-face {
+  font-family: "Radio";
+  src: url(../fonts/PPRadioGrotesk-Regular.woff) format("woff");
+}
+
+  body {
+    font-family: "RadioBold"
+  }
+
+  p {
+    font-family: "Radio";
+  }

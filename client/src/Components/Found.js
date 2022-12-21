@@ -88,7 +88,7 @@ margin: 10px 0;
 
 padding: 20px 0; 
 
-font-family: "Zen Dots", cursive;
+
 text-align: center;
 h1{ 
   font-size: 20px;
@@ -104,7 +104,6 @@ margin: 0 10px;
 
 const StyledHeartButton = styled.button`
 
-  font-family: "Zen Dots", cursive;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -5,7 +5,7 @@ import { Link, useHistory } from "react-router-dom";
 import LoginButton from "./LoginButton";
 import LogoutButton from "./LogoutButton";
 import { useAuth0 } from "@auth0/auth0-react";
-
+import "../css/styles.css"
 
 const Header = () => {
   const { isLoading, error, isAuthenticated } = useAuth0();
@@ -31,7 +31,7 @@ const Header = () => {
         
           <StyledLogo>
             <Title>
-              <span>U</span>
+              <span>Q</span>
               <span>N</span>
               <span>H</span>
               <span>E</span>
@@ -59,7 +59,6 @@ const Header = () => {
   
   const StyledCredentials = styled.div`
   text-align: right;
-  font-family: "Zen Dots", cursive;
   font-size: 12px;
   `
   const ProfileLink = styled(Link)`
@@ -80,8 +79,10 @@ const Header = () => {
   text-decoration: none;
   color: black;
   `
-  const StyledLogo = styled.h1`
-    font-family: "Zen Dots", cursive;
+  const StyledLogo = styled.div`
+    
+    
+  
   `;
   
   const Wrapper = styled.div`

@@ -59,7 +59,7 @@ const YouTubeVideoSection = ({gems}) => {
 export default YouTubeVideoSection;
 
 const FrameWrapper = styled.div `
-font-family: "Zen Dots", cursive;
+
 --border-radius: 10px;
   position: relative;
   aspect-ratio: 16 / 9;
@@ -71,7 +71,7 @@ font-family: "Zen Dots", cursive;
 `
 
 const StyledIFrame = styled.iframe`
-font-family: "Zen Dots", cursive;
+
 /* overflow: auto; */
     /* position: absolute; */
     top: 0;

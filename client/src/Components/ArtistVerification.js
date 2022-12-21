@@ -1,7 +1,7 @@
 import { Context } from "../Context";
 import { useContext } from "react";
 import styled from "styled-components";
-import Results from "./Results";
+
 import getDiscogsContent from "../Functions/getDiscogsContent";
 import getSpotifyContent from "../Functions/getSpotifyContent";
 
@@ -120,7 +120,7 @@ align-items: center;
 
 const StyledArtistButton = styled.button`
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  font-family: "Zen Dots", cursive;
+  
   display: flex;
   justify-content: center;
   align-items: center;

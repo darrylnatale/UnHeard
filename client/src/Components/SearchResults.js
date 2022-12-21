@@ -113,7 +113,7 @@ export default SearchResults;
 
 const StyledDiscogsSearchResults = styled.div`
  
-font-family: "Zen Dots", cursive;
+
 display: flex;
 flex-wrap: wrap;
 max-width: 1200px;

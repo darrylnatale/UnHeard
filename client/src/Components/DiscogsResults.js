@@ -75,7 +75,6 @@ const DiscogsResults = () => {
   max-height: 40%;
   max-width: 80%;
   overflow:auto;
-  font-family: "Zen Dots", cursive;
   h1{ 
     font-size: 18px;
   }

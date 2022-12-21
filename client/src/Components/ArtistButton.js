@@ -50,8 +50,6 @@ export default ArtistButton;
 
 const StyledArtistButton = styled.button`
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  font-family: "Zen Dots", cursive;
-  display: flex;
   justify-content: center;
   align-items: center;
   overflow: auto;

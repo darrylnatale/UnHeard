@@ -1,7 +1,7 @@
 import { useEffect, useContext, useState } from "react";
 import { Context } from "./Context";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import "./css/styles.css"
 import styled from "styled-components";
 import GlobalStyles from "./Components/GlobalStyles";
 
@@ -12,9 +12,6 @@ import HomePage from "./Components/HomePage";
 import Header from "./Components/Header";
 
 const App = () => {
-  
-
-  
   
     document.title = "UnHeard - Find Rare Tracks By Musicians You Love";
   
