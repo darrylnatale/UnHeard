@@ -49,10 +49,45 @@ const ResultsTable = () => {
       }))
     }
 
+    const smushed = smush(combinedTracks);
+
+    
+
+    
 
 
+
+    
+
+    const firstOccurrenceIndices = arr.filter((item, index) => arr.indexOf(item) === index)
+      .map(item => arr.indexOf(item));
+    
+    const occurrences = firstOccurrenceIndices.map(index => {
+      const item = arr[index];
+      return arr.slice(index + 1).map((_, i) => i + index + 1).filter(i => arr[i] === item);
+    });
+    
+    const result = firstOccurrenceIndices.map((index, i) => ({ [index]: occurrences[i] }));
+    
+    
+    
+
+
+
+
+
+
+
+    
+    
+
+
+let indexes = []
 let mergedTracks = [];
 
+
+
+// Group the tracks by track name
 for (let track of combinedTracks) {
   let found = false;
   for (let mergedTrack of mergedTracks) {
@@ -70,34 +105,13 @@ for (let track of combinedTracks) {
 }
 
 
+    
+    
+    
+
+console.log(mergedTracks)
 
 
-
-
-const c = () => {
-
-}
-
-
-const smushed = smush(mergedTracks, "objects");
-
-// List to hold the indexes of items that are the second or greater occurrence in the array
-const indexes = [];
-
-// Set to hold the items that have already been seen
-const seen = new Set();
-
-// Iterate over the array
-smushed.forEach((item, i) => {
-  // If the item has already been seen, add its index to the list of indexes
-  if (seen.has(item)) {
-    indexes.push(i);
-  }
-  // Otherwise, add the item to the set of seen items
-  else {
-    seen.add(item);
-  }
-});
 
 
 
@@ -107,10 +121,6 @@ const spellChecked = mergedTracks.filter((_, i) => !indexes.includes(i));
 
 
 const filtered = filter(mergedTracks)
-
-
-
-console.log(option)
 
 
 
