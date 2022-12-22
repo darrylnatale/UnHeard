@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import Found from "./Found"
 import { Context } from "../Context";
 import ArtistVerification from "./ArtistVerification"
-
+import smush from "../Functions/smush";
 import SearchResults from "./SearchResults"
 import { useAuth0 } from "@auth0/auth0-react";
 import ResultsTable from "./ResultsTable";
@@ -119,11 +119,24 @@ const getDiscogsMasters = (discogsArtistId, albumId, albumOverview) => {
                   delete renamedTrackListItem.title
                   renamedTrackListItem.availableOn = "discogs"
                   renamedTrackListItem.onAlbum = master
+                  renamedTrackListItem.albumRole = master.albumRole
+
+                  // let foundVideo = null
+                  // master.videos.forEach((video) => {
+                  //   if (video.title.toLowerCase().replace(/[^0-9A-Za-z]/g, "").includes(renamedTrackListItem.trackName.toLowerCase().replace(/[^0-9A-Za-z]/g, ""))){
+                  //     console.log("trackname",renamedTrackListItem.trackName, "vidname", video.title)
+                  //   } else {
+                  //     console.log("vidnamenomathc",video.title)
+                  //   }
+                    
+                  // })
+                  renamedTrackListItem.links = master.videos
 
                     if (tracklistItem.artists) {
                       tracklistItem.artists.forEach((artist) => {
                       if (Number(artist.id) === Number(discogsArtistId)){
                         renamedTrackListItem.artists = [{name: master.artistName}]
+                        renamedTrackListItem.trackRole = "Main"
                         tracks.push(renamedTrackListItem)
                       }
                     })
@@ -133,6 +146,7 @@ const getDiscogsMasters = (discogsArtistId, albumId, albumOverview) => {
                       if (Number(extraartist.id) === Number(discogsArtistId)){
                         found = true
                         renamedTrackListItem.artists = [{name: tracklistItem.name}]
+                        renamedTrackListItem.trackRole = extraartist.role
                         tracks.push(renamedTrackListItem)
                       } 
                     })
@@ -142,12 +156,14 @@ const getDiscogsMasters = (discogsArtistId, albumId, albumOverview) => {
                         if (Number(extraartist.id) === Number(discogsArtistId)){
                           renamedTrackListItem.artists = [...master.artists, {name: extraartist.name}]
                           renamedTrackListItem.trackRole = extraartist.role
+                          
                           tracks.push(renamedTrackListItem)
                         }
                       })
                     }
                   } else {
                     renamedTrackListItem.artists = [{name: master.artistName}]
+                    renamedTrackListItem.trackRole = "x "
                     tracks.push(renamedTrackListItem)
                   }
                     
@@ -187,14 +203,16 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
               
               const tracks = []
 
-              if (release.role === "Main"){
+              if (release.albumRole === "Main"){
                 release.tracklist.forEach((tracklistItem) => {
                   
                   const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
                   delete renamedTracklistItem.title
                   renamedTracklistItem.availableOn = "discogs"
                   renamedTracklistItem.onAlbum = release
+                  renamedTracklistItem.links = release.videos
                   renamedTracklistItem.trackRole = "Main"
+                  renamedTracklistItem.albumRole = release.albumRole
 
                   if (tracklistItem.artists){
                     tracklistItem.artists.forEach((artist) => {
@@ -210,7 +228,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                 })
               }
 
-              if (release.role === "TrackAppearance"){
+              if (release.albumRole === "TrackAppearance"){
                 release.tracklist.forEach((tracklistItem) => {
                   if (tracklistItem.artists){
                     tracklistItem.artists.forEach((artist) => {
@@ -219,8 +237,10 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                         delete renamedTracklistItem.title          
                         renamedTracklistItem.availableOn = "discogs"
                         renamedTracklistItem.onAlbum = release
+                        renamedTracklistItem.links = release.videos
                         renamedTracklistItem.artists = [{name: artist.name}]
                         renamedTracklistItem.trackRole = "Main"
+                        renamedTracklistItem.albumRole = release.albumRole
                         tracks.push(renamedTracklistItem)
                       }
                     })
@@ -228,7 +248,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                 })
               }
 
-              if (release.role === "Appearance"){
+              if (release.albumRole === "Appearance"){
                 release.tracklist.forEach((tracklistItem) => {
                   if (tracklistItem.extraartists){
                     tracklistItem.extraartists.forEach((extraartist) => {
@@ -237,7 +257,9 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                               delete renamedTracklistItem.title
                               renamedTracklistItem.availableOn = "discogs"
                               renamedTracklistItem.onAlbum = release
+                              renamedTracklistItem.links = release.videos
                               renamedTracklistItem.trackRole = extraartist.role
+                              renamedTracklistItem.albumRole = release.albumRole
                               renamedTracklistItem.artists = [{name: release.artistName + " & " + extraartist.name + ` (${renamedTracklistItem.trackRole})`}]
                               tracks.push(renamedTracklistItem)
                       }
@@ -246,7 +268,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                 })
               }
 
-              if (release.role === "UnofficialRelease"){
+              if (release.albumRole === "UnofficialRelease"){
                 release.tracklist.forEach((tracklistItem) => {
                   if (tracklistItem.artists){
                     console.log("tracklistitem.artists exists")
@@ -257,8 +279,10 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                         delete renamedTracklistItem.title
                         renamedTracklistItem.availableOn = "discogs"
                         renamedTracklistItem.onAlbum = release
+                        renamedTracklistItem.links = release.videos
                         renamedTracklistItem.artists = [{name: artist.name}]
                         renamedTracklistItem.trackRole = "Main"
+                        renamedTracklistItem.albumRole = release.albumRole
                         tracks.push(renamedTracklistItem)
                       } else {
                         console.log("not a match")
@@ -269,14 +293,16 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                         delete renamedTracklistItem.title
                         renamedTracklistItem.availableOn = "discogs"
                         renamedTracklistItem.onAlbum = release
+                        renamedTracklistItem.links = release.videos
                         renamedTracklistItem.artists = [{name: release.artistName}]
                         renamedTracklistItem.trackRole = "Main"
+                        renamedTracklistItem.albumRole = release.albumRole
                         tracks.push(renamedTracklistItem)
                   }
                 })
               }
 
-              if (release.role === "Producer"){
+              if (release.albumRole === "Producer"){
 
                 let artistMatchFound = false
                 let foundInTrackList = true
@@ -305,8 +331,10 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                         delete renamedTracklistItem.title
                         renamedTracklistItem.availableOn = "discogs"
                         renamedTracklistItem.onAlbum = release
+                        renamedTracklistItem.links = release.videos
                         renamedTracklistItem.artists = [{name: release.artistName}]
                         renamedTracklistItem.trackRole = trackRole
+                        renamedTracklistItem.albumRole = release.albumRole
                         tracks.push(renamedTracklistItem)
                   })
                 } 
@@ -317,7 +345,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                     delete renamedTracklistItem.title
                     renamedTracklistItem.availableOn = "discogs"
                     renamedTracklistItem.onAlbum = release
-
+                    renamedTracklistItem.links = release.videos
                     if (tracklistItem.artists){
                       tracklistItem.artists.forEach((artist) => {
                         if (Number(artist.id) === Number(discogsArtistId)){
@@ -333,6 +361,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                           }
                           
                           renamedTracklistItem.trackRole = trackRole
+                          renamedTracklistItem.albumRole = release.albumRole
                           tracks.push(renamedTracklistItem)
                         } else if (tracklistItem.extraartists){
 
@@ -342,6 +371,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                               console.log("okk")
                               renamedTracklistItem.artists = tracklistItem.artists
                               renamedTracklistItem.trackRole = extraartist.role
+                              renamedTracklistItem.albumRole = release.albumRole
                               tracks.push(renamedTracklistItem)
                             }
                           })
@@ -353,6 +383,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                           console.log("okk")
                           renamedTracklistItem.artists = release.artists
                           renamedTracklistItem.trackRole = extraartist.role
+                          renamedTracklistItem.albumRole = release.albumRole
                           tracks.push(renamedTracklistItem)
                         }
                       })
@@ -381,8 +412,10 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                               delete renamedTracklistItem.title
                               renamedTracklistItem.availableOn = "discogs"
                               renamedTracklistItem.onAlbum = release
+                              renamedTracklistItem.links = release.videos
                               renamedTracklistItem.artists = release.artists
                               renamedTracklistItem.trackRole = extraartist.role
+                              renamedTracklistItem.albumRole = release.albumRole
                               tracks.push(renamedTracklistItem)
                             } else {
                               console.log("no")
@@ -396,8 +429,10 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                           delete renamedTracklistItem.title
                           renamedTracklistItem.availableOn = "discogs"
                           renamedTracklistItem.onAlbum = release
+                          renamedTracklistItem.links = release.videos
                           renamedTracklistItem.artists = release.artists
                           renamedTracklistItem.trackRole = extraartist.role
+                          renamedTracklistItem.albumRole = release.albumRole
                           tracks.push(renamedTracklistItem)
                         })
                         console.log("extraartist.tracks DNE")
@@ -466,7 +501,7 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
         console.log("albums index - master", index, discogsAlbumsArray.length)
       } else {
         getDiscogsReleases(discogsArtistId, discogsAlbumsArray[index].id, discogsAlbumsArray[index])   
-        console.log("albums index - release" , index, discogsAlbumsArray.length)
+        console.log("albums index - release" , index, discogsAlbumsArray.length, discogsAlbumsArray[index].albumName)
       }
       
 

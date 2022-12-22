@@ -16,15 +16,15 @@ const ResultsTable = () => {
     const [option, setOption] = useState(combinedTracks)
     const [selectedButton, setSelectedButton] = useState(combinedTracks)
 
-    console.log("alldata",allData)
-    console.log("combinedalbums",combinedAlbums)
+    
+    
     console.log("combinedtracks",combinedTracks)
     
     useEffect(() => {
       if (selectedButton === 'combinedTracks') {
         setOption(spellChecked);
-      } else if (selectedButton === 'spellChecked') {
-        setOption(spellChecked);
+      } else if (selectedButton === 'sortedTracks') {
+        setOption(sortedTracks);
       } else if (selectedButton === 'filtered') {
         setOption(filtered);
       } else (
@@ -57,57 +57,68 @@ const ResultsTable = () => {
 
 
 
+
+const result = [];
+
+smushed.forEach((element, index) => {
+  let found = false;
+  result.forEach(group => {
+    if (group[0] === element) {
+      group.push(index);
+      found = true;
+    }
+  });
+  if (!found) {
+    result.push([element, index]);
+  }
+  
+});
+result.forEach((item) => item.shift())
+
+
+
+
+
+
     
-
-    const firstOccurrenceIndices = arr.filter((item, index) => arr.indexOf(item) === index)
-      .map(item => arr.indexOf(item));
-    
-    const occurrences = firstOccurrenceIndices.map(index => {
-      const item = arr[index];
-      return arr.slice(index + 1).map((_, i) => i + index + 1).filter(i => arr[i] === item);
-    });
-    
-    const result = firstOccurrenceIndices.map((index, i) => ({ [index]: occurrences[i] }));
-    
-    
-    
-
-
-
-
-
-
-
-    
-    
-
 
 let indexes = []
-let mergedTracks = [];
 
 
 
-// Group the tracks by track name
-for (let track of combinedTracks) {
-  let found = false;
-  for (let mergedTrack of mergedTracks) {
-    if (mergedTrack.hasOwnProperty(track.trackName)) {
-      mergedTrack[track.trackName].push(track);
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    let obj = {};
-    obj[track.trackName] = [track];
-    mergedTracks.push(obj);
-  }
-}
+
+const mergedTracks = result.map(indexes => {
+  // Get the tracks at the given indexes
+  const tracks = indexes.map(index => combinedTracks[index]);
+
+  // Create a count of the track names
+  const trackNameCount = tracks.reduce((counts, track) => {
+    const name = track.trackName;
+    counts[name] = (counts[name] || 0) + 1;
+    return counts;
+  }, {});
+
+  // Find the track name that appears the most frequently
+  const mostFrequentTrackName = Object.keys(trackNameCount).reduce((a, b) => trackNameCount[a] > trackNameCount[b] ? a : b);
+
+  // Return an object with the most frequent track name as the key and the tracks as the value
+  return { [mostFrequentTrackName]: tracks };
+});
+
+const sortedTracks = mergedTracks.sort((a, b) => {
+  // Get the track names
+  const trackNameA = Object.keys(a)[0];
+  const trackNameB = Object.keys(b)[0];
+
+  // Get the frequency of the track names
+  const frequencyA = a[trackNameA].length;
+  const frequencyB = b[trackNameB].length;
+
+  // Return a negative value if A appears less frequently than B, a positive value if A appears more frequently than B, or 0 if they appear the same number of times
+  return frequencyA - frequencyB;
+});
 
 
-    
-    
-    
 
 console.log(mergedTracks)
 
@@ -203,8 +214,8 @@ const filtered2 = filterff(spellChecked2)
       }
         }>combinedTracks</button>
       <button onClick={() => {
-        setOption(spellChecked)
-        setSelectedButton('spellChecked')
+        setOption(sortedTracks)
+        setSelectedButton('sortedTracks')
       }
       }>spellChecked</button>
       <button onClick={() => {
@@ -225,13 +236,14 @@ const filtered2 = filterff(spellChecked2)
           <th>Appears On</th>
           <th>Available On</th>
           <th>Link</th>
-          <th>Track Role</th>
           <th>Album Role</th>
+          <th>Track Role</th>
         </tr>
       </thead>
       <tbody>
         {option.map((item, index) => {
           let track = Object.keys(item)[0]
+          
           return (
           
           <tr key={index}>
@@ -251,7 +263,23 @@ const filtered2 = filterff(spellChecked2)
               </td>
             <td>{Object.values(item)[0].map((value) => value.availableOn).filter((value, index, self) => self.indexOf(value) === index).join(", ")}
             </td>   
-            {/* <td>{item.availableOn === "discogs" && item.onAlbum.videos && item.onAlbum.videos.length > 0 ? <a href={item.onAlbum.videos[0].uri}>YouTube Link</a> : item.availableOn === "spotify" && <a href={item.external_urls.spotify}>Spotify Link</a>}</td>   */}
+            <td>{
+  Object.values(item)[0]
+    .filter(value => value.availableOn && value.links[0]?.uri)
+    .map(value => value.links[0]?.uri)
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .join(", ")
+}</td>
+<td>{Object.values(item)[0]
+                  .map((value) => value?.albumRole)
+                  .flat()
+                  .filter((value, index, self) => self.indexOf(value) === index)
+                  .join(", ")}</td> 
+<td>{Object.values(item)[0]
+                  .map((value) => value?.trackRole)
+                  .flat()
+                  .filter((value, index, self) => self.indexOf(value) === index)
+                  .join(", ")}</td>  
             {/* <td>{item.itemRole && <>item role: {item.itemRole}</>}</td>  */}
             {/* <td>{item.onAlbum ? <>album role: {item.onAlbum.role}</> : <>no role</>}</td>    */}
           </tr>
