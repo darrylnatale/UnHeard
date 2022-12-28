@@ -4,7 +4,7 @@
     let {... , ...} = req.body
     
       try {
-        const ... = await db.getArtistReleases(...,...)
+        const ... = await db.getDiscogsArtistReleases(...,...)
         if(...){
             res.status(200).json({status: 200, message: "...", data: ... })
         } else {

@@ -27,7 +27,15 @@ const ResultsTable = () => {
         setOption(sortedTracks);
       } else if (selectedButton === 'filtered') {
         setOption(filtered);
-      } else (
+      } else if (selectedButton === 'notOnSpotify'){
+        setOption(notOnSpotify)
+      } else if (selectedButton === "notOnSpotifyFiltered") {
+        setOption(notOnSpotifyFiltered)
+      } else if (selectedButton === "onlyOnce") {
+        setOption(onlyOnce)
+      } else if (selectedButton === "onlyOnceFiltered") {
+        setOption(onlyOnceFiltered)
+      }else (
         setOption(spellChecked)
       )
     }, [allData, selectedButton]);
@@ -203,6 +211,29 @@ const filtered2 = filterff(spellChecked2)
 
 
 
+
+const notOnSpotify = spellChecked.filter(item => {
+  // Destructure the key/value pair of the object
+  const [, value] = Object.entries(item)[0];
+  // Check if the value array contains an object with {availableOn: "spotify"}
+  return !value.some(obj => obj.availableOn === "spotify");
+});
+
+const notOnSpotifyFiltered = filter(notOnSpotify)
+
+console.log(notOnSpotifyFiltered)
+
+const onlyOneOccurrence = (array) => {
+  return array.filter(item => {
+    // Destructure the key/value pair of the object
+    const [, value] = Object.entries(item)[0];
+    // Check if the length of the value array is less than or equal to 1
+    return value.length <= 1;
+  });
+}
+  const onlyOnce = onlyOneOccurrence(notOnSpotify)
+  const onlyOnceFiltered = filter(onlyOnce)
+console.log("onlyoneoccurence - notonspotify",onlyOneOccurrence(notOnSpotify))
   if (allData.albums && allData.artistName){
     
   return (
@@ -222,11 +253,30 @@ const filtered2 = filterff(spellChecked2)
         setOption(filtered)
         setSelectedButton('filtered')
       }}>filtered</button>
+      <button onClick={() => {
+        setOption(notOnSpotify)
+        setSelectedButton('notOnSpotify')
+      }}>not on Spotify</button>
+      <button onClick={() => {
+        setOption(notOnSpotifyFiltered)
+        setSelectedButton('notOnSpotifyFiltered')
+      }}>notOnSpotifyFiltered</button>
+      <button onClick={() => {
+        setOption(onlyOnce)
+        setSelectedButton('onlyOnce')
+      }}>onlyOnce</button>
+      <button onClick={() => {
+        setOption(onlyOnceFiltered)
+        setSelectedButton('onlyOnceFiltered')
+      }}>onlyOnceFiltered</button>
       <div>{option.length} SHOWING FOUND (option)</div>
       <div>{combinedTracks.length} TRACKS FOUND (combinedTracks)</div>
       <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
       <div>{filtered.length} AFTER FILTERED TRACKS FOUND (filtered)</div>
-      <div>{filtered2.length} RAREST TRACKS FOUND (filtered2)</div>
+      <div>{notOnSpotify.length} NOT ON SPOTIFY TRACKS FOUND (notOnSpotify)</div>
+      <div>{notOnSpotifyFiltered.length} NOT ON SPOTIFY FILTERED TRACKS FOUND (notOnSpotifyFiltered)</div>
+      <div>{onlyOnce.length} ONLY ONCE TRACKS FOUND (ONLYONCE)</div>
+      <div>{onlyOnceFiltered.length} ONLY ONCE FILTERED TRACKS FOUND (ONLYONCEFILTERED)</div>
     <StyledTable>
       <thead>
         <tr>

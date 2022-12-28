@@ -29,15 +29,15 @@ time, mark, audio, video {
     src: url(../fonts/PPEiko.woff2) format("woff2");
   }
 
-  @font-face {
+  /* @font-face {
     font-family: "RadioBold";
     src: url(../fonts/PPRadioGrotesk-Bold.woff) format("woff");
-  }
+  } */
 	
-  @font-face {
+  /* @font-face {
     font-family: "Radio";
     src: url(../fonts/PPRadioGrotesk-Regular.woff) format("woff");
-  }
+  } */
 
 	margin: 0;
 	padding: 0;

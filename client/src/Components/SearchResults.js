@@ -89,6 +89,7 @@ const SearchResults = () => {
               {discogsSearchResults.map((discogsSearchResult, index) => {
 
                 if (discogsSearchResult) {
+                  console.log(discogsSearchResult.realname)
                   return <ArtistButton 
                               key={index} 
                               clickHandler={() => {
@@ -100,6 +101,9 @@ const SearchResults = () => {
                               thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
                               profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
                               name={discogsSearchResult.name}
+                              aliases={discogsSearchResult?.aliases}
+                              nameVariations={discogsSearchResult?.namevariations}
+                              realName={discogsSearchResult.realname}
                               discogsArtistId={discogsSearchResult.id}/>}
                           })}
           </StyledDiscogsSearchResults>

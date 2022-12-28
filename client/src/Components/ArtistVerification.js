@@ -5,11 +5,11 @@ import styled from "styled-components";
 import getDiscogsContent from "../Functions/getDiscogsContent";
 import getSpotifyContent from "../Functions/getSpotifyContent";
 
-const ArtistVerification = ({getDiscogsMasters, getSpotifyContent}) => {
+const ArtistVerification = ({getDiscogsMasters, getSpotifyContent, getDiscogsArtistReleases}) => {
   
-  const {exactSpotifyNameMatch, discogsArtistIdState, setExactSpotifyNameMatch, setDiscogsContent,setIsInMongo, setSelectedArtist} = useContext(Context)
+  const {exactSpotifyNameMatch, discogsArtistIdState, setExactSpotifyNameMatch, setDiscogsContent,setIsInMongo, setSelectedArtist, selectedArtist} = useContext(Context)
       
-  const storeMatchedArtistIds = (spotifyArtistId, artistName) => {
+  const storeMatchedArtistIds = (spotifyArtistId, artistName, discogsArtistId) => {
         
         fetch(`/storeMatchedArtistIds`, {
           method: "POST",
@@ -32,8 +32,11 @@ const ArtistVerification = ({getDiscogsMasters, getSpotifyContent}) => {
               const discogsArtistId = data.data.discogsArtistId
               const artistName = data.data.artistName    
 
+              
+              
+
               getSpotifyContent(spotifyArtistId, artistName)
-              getDiscogsMasters(discogsArtistId)
+              getDiscogsArtistReleases(discogsArtistId, 1)
             }
            })
            .catch((err) => console.log(err));
@@ -78,6 +81,8 @@ const ArtistVerification = ({getDiscogsMasters, getSpotifyContent}) => {
     <ArtistButtonContainer>
     {
       exactSpotifyNameMatch.map((match, index) => {
+        console.log("discogsartistidstate", discogsArtistIdState)
+        
         return (
                 <StyledArtistButton key={match.id} onClick={() => {storeMatchedArtistIds(match.id, match.name, discogsArtistIdState); }}>
                   {match.images[0] && <StyledImage src={match.images[0].url}/>}

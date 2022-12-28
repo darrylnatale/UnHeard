@@ -468,7 +468,7 @@ useEffect(() => {
   if(isInMongo){
     
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
-    getArtistReleases(selectedArtist.discogsArtistId, 1)
+    getDiscogsArtistReleases(selectedArtist.discogsArtistId, 1)
   }
   },[isInMongo])
 
@@ -517,10 +517,10 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
 
 }
 
-const getArtistReleases = async (discogsArtistId, page) => {
+const getDiscogsArtistReleases = async (discogsArtistId, page) => {
     
     try {
-      const response = await fetch(`/getArtistReleases`, {
+      const response = await fetch(`/getDiscogsArtistReleases`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -618,7 +618,7 @@ const getArtistReleases = async (discogsArtistId, page) => {
         
         {submitted && <SearchResults />}
         
-        {exactSpotifyNameMatch && <ArtistVerification getDiscogsMasters={getDiscogsMasters} getSpotifyContent={getSpotifyContent}/>}     
+        {exactSpotifyNameMatch && <ArtistVerification getDiscogsMasters={getDiscogsMasters} getSpotifyContent={getSpotifyContent} getDiscogsArtistReleases={getDiscogsArtistReleases}/>}     
         {allData && <ResultsTable />}
         {/* 
         

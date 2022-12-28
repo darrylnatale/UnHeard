@@ -270,7 +270,7 @@ try {
 
   const {spotifyArtistId, discogsArtistIdState, artistName} = req.body
   const stringifedDiscogsArtistId = JSON.stringify(discogsArtistIdState)
-  
+  console.log(spotifyArtistId, discogsArtistIdState, artistName)
 
   const newEntry = {
     spotifyArtistId: spotifyArtistId,
@@ -326,7 +326,7 @@ try {
   client.close();
 })
 
-.post("/getArtistReleases", async (req, res) => {
+.post("/getDiscogsArtistReleases", async (req, res) => {
   console.log(req.body)
   let discogsArtistId = req.body.discogsArtistId
   
@@ -716,7 +716,7 @@ if (totalAlbumsFound) {
 
 
 
-    // const artistReleases = await db.getArtistReleases(discogsArtistId, 
+    // const artistReleases = await db.getDiscogsArtistReleases(discogsArtistId, 
     //   // {page: page, per_page: 100}
     //   )
     

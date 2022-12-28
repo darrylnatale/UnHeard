@@ -2,9 +2,9 @@ import styled from "styled-components";
 import { useContext } from "react";
 import { Context } from "../Context";
 
-const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId }) => {
+const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId, aliases, nameVariations, realName }) => {
   
-    const { setDiscogsArtistIdState, discogsArtistIdState, setDiscogsSearchResults,  } = useContext(Context);
+    const { setDiscogsArtistIdState, discogsArtistIdState, setDiscogsSearchResults } = useContext(Context);
 
     const formatProfileText = (profile) => {
       let formattedProfileText = profile;
@@ -27,7 +27,7 @@ const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId }) =
   
 
   
-
+console.log(aliases)
   return (
     <StyledArtistButton
       onClick={() => {
@@ -40,6 +40,13 @@ const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId }) =
       <StyledImage src={thumb} />
       <Bio>
         <StyledArtistName>{name}</StyledArtistName>
+        <StyledArtistName>{realName}</StyledArtistName>
+        {aliases && aliases.map((alias) => {
+          return <div>Alias: {alias.name}</div>
+        })}
+        {nameVariations && nameVariations.map((nameVariation) => {
+          return <div>name variation: {nameVariation}</div>
+        })}
         <StyledProfileText>{formattedProfileText}</StyledProfileText>
       </Bio>
     </StyledArtistButton>
