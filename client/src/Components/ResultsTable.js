@@ -3,6 +3,8 @@ import { Context } from "../Context";
 import { useContext, useState, useEffect } from "react";
 import filter from "../Functions/filter";
 import smush from "../Functions/smush";
+import smushString from "../Functions/smushString";
+import React from "react";
 import findDuplicates from "../Functions/findDuplicates";
 
 
@@ -18,13 +20,11 @@ const ResultsTable = () => {
 
     
     
-    console.log("combinedtracks",combinedTracks)
+    
     
     useEffect(() => {
-      if (selectedButton === 'combinedTracks') {
+      if (selectedButton === 'spellChecked') {
         setOption(spellChecked);
-      } else if (selectedButton === 'sortedTracks') {
-        setOption(sortedTracks);
       } else if (selectedButton === 'filtered') {
         setOption(filtered);
       } else if (selectedButton === 'notOnSpotify'){
@@ -35,35 +35,18 @@ const ResultsTable = () => {
         setOption(onlyOnce)
       } else if (selectedButton === "onlyOnceFiltered") {
         setOption(onlyOnceFiltered)
-      }else (
-        setOption(spellChecked)
+      } else if (selectedButton === "twice") {
+        setOption(twice)
+      } else if (selectedButton === "twiceFiltered") {
+        setOption(twiceFiltered)
+      } else (
+        setOption(notOnSpotifyFiltered)
       )
     }, [allData, selectedButton]);
 
-    function sort(a, b) {
-      if (a.trackName < b.trackName) {
-        return -1;
-      }
-      if (a.trackName > b.trackName) {
-        return 1;
-      }
-      return 0;
-    }
-
-    const sorted = () => {
-      setAllData(prevState => ({
-        ...prevState,
-        tracks: combinedTracks.sort(sort)
-      }))
-    }
-
-    const smushed = smush(combinedTracks);
-
     
 
-    
-
-
+const smushed = smush(combinedTracks);
 
 
 const result = [];
@@ -91,9 +74,6 @@ result.forEach((item) => item.shift())
     
 
 let indexes = []
-
-
-
 
 const mergedTracks = result.map(indexes => {
   // Get the tracks at the given indexes
@@ -128,7 +108,7 @@ const sortedTracks = mergedTracks.sort((a, b) => {
 
 
 
-console.log(mergedTracks)
+
 
 
 
@@ -142,76 +122,6 @@ const spellChecked = mergedTracks.filter((_, i) => !indexes.includes(i));
 const filtered = filter(mergedTracks)
 
 
-
-
-
-const oneTime = (tracks) => {
-  // Create an empty object to store the unique track names
-  let oneTime = {};
-
-  // Loop through the array of tracks
-  for (let i = 0; i < tracks.length; i++) {
-    // Get the track name
-    let trackName = tracks[i].trackName;
-
-    // If the track name hasn't been seen before, add it to the unique tracks object
-    if (!oneTime[trackName]) {
-      oneTime[trackName] = 1;
-    } else {
-      oneTime[trackName] += 1 
-    }
-  }
-  let y = []
-  for (let trackName in oneTime){
-    if (oneTime[trackName] <= 1){
-      y.push(trackName)
-    }
-  }
-
-  // Return the array of unique track names
-  return y;
-}
-
-
-const x = oneTime(combinedTracks)
-
-const smush2 = smush(x, "objects") 
-
-const indexes2 = [];
-
-// Set to hold the items that have already been seen
-const seen2 = new Set();
-
-// Iterate over the array
-smush2.forEach((item, i) => {
-  // If the item has already been seen, add its index to the list of indexes
-  if (seen2.has(item)) {
-    indexes2.push(i);
-  }
-  // Otherwise, add the item to the set of seen items
-  else {
-    seen2.add(item);
-  }
-});
-
-const spellChecked2 = x.filter((_, i) => !indexes2.includes(i));
-
-const filterff = (array) => {
-
-  const filters = ["Remaster", "Remaaster","- Live", "Dub", "(Live)", "Acoustic", "Alternate Take", "Outtake", "- Take", "Maxi", "Mix", "Version", "Remix", "Edit", "Dub Mix", "Live at", "Club Mix", "World Tour", "Vocal", `12"`, `7"`, "Instrumental"]
-  const filteredSongs = array.filter((song) => {
-      
-      return filters.every(filter => !song.toLowerCase().includes(filter.toLowerCase()))
-  }
-      );
-
-  return filteredSongs;
-}
-const filtered2 = filterff(spellChecked2)
-
-
-
-
 const notOnSpotify = spellChecked.filter(item => {
   // Destructure the key/value pair of the object
   const [, value] = Object.entries(item)[0];
@@ -221,7 +131,7 @@ const notOnSpotify = spellChecked.filter(item => {
 
 const notOnSpotifyFiltered = filter(notOnSpotify)
 
-console.log(notOnSpotifyFiltered)
+
 
 const onlyOneOccurrence = (array) => {
   return array.filter(item => {
@@ -231,22 +141,28 @@ const onlyOneOccurrence = (array) => {
     return value.length <= 1;
   });
 }
+
+const twoOccurrences = (array) => {
+  return array.filter(item => {
+    // Destructure the key/value pair of the object
+    const [, value] = Object.entries(item)[0];
+    // Check if the length of the value array is less than or equal to 1
+    return value.length === 2;
+  });
+}
+
   const onlyOnce = onlyOneOccurrence(notOnSpotify)
   const onlyOnceFiltered = filter(onlyOnce)
-console.log("onlyoneoccurence - notonspotify",onlyOneOccurrence(notOnSpotify))
+  const twice = twoOccurrences(notOnSpotify)
+  const twiceFiltered = filter(twice)
+
   if (allData.albums && allData.artistName){
     
   return (
     <>
-      <button onClick={() => sorted()}>sort a-z</button>
       <button onClick={() => {
-        setOption(combinedTracks)
-        setSelectedButton('combinedTracks')
-      }
-        }>combinedTracks</button>
-      <button onClick={() => {
-        setOption(sortedTracks)
-        setSelectedButton('sortedTracks')
+        setOption(spellChecked)
+        setSelectedButton('spellChecked')
       }
       }>spellChecked</button>
       <button onClick={() => {
@@ -269,6 +185,14 @@ console.log("onlyoneoccurence - notonspotify",onlyOneOccurrence(notOnSpotify))
         setOption(onlyOnceFiltered)
         setSelectedButton('onlyOnceFiltered')
       }}>onlyOnceFiltered</button>
+      <button onClick={() => {
+        setOption(twice)
+        setSelectedButton('twice')
+      }}>twice</button>
+      <button onClick={() => {
+        setOption(twiceFiltered)
+        setSelectedButton('twiceFiltered')
+      }}>twiceFiltered</button>
       <div>{option.length} SHOWING FOUND (option)</div>
       <div>{combinedTracks.length} TRACKS FOUND (combinedTracks)</div>
       <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
@@ -277,6 +201,11 @@ console.log("onlyoneoccurence - notonspotify",onlyOneOccurrence(notOnSpotify))
       <div>{notOnSpotifyFiltered.length} NOT ON SPOTIFY FILTERED TRACKS FOUND (notOnSpotifyFiltered)</div>
       <div>{onlyOnce.length} ONLY ONCE TRACKS FOUND (ONLYONCE)</div>
       <div>{onlyOnceFiltered.length} ONLY ONCE FILTERED TRACKS FOUND (ONLYONCEFILTERED)</div>
+      <div>{twice.length} TWICE TRACKS FOUND (twice)</div>
+      <div>{twiceFiltered.length} TWICE FILTERED TRACKS FOUND (twiceFiltered)</div>
+      <div>Here's a song you might not know:</div>
+
+
     <StyledTable>
       <thead>
         <tr>
@@ -305,21 +234,34 @@ console.log("onlyoneoccurence - notonspotify",onlyOneOccurrence(notOnSpotify))
                   .join(", ")}
             </td>
             <td>{track}</td>
-            <td>
-                {Object.values(item)[0]
-                  .map((value) => value.onAlbum.albumName)
-                  .filter((value, index, self) => self.indexOf(value) === index)
-                  .join(", ")}
-              </td>
+           <td>
+  {React.Children.toArray(
+    Object.values(item)[0]
+      .map((value) => {
+        return (
+          <div>- <a href={value.onAlbum.uri}>{value.onAlbum.albumName}</a></div>
+        );
+      })
+      // .filter((value, index, self) => self.indexOf(value) === index)
+  )}
+</td>
+
             <td>{Object.values(item)[0].map((value) => value.availableOn).filter((value, index, self) => self.indexOf(value) === index).join(", ")}
             </td>   
-            <td>{
-  Object.values(item)[0]
+            <td>
+            {React.Children.toArray(
+    Object.values(item)[0]
     .filter(value => value.availableOn && value.links[0]?.uri)
-    .map(value => value.links[0]?.uri)
-    .filter((value, index, self) => self.indexOf(value) === index)
-    .join(", ")
-}</td>
+    .map(value => {
+      if (smushString(value.links[0]?.trackName).includes(smushString(track))){
+        return (
+          <a href={value.links[0]?.uri}>{value.links[0]?.trackName}</a>
+          )
+      }
+    })
+      
+  )}
+              </td>
 <td>{Object.values(item)[0]
                   .map((value) => value?.albumRole)
                   .flat()

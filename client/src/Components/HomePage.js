@@ -115,59 +115,49 @@ const getDiscogsMasters = (discogsArtistId, albumId, albumOverview) => {
                   const tracks = []
 
                 master.tracklist.forEach((tracklistItem) => {
-                  const renamedTrackListItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                  delete renamedTrackListItem.title
-                  renamedTrackListItem.availableOn = "discogs"
-                  renamedTrackListItem.onAlbum = master
-                  renamedTrackListItem.albumRole = master.albumRole
+  const renamedTrackListItem = {
+    trackName: tracklistItem.title,
+    availableOn: "discogs",
+    onAlbum: master,
+    albumRole: master.albumRole,
+    links: master.videos,
+  };
+  if (tracklistItem.type_ && tracklistItem.type_ === "heading") {
+    console.log(tracklistItem.title);
+  } else {
+    let artists = [{name: master.artistName}];
+    let trackRole = "Main";
+    if (tracklistItem.artists) {
+      tracklistItem.artists.forEach((artist) => {
+        if (Number(artist.id) === Number(discogsArtistId)) {
+          tracks.push({...renamedTrackListItem, artists, trackRole});
+        }
+      });
+    } else if (tracklistItem.extraartists) {
+      let found = false;
+      tracklistItem.extraartists.forEach((extraartist) => {
+        if (Number(extraartist.id) === Number(discogsArtistId)) {
+          found = true;
+          artists = [{name: tracklistItem.name}];
+          trackRole = extraartist.role;
+          tracks.push({...renamedTrackListItem, artists, trackRole});
+        } 
+      });
+      if (!found && master.extraartists) {
+        master.extraartists.forEach((extraartist) => {
+          if (Number(extraartist.id) === Number(discogsArtistId)) {
+            artists = [...master.artists, {name: extraartist.name}];
+            trackRole = extraartist.role;
+            tracks.push({...renamedTrackListItem, artists, trackRole});
+          }
+        });
+      }
+    } else {
+      tracks.push({...renamedTrackListItem, artists, trackRole: "x "});
+    }
+  }
+});
 
-                  // let foundVideo = null
-                  // master.videos.forEach((video) => {
-                  //   if (video.title.toLowerCase().replace(/[^0-9A-Za-z]/g, "").includes(renamedTrackListItem.trackName.toLowerCase().replace(/[^0-9A-Za-z]/g, ""))){
-                  //     console.log("trackname",renamedTrackListItem.trackName, "vidname", video.title)
-                  //   } else {
-                  //     console.log("vidnamenomathc",video.title)
-                  //   }
-                    
-                  // })
-                  renamedTrackListItem.links = master.videos
-
-                    if (tracklistItem.artists) {
-                      tracklistItem.artists.forEach((artist) => {
-                      if (Number(artist.id) === Number(discogsArtistId)){
-                        renamedTrackListItem.artists = [{name: master.artistName}]
-                        renamedTrackListItem.trackRole = "Main"
-                        tracks.push(renamedTrackListItem)
-                      }
-                    })
-                  } else if (tracklistItem.extraartists){
-                    let found = false
-                    tracklistItem.extraartists.forEach((extraartist) => {
-                      if (Number(extraartist.id) === Number(discogsArtistId)){
-                        found = true
-                        renamedTrackListItem.artists = [{name: tracklistItem.name}]
-                        renamedTrackListItem.trackRole = extraartist.role
-                        tracks.push(renamedTrackListItem)
-                      } 
-                    })
-
-                    if (!found && master.extraartists){
-                      master.extraartists.forEach((extraartist) => {
-                        if (Number(extraartist.id) === Number(discogsArtistId)){
-                          renamedTrackListItem.artists = [...master.artists, {name: extraartist.name}]
-                          renamedTrackListItem.trackRole = extraartist.role
-                          
-                          tracks.push(renamedTrackListItem)
-                        }
-                      })
-                    }
-                  } else {
-                    renamedTrackListItem.artists = [{name: master.artistName}]
-                    renamedTrackListItem.trackRole = "x "
-                    tracks.push(renamedTrackListItem)
-                  }
-                    
-                  })
                 
 
 
@@ -199,54 +189,61 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
             .then((data) => {
               console.log(data)
               
-              const release = data.data
-              
-              const tracks = []
+              const release = data.data;
+const tracks = [];
 
-              if (release.albumRole === "Main"){
-                release.tracklist.forEach((tracklistItem) => {
-                  
-                  const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                  delete renamedTracklistItem.title
-                  renamedTracklistItem.availableOn = "discogs"
-                  renamedTracklistItem.onAlbum = release
-                  renamedTracklistItem.links = release.videos
-                  renamedTracklistItem.trackRole = "Main"
-                  renamedTracklistItem.albumRole = release.albumRole
+switch (release.albumRole) {
+  case "Main":
+    release.tracklist.forEach((tracklistItem) => {
+      const renamedTracklistItem = Object.assign({}, tracklistItem, { trackName: tracklistItem.title });
+      delete renamedTracklistItem.title;
+      renamedTracklistItem.availableOn = "discogs";
+      renamedTracklistItem.onAlbum = release;
+      renamedTracklistItem.links = release.videos;
+      renamedTracklistItem.trackRole = "Main";
+      renamedTracklistItem.albumRole = release.albumRole;
+      if (tracklistItem.type_ && tracklistItem.type_ === "heading") {
+        // do nothing
+      } else {
+        if (tracklistItem.artists) {
+          tracklistItem.artists.forEach((artist) => {
+            if (Number(artist.id) === Number(discogsArtistId)) {
+              renamedTracklistItem.artists = [{ name: artist.name }];
+              tracks.push(renamedTracklistItem);
+            }
+          });
+        } else {
+          renamedTracklistItem.artists = [{ name: release.artistName }];
+          tracks.push(renamedTracklistItem);
+        }
+      }
+    });
+    break;
+    
+  case "TrackAppearance":
+    release.tracklist.forEach((tracklistItem) => {
+      if (tracklistItem.artists) {
+        tracklistItem.artists.forEach((artist) => {
+          if (Number(artist.id) === Number(discogsArtistId)) {
+            const renamedTracklistItem = Object.assign({}, tracklistItem, { trackName: tracklistItem.title });
+            delete renamedTracklistItem.title;
+            renamedTracklistItem.availableOn = "discogs";
+            renamedTracklistItem.onAlbum = release;
+            renamedTracklistItem.links = release.videos;
+            renamedTracklistItem.artists = [{ name: artist.name }];
+            renamedTracklistItem.trackRole = "Main";
+            renamedTracklistItem.albumRole = release.albumRole;
+            tracks.push(renamedTracklistItem);
+          }
+        });
+      }
+    });
+    break;
+  default:
+    // do nothing
+    break;
+}
 
-                  if (tracklistItem.artists){
-                    tracklistItem.artists.forEach((artist) => {
-                      if (Number(artist.id) === Number(discogsArtistId)){
-                        renamedTracklistItem.artists = [{name: artist.name}]
-                        tracks.push(renamedTracklistItem)
-                      } 
-                    })
-                  } else {
-                        renamedTracklistItem.artists = [{name: release.artistName}]
-                        tracks.push(renamedTracklistItem)
-                  }
-                })
-              }
-
-              if (release.albumRole === "TrackAppearance"){
-                release.tracklist.forEach((tracklistItem) => {
-                  if (tracklistItem.artists){
-                    tracklistItem.artists.forEach((artist) => {
-                      if (Number(artist.id) === Number(discogsArtistId)){
-                        const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                        delete renamedTracklistItem.title          
-                        renamedTracklistItem.availableOn = "discogs"
-                        renamedTracklistItem.onAlbum = release
-                        renamedTracklistItem.links = release.videos
-                        renamedTracklistItem.artists = [{name: artist.name}]
-                        renamedTracklistItem.trackRole = "Main"
-                        renamedTracklistItem.albumRole = release.albumRole
-                        tracks.push(renamedTracklistItem)
-                      }
-                    })
-                  } 
-                })
-              }
 
               if (release.albumRole === "Appearance"){
                 release.tracklist.forEach((tracklistItem) => {
@@ -270,7 +267,9 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
 
               if (release.albumRole === "UnofficialRelease"){
                 release.tracklist.forEach((tracklistItem) => {
-                  if (tracklistItem.artists){
+                  if (tracklistItem.type_ && tracklistItem.type_ === "heading"){
+
+                  } else if (tracklistItem.artists){
                     console.log("tracklistitem.artists exists")
                     tracklistItem.artists.forEach((artist) => {
                       if (Number(artist.id) === Number(discogsArtistId)){
@@ -557,47 +556,50 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
         discogsArtistId: discogsArtistId,
         albums: [...prevState.albums, renamedReleases]
       }))
-      
-      if (data.data.pagination.urls.next){
-        // setReleases(prevArray => [...(prevArray || []), ...data.data.releases])
-        
-        let nextPageUrl = data.data.pagination.urls.next
-      
-        for (let i = 0; i < pages - 1 ; i++){
-          
-          let nextPageResponse = await fetch(nextPageUrl)
-          const data = await nextPageResponse.json();
-          
-          const renamedReleases = data.releases.map((release) => {
-            const renamedData = Object.assign({},
-              release, {albumName: release.title})
-              renamedData.availableOn = "discogs"
-              delete renamedData.title
-              delete renamedData.status
-              delete renamedData.stats
-              delete renamedData.blocked_from_sale
-              delete renamedData.community
-              delete renamedData.companies
-              delete renamedData.date_changed
-              delete renamedData.estimated_weight
-              delete renamedData.format_quantity
-              delete renamedData.lowest_price
-              delete renamedData.num_for_sale
-              delete renamedData.series
-              return renamedData
-          })
-          
-          setAllData(prevState => ({
-            ...prevState,
-            albums: [...prevState.albums, renamedReleases]
-          }))
 
-          nextPageUrl = data.pagination.urls.next
-          
-          
-         }
-      }
       setDiscogsContentFetched(true) 
+      // THIS NEEDS TO BE CALLED AT A DIFFERENT TIME
+
+      // if (data.data.pagination.urls.next){
+        
+        
+      //   let nextPageUrl = data.data.pagination.urls.next
+      
+      //   for (let i = 0; i < pages - 1 ; i++){
+          
+      //     let nextPageResponse = await fetch(nextPageUrl)
+      //     const data = await nextPageResponse.json();
+          
+      //     const renamedReleases = data.releases.map((release) => {
+      //       const renamedData = Object.assign({},
+      //         release, {albumName: release.title})
+      //         renamedData.availableOn = "discogs"
+      //         delete renamedData.title
+      //         delete renamedData.status
+      //         delete renamedData.stats
+      //         delete renamedData.blocked_from_sale
+      //         delete renamedData.community
+      //         delete renamedData.companies
+      //         delete renamedData.date_changed
+      //         delete renamedData.estimated_weight
+      //         delete renamedData.format_quantity
+      //         delete renamedData.lowest_price
+      //         delete renamedData.num_for_sale
+      //         delete renamedData.series
+      //         return renamedData
+      //     })
+          
+      //     setAllData(prevState => ({
+      //       ...prevState,
+      //       albums: [...prevState.albums, renamedReleases]
+      //     }))
+
+      //     nextPageUrl = data.pagination.urls.next
+          
+          
+      //    }
+      // }
+      
     }
     catch (err){
       console.log(err)
