@@ -8,7 +8,7 @@ import smush from "../Functions/smush";
 import SearchResults from "./SearchResults"
 import { useAuth0 } from "@auth0/auth0-react";
 import ResultsTable from "./ResultsTable";
-
+import modifyTracklistItem from "../Functions/modifyTracklistItem";
 
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
@@ -113,50 +113,53 @@ const getDiscogsMasters = (discogsArtistId, albumId, albumOverview) => {
                   const master = data.data.master                
                 
                   const tracks = []
-
-                master.tracklist.forEach((tracklistItem) => {
-  const renamedTrackListItem = {
-    trackName: tracklistItem.title,
-    availableOn: "discogs",
-    onAlbum: master,
-    albumRole: master.albumRole,
-    links: master.videos,
-  };
-  if (tracklistItem.type_ && tracklistItem.type_ === "heading") {
-    console.log(tracklistItem.title);
-  } else {
-    let artists = [{name: master.artistName}];
-    let trackRole = "Main";
-    if (tracklistItem.artists) {
-      tracklistItem.artists.forEach((artist) => {
-        if (Number(artist.id) === Number(discogsArtistId)) {
-          tracks.push({...renamedTrackListItem, artists, trackRole});
-        }
-      });
-    } else if (tracklistItem.extraartists) {
-      let found = false;
-      tracklistItem.extraartists.forEach((extraartist) => {
-        if (Number(extraartist.id) === Number(discogsArtistId)) {
-          found = true;
-          artists = [{name: tracklistItem.name}];
-          trackRole = extraartist.role;
-          tracks.push({...renamedTrackListItem, artists, trackRole});
-        } 
-      });
-      if (!found && master.extraartists) {
-        master.extraartists.forEach((extraartist) => {
-          if (Number(extraartist.id) === Number(discogsArtistId)) {
-            artists = [...master.artists, {name: extraartist.name}];
-            trackRole = extraartist.role;
+if (master.albumRole === "Main"){
+  master.tracklist.forEach((tracklistItem) => {
+                  
+    const renamedTrackListItem = {
+      trackName: tracklistItem.title,
+      availableOn: "discogs",
+      onAlbum: master,
+      albumRole: master.albumRole,
+      links: master.videos,
+    };
+    if (tracklistItem.type_ && tracklistItem.type_ === "heading") {
+      console.log(tracklistItem.title);
+    } else {
+      let artists = [{name: master.artistName}];
+      let trackRole = "Main";
+      if (tracklistItem.artists) {
+        tracklistItem.artists.forEach((artist) => {
+          if (Number(artist.id) === Number(discogsArtistId)) {
             tracks.push({...renamedTrackListItem, artists, trackRole});
           }
         });
+      } else if (tracklistItem.extraartists) {
+        let found = false;
+        tracklistItem.extraartists.forEach((extraartist) => {
+          if (Number(extraartist.id) === Number(discogsArtistId)) {
+            found = true;
+            artists = [{name: tracklistItem.name}];
+            trackRole = extraartist.role;
+            tracks.push({...renamedTrackListItem, artists, trackRole});
+          } 
+        });
+        if (!found && master.extraartists) {
+          master.extraartists.forEach((extraartist) => {
+            if (Number(extraartist.id) === Number(discogsArtistId)) {
+              artists = [...master.artists, {name: extraartist.name}];
+              trackRole = extraartist.role;
+              tracks.push({...renamedTrackListItem, artists, trackRole});
+            }
+          });
+        }
+      } else {
+        tracks.push({...renamedTrackListItem, artists, trackRole: "x "});
       }
-    } else {
-      tracks.push({...renamedTrackListItem, artists, trackRole: "x "});
     }
-  }
-});
+  });
+}
+                
 
                 
 
@@ -190,261 +193,227 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
               console.log(data)
               
               const release = data.data;
-const tracks = [];
+              const tracks = [];
+              console.log("release.albumRole",release.albumRole)
 
-switch (release.albumRole) {
-  case "Main":
-    release.tracklist.forEach((tracklistItem) => {
-      const renamedTracklistItem = Object.assign({}, tracklistItem, { trackName: tracklistItem.title });
-      delete renamedTracklistItem.title;
-      renamedTracklistItem.availableOn = "discogs";
-      renamedTracklistItem.onAlbum = release;
-      renamedTracklistItem.links = release.videos;
-      renamedTracklistItem.trackRole = "Main";
-      renamedTracklistItem.albumRole = release.albumRole;
-      if (tracklistItem.type_ && tracklistItem.type_ === "heading") {
-        // do nothing
-      } else {
-        if (tracklistItem.artists) {
-          tracklistItem.artists.forEach((artist) => {
-            if (Number(artist.id) === Number(discogsArtistId)) {
-              renamedTracklistItem.artists = [{ name: artist.name }];
-              tracks.push(renamedTracklistItem);
-            }
-          });
-        } else {
-          renamedTracklistItem.artists = [{ name: release.artistName }];
-          tracks.push(renamedTracklistItem);
-        }
-      }
-    });
-    break;
-    
-  case "TrackAppearance":
-    release.tracklist.forEach((tracklistItem) => {
-      if (tracklistItem.artists) {
-        tracklistItem.artists.forEach((artist) => {
-          if (Number(artist.id) === Number(discogsArtistId)) {
-            const renamedTracklistItem = Object.assign({}, tracklistItem, { trackName: tracklistItem.title });
-            delete renamedTracklistItem.title;
-            renamedTracklistItem.availableOn = "discogs";
-            renamedTracklistItem.onAlbum = release;
-            renamedTracklistItem.links = release.videos;
-            renamedTracklistItem.artists = [{ name: artist.name }];
-            renamedTracklistItem.trackRole = "Main";
-            renamedTracklistItem.albumRole = release.albumRole;
-            tracks.push(renamedTracklistItem);
-          }
-        });
-      }
-    });
-    break;
-  default:
-    // do nothing
-    break;
-}
+              switch (release.albumRole) {
 
-
-              if (release.albumRole === "Appearance"){
-                release.tracklist.forEach((tracklistItem) => {
-                  if (tracklistItem.extraartists){
-                    tracklistItem.extraartists.forEach((extraartist) => {
-                      if (Number(extraartist.id) === Number(discogsArtistId)){
-                          const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                              delete renamedTracklistItem.title
-                              renamedTracklistItem.availableOn = "discogs"
-                              renamedTracklistItem.onAlbum = release
-                              renamedTracklistItem.links = release.videos
-                              renamedTracklistItem.trackRole = extraartist.role
-                              renamedTracklistItem.albumRole = release.albumRole
-                              renamedTracklistItem.artists = [{name: release.artistName + " & " + extraartist.name + ` (${renamedTracklistItem.trackRole})`}]
-                              tracks.push(renamedTracklistItem)
-                      }
-                    })
-                  } 
-                })
-              }
-
-              if (release.albumRole === "UnofficialRelease"){
-                release.tracklist.forEach((tracklistItem) => {
-                  if (tracklistItem.type_ && tracklistItem.type_ === "heading"){
-
-                  } else if (tracklistItem.artists){
-                    console.log("tracklistitem.artists exists")
-                    tracklistItem.artists.forEach((artist) => {
-                      if (Number(artist.id) === Number(discogsArtistId)){
-                        console.log("match")
-                        const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                        delete renamedTracklistItem.title
-                        renamedTracklistItem.availableOn = "discogs"
-                        renamedTracklistItem.onAlbum = release
-                        renamedTracklistItem.links = release.videos
-                        renamedTracklistItem.artists = [{name: artist.name}]
-                        renamedTracklistItem.trackRole = "Main"
-                        renamedTracklistItem.albumRole = release.albumRole
-                        tracks.push(renamedTracklistItem)
+                case "Main":
+                  release.tracklist.forEach((tracklistItem) => {
+                    if (tracklistItem.type_ && tracklistItem.type_ !== "heading") {
+                      const modifiedTrack = modifyTracklistItem(tracklistItem, release, discogsArtistId);
+                      if (tracklistItem.artists && Number(modifiedTrack.artists[0].id) !== Number(discogsArtistId)) {
+                        // do nothing
                       } else {
-                        console.log("not a match")
+                        tracks.push(modifiedTrack);
                       }
-                    })
-                  } else {
-                    const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                        delete renamedTracklistItem.title
-                        renamedTracklistItem.availableOn = "discogs"
-                        renamedTracklistItem.onAlbum = release
-                        renamedTracklistItem.links = release.videos
-                        renamedTracklistItem.artists = [{name: release.artistName}]
-                        renamedTracklistItem.trackRole = "Main"
-                        renamedTracklistItem.albumRole = release.albumRole
-                        tracks.push(renamedTracklistItem)
-                  }
-                })
-              }
-
-              if (release.albumRole === "Producer"){
-
-                let artistMatchFound = false
-                let foundInTrackList = true
-                let trackRole = null
-
-                release.artists.forEach((artist) => {
-                  if (Number(artist.id) === Number(discogsArtistId)){
-                    console.log("its an artist match")
-                    artistMatchFound = true
-                  } else {
-                    console.log("its not an artist match")
-                  }
-                })
-
-                if (artistMatchFound && release.extraartists){
-                  release.extraartists.forEach((extraartist) => {
-                    if (Number(extraartist.id) === Number(discogsArtistId)){
-                      trackRole = extraartist.role
-                    } 
-                  })
-                }
-
-                if (artistMatchFound){
-                  release.tracklist.forEach((tracklistItem) => {
-                    const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                        delete renamedTracklistItem.title
-                        renamedTracklistItem.availableOn = "discogs"
-                        renamedTracklistItem.onAlbum = release
-                        renamedTracklistItem.links = release.videos
-                        renamedTracklistItem.artists = [{name: release.artistName}]
-                        renamedTracklistItem.trackRole = trackRole
-                        renamedTracklistItem.albumRole = release.albumRole
-                        tracks.push(renamedTracklistItem)
-                  })
-                } 
-                
-                if (!artistMatchFound) {
-                  release.tracklist.forEach((tracklistItem) => {
-                    const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                    delete renamedTracklistItem.title
-                    renamedTracklistItem.availableOn = "discogs"
-                    renamedTracklistItem.onAlbum = release
-                    renamedTracklistItem.links = release.videos
-                    if (tracklistItem.artists){
-                      tracklistItem.artists.forEach((artist) => {
-                        if (Number(artist.id) === Number(discogsArtistId)){
-                          console.log("match in tracklist - artists")
-                          
-                          renamedTracklistItem.artists = tracklistItem.artists
-                          if (tracklistItem.extraartists){
-                            tracklistItem.extraartists.forEach((extraartist) => {
-                              if (Number(artist.id) === Number(discogsArtistId)){
-                                trackRole = extraartist.role
-                              }
-                            })
-                          }
-                          
-                          renamedTracklistItem.trackRole = trackRole
-                          renamedTracklistItem.albumRole = release.albumRole
-                          tracks.push(renamedTracklistItem)
-                        } else if (tracklistItem.extraartists){
-
-                          console.log("NO match in tracklist - artists")
-                          tracklistItem.extraartists.forEach((extraartist) => {
-                            if (Number(extraartist.id) === Number(discogsArtistId)){
-                              console.log("okk")
-                              renamedTracklistItem.artists = tracklistItem.artists
-                              renamedTracklistItem.trackRole = extraartist.role
-                              renamedTracklistItem.albumRole = release.albumRole
-                              tracks.push(renamedTracklistItem)
-                            }
-                          })
-                        }
-                      })
-                    } else if (tracklistItem.extraartists){
-                      tracklistItem.extraartists.forEach((extraartist) => {
-                        if (Number(extraartist.id) === Number(discogsArtistId)){
-                          console.log("okk")
-                          renamedTracklistItem.artists = release.artists
-                          renamedTracklistItem.trackRole = extraartist.role
-                          renamedTracklistItem.albumRole = release.albumRole
-                          tracks.push(renamedTracklistItem)
-                        }
-                      })
-                      
-                    } else {
-                      foundInTrackList = false
                     }
-                  })
-                }
+                  });
+                  break;
+              
+                case "TrackAppearance":
 
-                if (!foundInTrackList && release.extraartists){
-                        console.log("not found in tracklist, but release.extraartists exists")
-                  release.extraartists.forEach((extraartist) => {
+                  // release.tracklist.forEach((tracklistItem) => {
+                  //   tracklistItem?.artists.forEach((artist) => {
+                  //     if (Number(artist.id) === Number(discogsArtistId)) {
+                  //       const modifiedTrack = modifyTracklistItem(tracklistItem, release, discogsArtistId);
+                  //       tracks.push(modifiedTrack)
+                  //     }
+                  //   });
                     
-                    if (Number(extraartist.id) === Number(discogsArtistId)){
-                        console.log("extraartist found")
-                        console.log(extraartist.role)
-                      if (extraartist.tracks){
+                  // });
+                  break;
 
-                        console.log("extraartist.tracks exists")
-                        console.log(extraartist.tracks)
-                        release.tracklist.forEach((tracklistItem) => {
-                          if (tracklistItem.position){
-                            if (tracklistItem.position === extraartist.tracks){
-                              const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                              delete renamedTracklistItem.title
-                              renamedTracklistItem.availableOn = "discogs"
-                              renamedTracklistItem.onAlbum = release
-                              renamedTracklistItem.links = release.videos
-                              renamedTracklistItem.artists = release.artists
-                              renamedTracklistItem.trackRole = extraartist.role
-                              renamedTracklistItem.albumRole = release.albumRole
-                              tracks.push(renamedTracklistItem)
-                            } else {
-                              console.log("no")
-                            }
-                          }
-                        })
+                  case "Appearance":
+                    // release.tracklist.forEach((tracklistItem) => {
+                    //   tracklistItem?.extraartists.forEach((extraartist) => {
+                    //       if (Number(extraartist.id) === Number(discogsArtistId)){
+                    //         const modifiedTrack = modifyTracklistItem(tracklistItem, release, discogsArtistId);  
+                    //               tracks.push(modifiedTrack)
+                    //       }
+                    //     })
+                    // });
+                    break;
+                  
+                  case "UnofficialRelease":
+                    // release.tracklist.forEach((tracklistItem) => {
+                    //   if (tracklistItem?.type_ === "heading"){
+    
+                    //   } else if (tracklistItem.artists){
+                    //     tracklistItem.artists.forEach((artist) => {
+                    //       if (Number(artist.id) === Number(discogsArtistId)){
+                    //         const modifiedTrack = modifyTracklistItem(tracklistItem, release, discogsArtistId)
+                    //         tracks.push(modifiedTrack)
+                    //       } 
+                    //     })
+                    //   } else {
+                    //     const modifiedTrack = modifyTracklistItem(tracklistItem, release, discogsArtistId)
+                    //         tracks.push(modifiedTrack)
+                    //   }
+                    // })
+                    break;
+                    case "Remix":
+                      break;
+
+                    case "Producer":
+                      // SIMPLIFY THE BELOW LATER, TOO COMPLICATED NOW, BUT IT WORKS:
+
+                // let foundInTrackList = true
+                // let trackRole = null
+
+                // release.artists.forEach((artist) => {
+                //   if (Number(artist.id) === Number(discogsArtistId)){
+                //     console.log("its an artist match")
+                //     artistMatchFound = true
+
+                //     release?.extraartists.forEach((extraartist) => {
+                //       if (Number(extraartist.id) === Number(discogsArtistId)){
+                //         trackRole = extraartist.role
+                //       } 
+                //     })
+
+                //     release.tracklist.forEach((tracklistItem) => {
+                //       const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+                //           delete renamedTracklistItem.title
+                //           renamedTracklistItem.availableOn = "discogs"
+                //           renamedTracklistItem.onAlbum = release
+                //           renamedTracklistItem.links = release.videos
+                //           renamedTracklistItem.artists = [{name: release.artistName}]
+                //           renamedTracklistItem.trackRole = trackRole
+                //           renamedTracklistItem.albumRole = release.albumRole
+                //           tracks.push(renamedTracklistItem)
+                //     })
+                //             // IF ARTIST NOT FOUND IN ARTISTS
+                //   } else {
+                //     release.tracklist.forEach((tracklistItem) => {
+                //       const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+                //       delete renamedTracklistItem.title
+                //       renamedTracklistItem.availableOn = "discogs"
+                //       renamedTracklistItem.onAlbum = release
+                //       renamedTracklistItem.links = release.videos
+                //       renamedTracklistItem.albumRole = release.albumRole
+                //       // IF THERE ARE TRACKLIST ARTISTS
+                //       if (tracklistItem.artists){
+                //         tracklistItem.artists.forEach((artist) => {
+                //           // CHECK IF ARTIST IS IN TRACKLIST ARTIST, ASSIGN ARTISTS
+                //           if (Number(artist.id) === Number(discogsArtistId)){
+                //             console.log("match in tracklist - artists")
+                            
+                //             renamedTracklistItem.artists = tracklistItem.artists
+                //             // IF THERE ARE TRACKLIST EXTRA ARTISTS, ASSIGN TRACK ROLE 
+                //             tracklistItem?.extraartists.forEach((extraartist) => {
+                //                 if (Number(extraartist.id) === Number(discogsArtistId)){
+                //                   trackRole = extraartist.role
+                //                 }
+                //               })
+                            
+                            
+                //             renamedTracklistItem.trackRole = trackRole
+                //             tracks.push(renamedTracklistItem)
+
+                //             //IF ARTIST IS NOT IN ARTISTS, CHECK IF EXTRAARTISTS EXISTS
+                //           } else if (tracklistItem.extraartists){
+  
+                            
+                //             tracklistItem.extraartists.forEach((extraartist) => {
+
+                            
+                //               if (Number(extraartist.id) === Number(discogsArtistId)){
+                //                 renamedTracklistItem.artists = tracklistItem.artists
+                //                 renamedTracklistItem.trackRole = extraartist.role
+                //                 tracks.push(renamedTracklistItem)
+                //               }
+                //             })
+                //           }
+                //         })
+                //       } else if (tracklistItem.extraartists){
+                //         tracklistItem.extraartists.forEach((extraartist) => {
+                //           if (Number(extraartist.id) === Number(discogsArtistId)){
+                //             renamedTracklistItem.artists = release.artists
+                //             renamedTracklistItem.trackRole = extraartist.role
+                //             tracks.push(renamedTracklistItem)
+                //           }
+                //         })
                         
-                      } else {
-                        release.tracklist.forEach((tracklistItem) => {
-                          const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
-                          delete renamedTracklistItem.title
-                          renamedTracklistItem.availableOn = "discogs"
-                          renamedTracklistItem.onAlbum = release
-                          renamedTracklistItem.links = release.videos
-                          renamedTracklistItem.artists = release.artists
-                          renamedTracklistItem.trackRole = extraartist.role
-                          renamedTracklistItem.albumRole = release.albumRole
-                          tracks.push(renamedTracklistItem)
-                        })
-                        console.log("extraartist.tracks DNE")
-                        // loop through tracklist anyway and put all on (might cause some bad results to show)
+                //       } else {
+                //         foundInTrackList = false
+                //       }
+                //     })
+                //   }
+                // })
 
-                      }
-                    }
-                  })
-                }
-                // if no match found, search extraartists for artist match
-                // if extraaartist match found, add all tracks to array
+                
 
+                
+                
+                
+
+                // if (!foundInTrackList && release.extraartists){
+                //         console.log("not found in tracklist, but release.extraartists exists")
+                //   release.extraartists.forEach((extraartist) => {
+                    
+                //     if (Number(extraartist.id) === Number(discogsArtistId)){
+                //         console.log("extraartist found")
+                //         console.log(extraartist.role)
+                //       if (extraartist.tracks){
+
+                //         console.log("extraartist.tracks exists")
+                //         console.log(extraartist.tracks)
+                //         release.tracklist.forEach((tracklistItem) => {
+                //           if (tracklistItem.position){
+                //             if (tracklistItem.position === extraartist.tracks){
+                //               const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+                //               delete renamedTracklistItem.title
+                //               renamedTracklistItem.availableOn = "discogs"
+                //               renamedTracklistItem.onAlbum = release
+                //               renamedTracklistItem.links = release.videos
+                //               renamedTracklistItem.artists = release.artists
+                //               renamedTracklistItem.trackRole = extraartist.role
+                //               renamedTracklistItem.albumRole = release.albumRole
+                //               tracks.push(renamedTracklistItem)
+                //             } else {
+                //               console.log("no")
+                //             }
+                //           }
+                //         })
+                        
+                //       } else {
+                //         release.tracklist.forEach((tracklistItem) => {
+                //           const renamedTracklistItem = Object.assign({}, tracklistItem, {trackName: tracklistItem.title})
+                //           delete renamedTracklistItem.title
+                //           renamedTracklistItem.availableOn = "discogs"
+                //           renamedTracklistItem.onAlbum = release
+                //           renamedTracklistItem.links = release.videos
+                //           renamedTracklistItem.artists = release.artists
+                //           renamedTracklistItem.trackRole = extraartist.role
+                //           renamedTracklistItem.albumRole = release.albumRole
+                //           tracks.push(renamedTracklistItem)
+                //         })
+                //         console.log("extraartist.tracks DNE")
+                //         // loop through tracklist anyway and put all on (might cause some bad results to show)
+
+                //       }
+                //     }
+                //   })
+                // }
+                // // if no match found, search extraartists for artist match
+                // // if extraaartist match found, add all tracks to array
+                break;
+
+                default:
+                    // do nothing
+                break;
               }
+              
+
+
+              
+                
+              
+
+              
+
+
 
             
 
@@ -481,9 +450,7 @@ useEffect(() => {
       const discogsAlbums = []
         
     combinedAlbums.forEach((album) => {
-        if (album.availableOn === "discogs"){
-          discogsAlbums.push(album)  
-            } 
+        album.availableOn === "discogs" && discogsAlbums.push(album)  
        })
        startFetching(allData.discogsArtistId, discogsAlbums)
     }
@@ -494,13 +461,15 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
   let index = 0
 
     const interval = setInterval(() => {
-    
+      
       if (discogsAlbumsArray[index].type === "master"){
         getDiscogsMasters(discogsArtistId, discogsAlbumsArray[index].main_release, discogsAlbumsArray[index])   
         console.log("albums index - master", index, discogsAlbumsArray.length)
+        
       } else {
         getDiscogsReleases(discogsArtistId, discogsAlbumsArray[index].id, discogsAlbumsArray[index])   
         console.log("albums index - release" , index, discogsAlbumsArray.length, discogsAlbumsArray[index].albumName)
+        
       }
       
 
@@ -558,7 +527,7 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
       }))
 
       setDiscogsContentFetched(true) 
-      // THIS NEEDS TO BE CALLED AT A DIFFERENT TIME
+      
 
       // if (data.data.pagination.urls.next){
         

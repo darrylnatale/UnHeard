@@ -6,7 +6,7 @@ import smush from "../Functions/smush";
 import smushString from "../Functions/smushString";
 import React from "react";
 import findDuplicates from "../Functions/findDuplicates";
-
+import levenshteinDistance from "../Functions/levenshteinDistance";
 
 
 const ResultsTable = () => {
@@ -54,7 +54,7 @@ const result = [];
 smushed.forEach((element, index) => {
   let found = false;
   result.forEach(group => {
-    if (group[0] === element) {
+    if (group[0] === element || levenshteinDistance(group[0], element) < 3) {
       group.push(index);
       found = true;
     }
@@ -93,6 +93,7 @@ const mergedTracks = result.map(indexes => {
   return { [mostFrequentTrackName]: tracks };
 });
 
+console.log(mergedTracks)
 const sortedTracks = mergedTracks.sort((a, b) => {
   // Get the track names
   const trackNameA = Object.keys(a)[0];
