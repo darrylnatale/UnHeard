@@ -8,6 +8,8 @@ const Provider = ({children}) => {
         artistName: null,
         albums: [],
         tracks: [],
+        discogsPages: null,
+        discogsPagesFetched: 1,
         spotifyArtistId: null,
         discogsArtistId: null,
 

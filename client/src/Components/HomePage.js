@@ -442,18 +442,21 @@ useEffect(() => {
 
 useEffect(() => {
   console.log("useeffect 1 ")
-    
-    if(allData.albums.length > 0){
+  
+    if((discogsContentFetched || moreToFetch) && (allData.discogsPages.pages >= allData.discogsPagesFetched)){
+      console.log(allData.discogsPages.pages, allData.discogsPagesFetched)
       
       const combinedAlbums = [].concat(...allData.albums);
 
       const discogsAlbums = []
         
     combinedAlbums.forEach((album) => {
-        album.availableOn === "discogs" && discogsAlbums.push(album)  
+      
+        album.availableOn === "discogs" && album.role === "Main" && discogsAlbums.push(album) 
+
        })
        startFetching(allData.discogsArtistId, discogsAlbums)
-    }
+    } 
     },[discogsContentFetched])
 
 
@@ -469,12 +472,23 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
       } else {
         getDiscogsReleases(discogsArtistId, discogsAlbumsArray[index].id, discogsAlbumsArray[index])   
         console.log("albums index - release" , index, discogsAlbumsArray.length, discogsAlbumsArray[index].albumName)
-        
       }
       
 
       if (index >= discogsAlbumsArray.length - 1){
-        console.log("done")
+        console.log("done batch")
+        if (allData.discogsPages.pages >= allData.discogsPagesFetched){
+          console.log("more to fetch, adding one")
+          setAllData(prevState => ({
+            ...prevState,
+            discogsPagesFetched: prevState.discogsPagesFetched + 1,
+          }))
+          setDiscogsContentFetched(false)
+          setMoreToFetch(true)
+        } else {
+          console.log("no more to fetch, settdiscogscontentfetched to false")
+          setDiscogsContentFetched(false)
+        }
         
         return clearInterval(interval)
       } else {
@@ -502,31 +516,30 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
 
       const renamedReleases = data.data.releases.map((release) => {
           
-          const renamedRelease = Object.assign({}, release, {albumName: release.title})
-          renamedRelease.availableOn = "discogs"
-          delete renamedRelease.title
-          delete renamedRelease.status
-          delete renamedRelease.stats
-          delete renamedRelease.blocked_from_sale
-          delete renamedRelease.community
-          delete renamedRelease.companies
-          delete renamedRelease.date_changed
-          delete renamedRelease.estimated_weight
-          delete renamedRelease.format_quantity
-          delete renamedRelease.lowest_price
-          delete renamedRelease.num_for_sale
-          delete renamedRelease.series
-          
+        const { title, status, stats, blocked_from_sale, community, companies, date_changed, estimated_weight, format_quantity, lowest_price, num_for_sale, series, ...rest } = release;
+        const renamedRelease = {
+          ...rest,
+          albumName: title,
+          availableOn: "discogs"
+        };
           return renamedRelease
         })
 
       setAllData(prevState => ({
         ...prevState,
         discogsArtistId: discogsArtistId,
+        discogsPages: data.data.pagination,
         albums: [...prevState.albums, renamedReleases]
       }))
+      
+      console.log(data.data.pagination)
 
-      setDiscogsContentFetched(true) 
+      
+      
+        setDiscogsContentFetched(true) 
+      
+      
+      
       
 
       // if (data.data.pagination.urls.next){
