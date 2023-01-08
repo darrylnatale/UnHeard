@@ -441,10 +441,10 @@ useEffect(() => {
   },[isInMongo])
 
 useEffect(() => {
-  console.log("useeffect 1 ")
-  
-    if((discogsContentFetched || moreToFetch) && (allData.discogsPages.pages >= allData.discogsPagesFetched)){
-      console.log(allData.discogsPages.pages, allData.discogsPagesFetched)
+  console.log("useEffect run, (discogsContentFetched)")
+  console.log("allData",allData)
+    if(discogsContentFetched){
+      console.log("allData.discogsPages.pages", allData.discogsPages.pages, "allData.discogsPagesFetched", allData.discogsPagesFetched)
       
       const combinedAlbums = [].concat(...allData.albums);
 
@@ -459,6 +459,13 @@ useEffect(() => {
     } 
     },[discogsContentFetched])
 
+useEffect(() => {
+  console.log("allData.discogsPagesFetched changed")
+  if (allData.discogsPagesFetched > 1){
+  getDiscogsArtistReleases(selectedArtist.discogsArtistId, allData.discogsPagesFetched)
+  }
+},[allData.discogsPagesFetched])
+
 
 const startFetching = (discogsArtistId, discogsAlbumsArray) => {
   let index = 0
@@ -467,7 +474,7 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
       
       if (discogsAlbumsArray[index].type === "master"){
         getDiscogsMasters(discogsArtistId, discogsAlbumsArray[index].main_release, discogsAlbumsArray[index])   
-        console.log("albums index - master", index, discogsAlbumsArray.length)
+        console.log("albums index - master", index + 1, "of", discogsAlbumsArray.length)
         
       } else {
         getDiscogsReleases(discogsArtistId, discogsAlbumsArray[index].id, discogsAlbumsArray[index])   
@@ -477,12 +484,17 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
 
       if (index >= discogsAlbumsArray.length - 1){
         console.log("done batch")
+        
         if (allData.discogsPages.pages >= allData.discogsPagesFetched){
           console.log("more to fetch, adding one")
+          console.log("allData.discogsPagesFetched",allData.discogsPagesFetched)
+
           setAllData(prevState => ({
             ...prevState,
             discogsPagesFetched: prevState.discogsPagesFetched + 1,
           }))
+          
+          console.log("allData.discogsPagesFetched",allData.discogsPagesFetched)
           setDiscogsContentFetched(false)
           setMoreToFetch(true)
         } else {
@@ -532,11 +544,11 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
         albums: [...prevState.albums, renamedReleases]
       }))
       
-      console.log(data.data.pagination)
+      console.log("data.data.pagination",data.data.pagination)
 
       
       
-        setDiscogsContentFetched(true) 
+        setDiscogsContentFetched(true)
       
       
       

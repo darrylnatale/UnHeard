@@ -345,7 +345,7 @@ try {
 
   
   try {
-    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 5})    
+    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 1})    
     if(artistReleases){
         console.log(artistReleases.pagination)
         res.status(200).json({status: 200, message: "artist releases", data: artistReleases })

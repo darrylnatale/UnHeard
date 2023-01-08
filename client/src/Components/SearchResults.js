@@ -89,7 +89,7 @@ const SearchResults = () => {
               {discogsSearchResults.map((discogsSearchResult, index) => {
 
                 if (discogsSearchResult) {
-                  console.log(discogsSearchResult.realname)
+                  // console.log("discogsSearchResult.realname",discogsSearchResult.realname)
                   return <ArtistButton 
                               key={index} 
                               clickHandler={() => {

@@ -25,27 +25,24 @@ const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId, ali
 
     let formattedProfileText = formatProfileText(profile)
   
-
-  
-console.log(aliases)
   return (
     <StyledArtistButton
       onClick={() => {
         clickHandler();
         setDiscogsArtistIdState(discogsArtistId);
         setDiscogsSearchResults([])
-        console.log("buttonclicke", discogsArtistIdState);
+        // console.log("discogsArtistIdState", discogsArtistIdState);
       }}
     >
       <StyledImage src={thumb} />
       <Bio>
         <StyledArtistName>{name}</StyledArtistName>
         <StyledArtistName>{realName}</StyledArtistName>
-        {aliases && aliases.map((alias) => {
-          return <div>Alias: {alias.name}</div>
+        {aliases && aliases.map((alias, index) => {
+          return <div key={index}>Alias: {alias.name}</div>
         })}
-        {nameVariations && nameVariations.map((nameVariation) => {
-          return <div>name variation: {nameVariation}</div>
+        {nameVariations && nameVariations.map((nameVariation, index) => {
+          return <div key={index}>name variation: {nameVariation}</div>
         })}
         <StyledProfileText>{formattedProfileText}</StyledProfileText>
       </Bio>

@@ -93,7 +93,7 @@ const mergedTracks = result.map(indexes => {
   return { [mostFrequentTrackName]: tracks };
 });
 
-console.log(mergedTracks)
+// console.log("mergedTracks",mergedTracks)
 const sortedTracks = mergedTracks.sort((a, b) => {
   // Get the track names
   const trackNameA = Object.keys(a)[0];
