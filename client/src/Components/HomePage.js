@@ -58,10 +58,6 @@ const HomePage = () => {
     }
   },[isAuthenticated])
 
-const showFoundSection = () => {
-    setShowFound(true)
-  }
-
 const getSpotifyContent = (spotifyArtistId, artistName) => {
           fetch(`/getSpotifyContent`, {
               method: "POST",
@@ -404,17 +400,7 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
                     // do nothing
                 break;
               }
-              
-
-
-              
-                
-              
-
-              
-
-
-
+            
             
 
               setAllData(prevState => ({
@@ -442,20 +428,25 @@ useEffect(() => {
 
 useEffect(() => {
   console.log("useEffect run, (discogsContentFetched)")
-  console.log("allData",allData)
-    if(discogsContentFetched){
-      console.log("allData.discogsPages.pages", allData.discogsPages.pages, "allData.discogsPagesFetched", allData.discogsPagesFetched)
-      
-      const combinedAlbums = [].concat(...allData.albums);
 
+    if(discogsContentFetched){
+      
+      const combinedAlbumOverviews = [].concat(...allData.albumOverviews);
+      
+      const filteredCombinedAlbumOverviews = combinedAlbumOverviews.filter((album, index, self) => 
+      self.findIndex((a) => a.id === album.id) === index
+      );
+      
+      
       const discogsAlbums = []
         
-    combinedAlbums.forEach((album) => {
+      filteredCombinedAlbumOverviews.forEach((albumOverview) => {
       
-        album.availableOn === "discogs" && album.role === "Main" && discogsAlbums.push(album) 
-
+        albumOverview.availableOn === "discogs" && albumOverview.role === "Main" && discogsAlbums.push(albumOverview) 
+        
        })
        startFetching(allData.discogsArtistId, discogsAlbums)
+       
     } 
     },[discogsContentFetched])
 
@@ -471,7 +462,7 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
   let index = 0
 
     const interval = setInterval(() => {
-      
+      console.log(discogsAlbumsArray)
       if (discogsAlbumsArray[index].type === "master"){
         getDiscogsMasters(discogsArtistId, discogsAlbumsArray[index].main_release, discogsAlbumsArray[index])   
         console.log("albums index - master", index + 1, "of", discogsAlbumsArray.length)
@@ -524,7 +515,7 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
       })
       const data = await response.json();
       
-      const pages = data.data.pagination.pages
+      
 
       const renamedReleases = data.data.releases.map((release) => {
           
@@ -541,58 +532,12 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
         ...prevState,
         discogsArtistId: discogsArtistId,
         discogsPages: data.data.pagination,
-        albums: [...prevState.albums, renamedReleases]
+        albumOverviews: [...prevState.albums, renamedReleases],
       }))
       
       console.log("data.data.pagination",data.data.pagination)
 
-      
-      
         setDiscogsContentFetched(true)
-      
-      
-      
-      
-
-      // if (data.data.pagination.urls.next){
-        
-        
-      //   let nextPageUrl = data.data.pagination.urls.next
-      
-      //   for (let i = 0; i < pages - 1 ; i++){
-          
-      //     let nextPageResponse = await fetch(nextPageUrl)
-      //     const data = await nextPageResponse.json();
-          
-      //     const renamedReleases = data.releases.map((release) => {
-      //       const renamedData = Object.assign({},
-      //         release, {albumName: release.title})
-      //         renamedData.availableOn = "discogs"
-      //         delete renamedData.title
-      //         delete renamedData.status
-      //         delete renamedData.stats
-      //         delete renamedData.blocked_from_sale
-      //         delete renamedData.community
-      //         delete renamedData.companies
-      //         delete renamedData.date_changed
-      //         delete renamedData.estimated_weight
-      //         delete renamedData.format_quantity
-      //         delete renamedData.lowest_price
-      //         delete renamedData.num_for_sale
-      //         delete renamedData.series
-      //         return renamedData
-      //     })
-          
-      //     setAllData(prevState => ({
-      //       ...prevState,
-      //       albums: [...prevState.albums, renamedReleases]
-      //     }))
-
-      //     nextPageUrl = data.pagination.urls.next
-          
-          
-      //    }
-      // }
       
     }
     catch (err){

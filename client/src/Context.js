@@ -6,6 +6,8 @@ export const Context = createContext(null)
 const Provider = ({children}) => {
     const [allData, setAllData] = useState({
         artistName: null,
+        albumOverviews: [],
+        fetchedAlbumOverviews: [],
         albums: [],
         tracks: [],
         discogsPages: null,
