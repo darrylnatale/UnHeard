@@ -1,5 +1,5 @@
 import { BsGem } from "react-icons/bs";
-import styled from "styled-components"
+import styled, {keyframes} from "styled-components"
 import { useContext, useEffect, useState } from "react";
 import Found from "./Found"
 import { Context } from "../Context";
@@ -13,11 +13,8 @@ import modifyTracklistItem from "../Functions/modifyTracklistItem";
 const HomePage = () => {
     const { isLoading, error, isAuthenticated, user } = useAuth0();
     const {
-        selectedArtist, submitted, moreToFetch, setMoreToFetch, setShowFound, showFound, discogsContentFetched, setDiscogsContentFetched, 
-        exactSpotifyNameMatch, setSubmitted, setTimerIndex, timerIndex, discogsMastersDone, setDiscogsMastersDone,
-        spotifySearchResults, releases, setReleases, allData, setAllData,
-        setSpotifyContent, setLastSearched, setDiscogsContent,
-        spotifyContent, isInMongo,setAllSpotifyTrackNames, allSpotifyTrackNames, allDiscogsTrackNames, setAllDiscogsTrackNames, mongoUser, setMongoUser
+        selectedArtist, submitted, setMoreToFetch, discogsContentFetched, setDiscogsContentFetched, 
+        exactSpotifyNameMatch, setSubmitted,allData, setAllData, setLastSearched, isInMongo,setAllSpotifyTrackNames, setMongoUser, spotifyContentFetched, setspotifyContentFetched
          } = useContext(Context);
 
   useEffect(() => {
@@ -72,6 +69,7 @@ const getSpotifyContent = (spotifyArtistId, artistName) => {
             console.log("content from spotify", data)
       
             if (data.data){
+                  
                   setSubmitted(false)
                   setAllSpotifyTrackNames(data.data.spotifyTracks.map((spotifyTrack) => spotifyTrack.name))
                   
@@ -79,13 +77,56 @@ const getSpotifyContent = (spotifyArtistId, artistName) => {
                     ...prevState,
                     artistName: data.data.spotifyArtistName,
                     spotifyArtistId: data.data.spotifyArtistId,
-                    albums: [...prevState.albums, data.data.spotifyAlbums],
+                    albums: [...prevState.albums, ...data.data.spotifyAlbums],
                     tracks: data.data.spotifyTracks
                   }));
                   
+                  setspotifyContentFetched(true)
               }
            })
            .catch((err) => console.log(err));
+      }
+  const getDiscogsArtistReleases = async (discogsArtistId, page) => {
+    
+        try {
+          const response = await fetch(`/getDiscogsArtistReleases`, {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({discogsArtistId, page}),
+          })
+          const data = await response.json();
+          
+          
+    
+          const renamedReleases = data.data.releases.map((release) => {
+              
+            const { title, status, stats, blocked_from_sale, community, companies, date_changed, estimated_weight, format_quantity, lowest_price, num_for_sale, series, ...rest } = release;
+            const renamedRelease = {
+              ...rest,
+              albumName: title,
+              availableOn: "discogs"
+            };
+              return renamedRelease
+            })
+    
+          setAllData(prevState => ({
+            ...prevState,
+            discogsArtistId: discogsArtistId,
+            discogsPages: data.data.pagination,
+            albumOverviews: [...prevState.albumOverviews, ...renamedReleases],
+          }))
+          
+          console.log("data.data.pagination",data.data.pagination)
+    
+            setDiscogsContentFetched(true)
+          
+        }
+        catch (err){
+          console.log(err)
+        }
       }
 
 const getDiscogsMasters = (discogsArtistId, albumId, albumOverview) => {
@@ -420,7 +461,6 @@ const getDiscogsReleases = (discogsArtistId, albumId, albumOverview) => {
 useEffect(() => {
   
   if(isInMongo){
-    
     getSpotifyContent(selectedArtist.spotifyArtistId, selectedArtist.artistName)
     getDiscogsArtistReleases(selectedArtist.discogsArtistId, 1)
   }
@@ -428,27 +468,35 @@ useEffect(() => {
 
 useEffect(() => {
   console.log("useEffect run, (discogsContentFetched)")
-
-    if(discogsContentFetched){
+  console.log(allData)
+  
+    if(discogsContentFetched && spotifyContentFetched){
       
-      const combinedAlbumOverviews = [].concat(...allData.albumOverviews);
+      const albumOverviews = allData.albumOverviews
       
-      const filteredCombinedAlbumOverviews = combinedAlbumOverviews.filter((album, index, self) => 
+      const filteredAlbumOverviews = albumOverviews.filter((album, index, self) => 
       self.findIndex((a) => a.id === album.id) === index
       );
       
       
       const discogsAlbums = []
         
-      filteredCombinedAlbumOverviews.forEach((albumOverview) => {
+      filteredAlbumOverviews.forEach((albumOverview) => {
       
-        albumOverview.availableOn === "discogs" && albumOverview.role === "Main" && discogsAlbums.push(albumOverview) 
+        albumOverview.role === "Main" && discogsAlbums.push(albumOverview) 
         
        })
+
+       setAllData(prevState => ({
+        ...prevState,
+        albumOverviews: [],
+        fetchedAlbumOverviews: [...prevState.albums, ...albumOverviews],
+      }));
+      
        startFetching(allData.discogsArtistId, discogsAlbums)
        
     } 
-    },[discogsContentFetched])
+    },[discogsContentFetched, spotifyContentFetched])
 
 useEffect(() => {
   console.log("allData.discogsPagesFetched changed")
@@ -457,6 +505,20 @@ useEffect(() => {
   }
 },[allData.discogsPagesFetched])
 
+const saveToMongo = (dataToSave) => {
+  fetch(`/saveToMongo`, {
+    method: "POST",
+    headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    },
+    body: JSON.stringify({dataToSave}),
+    }) 
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data)
+    })
+}
 
 const startFetching = (discogsArtistId, discogsAlbumsArray) => {
   let index = 0
@@ -465,18 +527,18 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
       console.log(discogsAlbumsArray)
       if (discogsAlbumsArray[index].type === "master"){
         getDiscogsMasters(discogsArtistId, discogsAlbumsArray[index].main_release, discogsAlbumsArray[index])   
-        console.log("albums index - master", index + 1, "of", discogsAlbumsArray.length)
+        console.log("albums index - master", index, "of", discogsAlbumsArray.length-1)
         
       } else {
         getDiscogsReleases(discogsArtistId, discogsAlbumsArray[index].id, discogsAlbumsArray[index])   
-        console.log("albums index - release" , index, discogsAlbumsArray.length, discogsAlbumsArray[index].albumName)
+        console.log("albums index - release" , index, "of", discogsAlbumsArray.length-1)
       }
       
 
       if (index >= discogsAlbumsArray.length - 1){
         console.log("done batch")
         
-        if (allData.discogsPages.pages >= allData.discogsPagesFetched){
+        if (allData.discogsPages.pages > allData.discogsPagesFetched){
           console.log("more to fetch, adding one")
           console.log("allData.discogsPagesFetched",allData.discogsPagesFetched)
 
@@ -502,48 +564,7 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
 
 }
 
-const getDiscogsArtistReleases = async (discogsArtistId, page) => {
-    
-    try {
-      const response = await fetch(`/getDiscogsArtistReleases`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({discogsArtistId, page}),
-      })
-      const data = await response.json();
-      
-      
 
-      const renamedReleases = data.data.releases.map((release) => {
-          
-        const { title, status, stats, blocked_from_sale, community, companies, date_changed, estimated_weight, format_quantity, lowest_price, num_for_sale, series, ...rest } = release;
-        const renamedRelease = {
-          ...rest,
-          albumName: title,
-          availableOn: "discogs"
-        };
-          return renamedRelease
-        })
-
-      setAllData(prevState => ({
-        ...prevState,
-        discogsArtistId: discogsArtistId,
-        discogsPages: data.data.pagination,
-        albumOverviews: [...prevState.albums, renamedReleases],
-      }))
-      
-      console.log("data.data.pagination",data.data.pagination)
-
-        setDiscogsContentFetched(true)
-      
-    }
-    catch (err){
-      console.log(err)
-    }
-  }
 
 
     return ( 
@@ -564,14 +585,58 @@ const getDiscogsArtistReleases = async (discogsArtistId, page) => {
         {/* 
         
         
-        {isInMongo && <CompareButton onClick={showFoundSection}>Compare Results!</CompareButton>}
         {showFound && <Found/>}
         {releases && <Releases />} */}
+        <ButtonContainer>
+        <ButtonIcon>found 500 tracks</ButtonIcon>
+          <ButtonBorder />
+          
+    </ButtonContainer>
         </Page>
     );
 }
  
 export default HomePage;
+
+const Rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const ButtonContainer = styled.div`
+  position: relative;
+  width: 100px;
+  height: 100px;
+`;
+
+const ButtonIcon = styled.i`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  right: 0;
+  bottom: 0;
+  margin-left: -5px;
+  margin-top: -5px;
+`;
+
+const ButtonBorder = styled.div`
+  width: 100px;
+  height: 100px;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px dashed #000;
+  animation-name: ${Rotate};
+  animation-duration: 10s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+`;
+
+
+
 
 const Page = styled.div`
 overflow: auto;
@@ -597,21 +662,7 @@ overflow: auto;
     text-align: center;
   }
 `;
-const CompareButton = styled.button`
-box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: auto;
-  width: 425px;
-  height: 250px;
-  border-radius: 20px;
-  background: white;
-  margin: 25px 25px 0 25px;
-  padding: 20px;
-  border: none;
-  `
+
 
 const StyledBsGem = styled(BsGem)`
 font-size: 30px;

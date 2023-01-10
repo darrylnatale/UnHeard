@@ -326,6 +326,35 @@ try {
   client.close();
 })
 
+.post("/saveToMongo", async (req, res) => {
+
+
+  const {dataToSave} = req.body
+  console.log(dataToSave)
+  
+  // const stringifedDiscogsArtistId = JSON.stringify(discogsArtistIdState)
+  const contentLength = req.headers['content-length'];
+console.log(contentLength)
+  const client = new MongoClient(MONGO_URI, options);
+
+  try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+
+    const result = await mongodb.collection("MatchedIds").updateOne(
+      { discogsArtistId: dataToSave.discogsArtistId },
+      { $push: { allData: dataToSave } }
+    );
+  
+
+    res.status(200).json({status: 200, message: "Data added to MongoDB", data: result })
+  }
+  catch (err){
+    res.status(404).json({status: 404, message: "Data NOT added to MongoDB", message: dataToSave })
+  }
+  client.close();
+})
+
 .post("/getDiscogsArtistReleases", async (req, res) => {
   console.log(req.body)
   let discogsArtistId = req.body.discogsArtistId
@@ -345,7 +374,7 @@ try {
 
   
   try {
-    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 1})    
+    const artistReleases = await db.getArtistReleases(discogsArtistId, {page: page, per_page: 100})    
     if(artistReleases){
         console.log(artistReleases.pagination)
         res.status(200).json({status: 200, message: "artist releases", data: artistReleases })
@@ -488,10 +517,14 @@ try {
 
 .post('/getSpotifyContent', async (req, res) => {
   const {spotifyArtistId, artistName} = req.body
-
+  const client = new MongoClient(MONGO_URI, options);
   // !! IF SPOTIFYARTISTID IS NULL , MEANS THE ARTIST DOES NOT EXIST ON SPOTIFY - INCLUDE LOGIC
 
   try {
+    const mongodb = client.db("UnHeard");
+    await client.connect();
+
+    
     const albumIds = []
     
     const tracks = []
@@ -531,6 +564,8 @@ try {
             }
           }
       }
+
+      
       
       // Get the track details for each album
 const totalAlbumsFound = albumIds.length
@@ -594,8 +629,17 @@ if (totalAlbumsFound) {
     })
   }
 }
+      
+      
 
-      res.status(200).json({status: 200, message: "Spotify Content Found", data: {spotifyArtistName: artistName, spotifyArtistId: spotifyArtistId, spotifyAlbums: albums, spotifyTracks: tracks}})  
+      const data = {spotifyArtistName: artistName, spotifyArtistId: spotifyArtistId, spotifyAlbums: albums, spotifyTracks: tracks}
+      
+      // await mongodb.collection("MatchedIds").updateOne(
+      //   { spotifyArtistId: data.spotifyArtistId },
+      //   { $push: { allData: data } }
+      // );
+
+      res.status(200).json({status: 200, message: "Spotify Content Found", data: data})  
     } else { 
       res.status(400).json({status: 400, message: "Error Finding Spotify Content" })
     }
@@ -604,6 +648,7 @@ if (totalAlbumsFound) {
     console.log(err)
     res.status(404).json({status: 404, message: err })
   }
+  client.close();
   })
 
 .get('/searchSpotify/:artistName', (req, res) => {

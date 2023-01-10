@@ -17,6 +17,7 @@ const Provider = ({children}) => {
 
     })
     const [discogsContentFetched, setDiscogsContentFetched] = useState(false)
+    const [spotifyContentFetched, setspotifyContentFetched] = useState(false)
     const [timerIndex, setTimerIndex] = useState(0)
     const [showFound, setShowFound] = useState()
     const [mongoUser, setMongoUser] = useState(null)
@@ -83,7 +84,8 @@ const Provider = ({children}) => {
         releases, setReleases,
         allData, setAllData,
         discogsContentFetched, setDiscogsContentFetched,
-        discogsMastersDone, setDiscogsMastersDone
+        discogsMastersDone, setDiscogsMastersDone,
+        spotifyContentFetched, setspotifyContentFetched
     }}>
         {children}
     </Context.Provider>
