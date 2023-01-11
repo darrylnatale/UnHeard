@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, {keyframes} from "styled-components";
 import { Context } from "../Context";
 import { useContext, useState, useEffect } from "react";
 import filter from "../Functions/filter";
@@ -7,17 +7,25 @@ import smushString from "../Functions/smushString";
 import React from "react";
 import findDuplicates from "../Functions/findDuplicates";
 import levenshteinDistance from "../Functions/levenshteinDistance";
+import jaroWinklerDistance from "../Functions/jaroWinklerDistance";
 
 
 const ResultsTable = () => {
+const songs = ['nightofvenie', 'crydollcry', 'playgirl', 'endlewahrol', 'ecret', "music", "music - remastered", "music - anthony carlota remix", "playboylanuitremix", "playboyremastered", 'rainbowroad', 'backtoroiy', 'weblover', 'innerforlove', 'onlyforyourocktar', 'roiy', 'playboy', 'playboy', 'playboylanuit', 'roiy', 'wieni', 'nightofvenie', 'crydollcry', 'playgirl', 'endlewahrol', 'ecret', 'rainbowroad', 'backtoroiy', 'weblover', 'innerforlove', 'onlyforyourocktar', 'roiy', 'playboy']
+  songs.sort()
 
+songs.forEach((song, index) => {
+    console.log(jaroWinklerDistance(song, songs[index+1]), song, songs[index+1])
+})
     
     const {allData, setAllData} = useContext(Context)
     const combinedAlbums = [].concat(...allData.albums);
     const combinedTracks = [].concat(...allData.tracks);
     const [option, setOption] = useState(combinedTracks)
     const [selectedButton, setSelectedButton] = useState(combinedTracks)
-
+    const {selectedArtist} = useContext(Context)
+    const [youTubeResults, setYouTubeResults] = useState()
+    const [src, setSrc] = useState()
     
     
     
@@ -31,14 +39,6 @@ const ResultsTable = () => {
         setOption(notOnSpotify)
       } else if (selectedButton === "notOnSpotifyFiltered") {
         setOption(notOnSpotifyFiltered)
-      } else if (selectedButton === "onlyOnce") {
-        setOption(onlyOnce)
-      } else if (selectedButton === "onlyOnceFiltered") {
-        setOption(onlyOnceFiltered)
-      } else if (selectedButton === "twice") {
-        setOption(twice)
-      } else if (selectedButton === "twiceFiltered") {
-        setOption(twiceFiltered)
       } else (
         setOption(notOnSpotifyFiltered)
       )
@@ -48,8 +48,9 @@ const ResultsTable = () => {
 
 const smushed = smush(combinedTracks);
 
-
 const result = [];
+console.log(smushed)
+console.log(result)
 
 smushed.forEach((element, index) => {
   let found = false;
@@ -64,14 +65,9 @@ smushed.forEach((element, index) => {
   }
   
 });
+
 result.forEach((item) => item.shift())
-
-
-
-
-
-
-    
+console.log(result)
 
 let indexes = []
 
@@ -93,28 +89,8 @@ const mergedTracks = result.map(indexes => {
   return { [mostFrequentTrackName]: tracks };
 });
 
-// console.log("mergedTracks",mergedTracks)
-const sortedTracks = mergedTracks.sort((a, b) => {
-  // Get the track names
-  const trackNameA = Object.keys(a)[0];
-  const trackNameB = Object.keys(b)[0];
 
-  // Get the frequency of the track names
-  const frequencyA = a[trackNameA].length;
-  const frequencyB = b[trackNameB].length;
-
-  // Return a negative value if A appears less frequently than B, a positive value if A appears more frequently than B, or 0 if they appear the same number of times
-  return frequencyA - frequencyB;
-});
-
-
-
-
-
-
-
-
-
+console.log(mergedTracks)
 
 // Create a new array containing only the elements that are not being removed
 const spellChecked = mergedTracks.filter((_, i) => !indexes.includes(i));
@@ -133,34 +109,46 @@ const notOnSpotify = spellChecked.filter(item => {
 const notOnSpotifyFiltered = filter(notOnSpotify)
 
 
+useEffect(() => {
 
-const onlyOneOccurrence = (array) => {
-  return array.filter(item => {
-    // Destructure the key/value pair of the object
-    const [, value] = Object.entries(item)[0];
-    // Check if the length of the value array is less than or equal to 1
-    return value.length <= 1;
-  });
-}
+  const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': '7eaac4f35amshb2b47d7e7ccf339p1f9f9cjsn47889e84eb9c',
+      'X-RapidAPI-Host': 'simple-youtube-search.p.rapidapi.com'
+    }
+  };
+  
+  async function getYouTubeResults() {
+    for (let i = 0; i < notOnSpotifyFiltered.length; i++) {
+      const songQuery = allData.artistName + '%2B' + notOnSpotifyFiltered[i].replace(/ /g, '%2B')
 
-const twoOccurrences = (array) => {
-  return array.filter(item => {
-    // Destructure the key/value pair of the object
-    const [, value] = Object.entries(item)[0];
-    // Check if the length of the value array is less than or equal to 1
-    return value.length === 2;
-  });
-}
+      console.log(songQuery)
+      try {
+        const response = await fetch(`https://simple-youtube-search.p.rapidapi.com/search?query=${songQuery}&safesearch=false`, options);
+        const data = await response.json();
+        setYouTubeResults([...(youTubeResults || []), data])
+        setSrc([...(src || []), data.results[0].id])
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+  getYouTubeResults()
+},[])
 
-  const onlyOnce = onlyOneOccurrence(notOnSpotify)
-  const onlyOnceFiltered = filter(onlyOnce)
-  const twice = twoOccurrences(notOnSpotify)
-  const twiceFiltered = filter(twice)
+
 
   if (allData.albums && allData.artistName){
     
   return (
     <>
+    <ButtonContainer>
+        <ButtonIcon>{notOnSpotifyFiltered.length > 0 ? <>found {notOnSpotifyFiltered.length} track{notOnSpotifyFiltered.length > 1 && <>s</>}</> : <>searching</>} </ButtonIcon>
+        <ButtonBorder /> 
+    </ButtonContainer>
+
+
       <button onClick={() => {
         setOption(spellChecked)
         setSelectedButton('spellChecked')
@@ -178,32 +166,15 @@ const twoOccurrences = (array) => {
         setOption(notOnSpotifyFiltered)
         setSelectedButton('notOnSpotifyFiltered')
       }}>notOnSpotifyFiltered</button>
-      <button onClick={() => {
-        setOption(onlyOnce)
-        setSelectedButton('onlyOnce')
-      }}>onlyOnce</button>
-      <button onClick={() => {
-        setOption(onlyOnceFiltered)
-        setSelectedButton('onlyOnceFiltered')
-      }}>onlyOnceFiltered</button>
-      <button onClick={() => {
-        setOption(twice)
-        setSelectedButton('twice')
-      }}>twice</button>
-      <button onClick={() => {
-        setOption(twiceFiltered)
-        setSelectedButton('twiceFiltered')
-      }}>twiceFiltered</button>
+      
+      
       <div>{option.length} SHOWING FOUND (option)</div>
       <div>{combinedTracks.length} TRACKS FOUND (combinedTracks)</div>
       <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
       <div>{filtered.length} AFTER FILTERED TRACKS FOUND (filtered)</div>
       <div>{notOnSpotify.length} NOT ON SPOTIFY TRACKS FOUND (notOnSpotify)</div>
       <div>{notOnSpotifyFiltered.length} NOT ON SPOTIFY FILTERED TRACKS FOUND (notOnSpotifyFiltered)</div>
-      <div>{onlyOnce.length} ONLY ONCE TRACKS FOUND (ONLYONCE)</div>
-      <div>{onlyOnceFiltered.length} ONLY ONCE FILTERED TRACKS FOUND (ONLYONCEFILTERED)</div>
-      <div>{twice.length} TWICE TRACKS FOUND (twice)</div>
-      <div>{twiceFiltered.length} TWICE FILTERED TRACKS FOUND (twiceFiltered)</div>
+      
       <div>Here's a song you might not know:</div>
 
 
@@ -298,3 +269,41 @@ td, th {
   text-align: left;
 }
 `
+
+const Rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const ButtonContainer = styled.div`
+  position: relative;
+  width: 100px;
+  height: 100px;
+`;
+
+const ButtonIcon = styled.i`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  right: 0;
+  bottom: 0;
+  margin-left: -5px;
+  margin-top: -5px;
+`;
+
+const ButtonBorder = styled.div`
+  width: 100px;
+  height: 100px;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px dashed #000;
+  animation-name: ${Rotate};
+  animation-duration: 10s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+`;
+

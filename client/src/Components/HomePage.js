@@ -1,10 +1,8 @@
 import { BsGem } from "react-icons/bs";
 import styled, {keyframes} from "styled-components"
 import { useContext, useEffect, useState } from "react";
-import Found from "./Found"
 import { Context } from "../Context";
 import ArtistVerification from "./ArtistVerification"
-import smush from "../Functions/smush";
 import SearchResults from "./SearchResults"
 import { useAuth0 } from "@auth0/auth0-react";
 import ResultsTable from "./ResultsTable";
@@ -587,53 +585,13 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
         
         {showFound && <Found/>}
         {releases && <Releases />} */}
-        <ButtonContainer>
-        <ButtonIcon>found 500 tracks</ButtonIcon>
-          <ButtonBorder />
-          
-    </ButtonContainer>
+        
         </Page>
     );
 }
  
 export default HomePage;
 
-const Rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-const ButtonContainer = styled.div`
-  position: relative;
-  width: 100px;
-  height: 100px;
-`;
-
-const ButtonIcon = styled.i`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  right: 0;
-  bottom: 0;
-  margin-left: -5px;
-  margin-top: -5px;
-`;
-
-const ButtonBorder = styled.div`
-  width: 100px;
-  height: 100px;
-  background: transparent;
-  border-radius: 50%;
-  border: 2px dashed #000;
-  animation-name: ${Rotate};
-  animation-duration: 10s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-`;
 
 
 

@@ -517,14 +517,10 @@ console.log(contentLength)
 
 .post('/getSpotifyContent', async (req, res) => {
   const {spotifyArtistId, artistName} = req.body
-  const client = new MongoClient(MONGO_URI, options);
+
   // !! IF SPOTIFYARTISTID IS NULL , MEANS THE ARTIST DOES NOT EXIST ON SPOTIFY - INCLUDE LOGIC
 
   try {
-    const mongodb = client.db("UnHeard");
-    await client.connect();
-
-    
     const albumIds = []
     
     const tracks = []
@@ -629,17 +625,8 @@ if (totalAlbumsFound) {
     })
   }
 }
-      
-      
 
-      const data = {spotifyArtistName: artistName, spotifyArtistId: spotifyArtistId, spotifyAlbums: albums, spotifyTracks: tracks}
-      
-      // await mongodb.collection("MatchedIds").updateOne(
-      //   { spotifyArtistId: data.spotifyArtistId },
-      //   { $push: { allData: data } }
-      // );
-
-      res.status(200).json({status: 200, message: "Spotify Content Found", data: data})  
+      res.status(200).json({status: 200, message: "Spotify Content Found", data: {spotifyArtistName: artistName, spotifyArtistId: spotifyArtistId, spotifyAlbums: albums, spotifyTracks: tracks}})  
     } else { 
       res.status(400).json({status: 400, message: "Error Finding Spotify Content" })
     }
@@ -648,7 +635,6 @@ if (totalAlbumsFound) {
     console.log(err)
     res.status(404).json({status: 404, message: err })
   }
-  client.close();
   })
 
 .get('/searchSpotify/:artistName', (req, res) => {

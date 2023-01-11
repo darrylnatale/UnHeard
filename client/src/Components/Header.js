@@ -10,9 +10,6 @@ import "../css/styles.css"
 const Header = () => {
   const { isLoading, error, isAuthenticated } = useAuth0();
 
-
-
-
     return (<>
       <StyledCredentials>
       {error && <p>Authentication Error</p>}
