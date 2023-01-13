@@ -503,21 +503,6 @@ useEffect(() => {
   }
 },[allData.discogsPagesFetched])
 
-const saveToMongo = (dataToSave) => {
-  fetch(`/saveToMongo`, {
-    method: "POST",
-    headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    },
-    body: JSON.stringify({dataToSave}),
-    }) 
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data)
-    })
-}
-
 const startFetching = (discogsArtistId, discogsAlbumsArray) => {
   let index = 0
 

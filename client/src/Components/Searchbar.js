@@ -1,23 +1,20 @@
 import styled from "styled-components";
 import { useContext, useEffect } from "react";
 import { Context } from "../Context";
+import _ from 'lodash';
 
 const Searchbar = () => {
+  
   const {
-    setSubmitted,
-    setDiscogsSearchResults, 
-    setShowFound,
-    searchFormData,
-    setSearchFormData,
-    setSpotifySearchResults,
-    setExactSpotifyNameMatch,
-    setDiscogsContent,
-    setAllSpotifyTrackNames,
-    setAllDiscogsTrackNames,
-  } = useContext(Context);
+    setSubmitted, setDiscogsSearchResults, setShowFound, searchFormData, setSearchFormData, setSpotifySearchResults, setExactSpotifyNameMatch, setDiscogsContent, setAllSpotifyTrackNames, setAllDiscogsTrackNames} = useContext(Context);
 
-  const handleChange = (value) => {
-    setSearchFormData(value);
+    const debouncedHandleSubmit = _.debounce((e, searchFormData) => {
+      handleSubmit(e, searchFormData);
+    }, 3000);
+  
+  const handleChange = (e) => {
+    setSearchFormData(e.target.value);
+    debouncedHandleSubmit(e, e.target.value);
   };
 
   const handleSubmit = (e, searchFormData) => {
@@ -33,6 +30,7 @@ const Searchbar = () => {
     })
       .then((res) => res.json())
       .then((data) => {
+        setDiscogsSearchResults([])
         setAllDiscogsTrackNames(null)
         setAllSpotifyTrackNames(null)
         setShowFound(false)
@@ -49,7 +47,7 @@ const Searchbar = () => {
       })
       .catch((err) => console.log(err));
   };
-
+  
   const getDiscogsArtistDetails = (results) => {
     fetch(`/getDiscogsArtistDetails`, {
       method: "POST",
@@ -61,7 +59,6 @@ const Searchbar = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        // console.log("getDiscogsArtistDetails response data",data)
         setDiscogsSearchResults((prev) => [...prev, data.data]);  
       })
       .catch((err) => console.log(err));
@@ -72,11 +69,8 @@ const Searchbar = () => {
       <StyledSearchBarInput
         type="search"
         placeholder={"Search For A Musician"}
-        onChange={(e) => handleChange(e.target.value)}
+        onInput={handleChange}
       />
-      {/* <StyledSubmitButton onClick={(e) => handleSubmit(e, searchFormData)}>
-        💎
-      </StyledSubmitButton> */}
     </StyledSearchForm>
   );
 };

@@ -5,25 +5,17 @@ import filter from "../Functions/filter";
 import smush from "../Functions/smush";
 import smushString from "../Functions/smushString";
 import React from "react";
-import findDuplicates from "../Functions/findDuplicates";
 import levenshteinDistance from "../Functions/levenshteinDistance";
 import jaroWinklerDistance from "../Functions/jaroWinklerDistance";
 
 
 const ResultsTable = () => {
-const songs = ['nightofvenie', 'crydollcry', 'playgirl', 'endlewahrol', 'ecret', "music", "music - remastered", "music - anthony carlota remix", "playboylanuitremix", "playboyremastered", 'rainbowroad', 'backtoroiy', 'weblover', 'innerforlove', 'onlyforyourocktar', 'roiy', 'playboy', 'playboy', 'playboylanuit', 'roiy', 'wieni', 'nightofvenie', 'crydollcry', 'playgirl', 'endlewahrol', 'ecret', 'rainbowroad', 'backtoroiy', 'weblover', 'innerforlove', 'onlyforyourocktar', 'roiy', 'playboy']
-  songs.sort()
 
-songs.forEach((song, index) => {
-    console.log(jaroWinklerDistance(song, songs[index+1]), song, songs[index+1])
-})
     
     const {allData, setAllData} = useContext(Context)
-    const combinedAlbums = [].concat(...allData.albums);
     const combinedTracks = [].concat(...allData.tracks);
     const [option, setOption] = useState(combinedTracks)
     const [selectedButton, setSelectedButton] = useState(combinedTracks)
-    const {selectedArtist} = useContext(Context)
     const [youTubeResults, setYouTubeResults] = useState()
     const [src, setSrc] = useState()
     
@@ -109,7 +101,7 @@ const notOnSpotify = spellChecked.filter(item => {
 const notOnSpotifyFiltered = filter(notOnSpotify)
 
 
-useEffect(() => {
+
 
   const options = {
     method: 'GET',
@@ -119,23 +111,33 @@ useEffect(() => {
     }
   };
   
-  async function getYouTubeResults() {
-    for (let i = 0; i < notOnSpotifyFiltered.length; i++) {
-      const songQuery = allData.artistName + '%2B' + notOnSpotifyFiltered[i].replace(/ /g, '%2B')
+  async function getYouTubeResults(songTitle) {
+    console.log(songTitle)
+      const songQuery = allData.artistName + '%2B' + songTitle.replace(/ /g, '%2B')
 
       console.log(songQuery)
       try {
         const response = await fetch(`https://simple-youtube-search.p.rapidapi.com/search?query=${songQuery}&safesearch=false`, options);
         const data = await response.json();
-        setYouTubeResults([...(youTubeResults || []), data])
-        setSrc([...(src || []), data.results[0].id])
+
+
+        let found = data.results.find(result => smushString(result.title).includes(smushString(songTitle))) 
+
+          console.log(smushString(result.title))
+          console.log(smushString(songTitle))
+          console.log(found)
+        
+        
+        // setYouTubeResults([...(youTubeResults || []), data])
+        console.log(found.url)
+        setSrc(found.url)
+        
       } catch (err) {
         console.error(err);
       }
-    }
+    
   }
-  getYouTubeResults()
-},[])
+
 
 
 
@@ -149,33 +151,12 @@ useEffect(() => {
     </ButtonContainer>
 
 
-      <button onClick={() => {
-        setOption(spellChecked)
-        setSelectedButton('spellChecked')
-      }
-      }>spellChecked</button>
-      <button onClick={() => {
-        setOption(filtered)
-        setSelectedButton('filtered')
-      }}>filtered</button>
-      <button onClick={() => {
-        setOption(notOnSpotify)
-        setSelectedButton('notOnSpotify')
-      }}>not on Spotify</button>
-      <button onClick={() => {
-        setOption(notOnSpotifyFiltered)
-        setSelectedButton('notOnSpotifyFiltered')
-      }}>notOnSpotifyFiltered</button>
       
       
-      <div>{option.length} SHOWING FOUND (option)</div>
-      <div>{combinedTracks.length} TRACKS FOUND (combinedTracks)</div>
-      <div>{spellChecked.length} SPELLCHECKED TRACKS FOUND (spellChecked)</div>
-      <div>{filtered.length} AFTER FILTERED TRACKS FOUND (filtered)</div>
-      <div>{notOnSpotify.length} NOT ON SPOTIFY TRACKS FOUND (notOnSpotify)</div>
-      <div>{notOnSpotifyFiltered.length} NOT ON SPOTIFY FILTERED TRACKS FOUND (notOnSpotifyFiltered)</div>
       
-      <div>Here's a song you might not know:</div>
+      
+      
+      <div>Here are some songs not available on Spotify:</div>
 
 
     <StyledTable>
@@ -221,18 +202,8 @@ useEffect(() => {
             <td>{Object.values(item)[0].map((value) => value.availableOn).filter((value, index, self) => self.indexOf(value) === index).join(", ")}
             </td>   
             <td>
-            {React.Children.toArray(
-    Object.values(item)[0]
-    .filter(value => value.availableOn && value.links[0]?.uri)
-    .map(value => {
-      if (smushString(value.links[0]?.trackName).includes(smushString(track))){
-        return (
-          <a href={value.links[0]?.uri}>{value.links[0]?.trackName}</a>
-          )
-      }
-    })
-      
-  )}
+            <button onClick={() => getYouTubeResults(track)}>find song</button>
+            {src ? <>{src}</> : <></>}
               </td>
 <td>{Object.values(item)[0]
                   .map((value) => value?.albumRole)

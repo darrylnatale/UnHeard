@@ -11,7 +11,7 @@ const Header = () => {
   const { isLoading, error, isAuthenticated } = useAuth0();
 
     return (<>
-      <StyledCredentials>
+      {/* <StyledCredentials>
       {error && <p>Authentication Error</p>}
         {!error && isLoading && <p>Loading...</p>}
         {!error && !isLoading && 
@@ -22,13 +22,13 @@ const Header = () => {
           </>
         }
         </StyledCredentials>
-      
+       */}
         <StyledLink to="/" >
         <Wrapper>
         
           <StyledLogo>
             <Title>
-              <span>Q</span>
+              <span>U</span>
               <span>N</span>
               <span>H</span>
               <span>E</span>

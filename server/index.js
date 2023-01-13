@@ -17,9 +17,6 @@ const options = {
   useUnifiedTopology: true,
 };
 
-const {
-  
-} = require("./handlers");
 const { post, get } = require('request');
 const { type } = require('os');
 
