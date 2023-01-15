@@ -7,12 +7,7 @@ import formatDiscogsArtistName from "../Functions/formatDiscogsArtistName"
 
 const SearchResults = () => {
     
-    const { setExactSpotifyNameMatch, 
-      discogsSearchResults, setDiscogsReleases,
-      setDiscogsSearchResults, 
-      setSelectedArtist,      
-      setDiscogsContent,
-      setSpotifyContent, spotifyContent, setIsInMongo, setSubmitted, setLastSearched  } = useContext(Context);
+    const { setExactSpotifyNameMatch, discogsSearchResults, setDiscogsReleases, setSelectedArtist, setDiscogsContent, setIsInMongo, setSubmitted, setLastSearched  } = useContext(Context);
 
       
       
@@ -55,7 +50,7 @@ const SearchResults = () => {
                 console.log(data)
                 return data
               } else {
-                      console.log(discogsArtistId)
+                  console.log(discogsArtistId)
                   const formattedDiscogsArtistName = formatDiscogsArtistName(discogsArtistName)
                   
                   console.log(formattedDiscogsArtistName)

@@ -23,7 +23,6 @@ const Provider = ({children}) => {
     const [mongoUser, setMongoUser] = useState(null)
     const [exactSpotifyNameMatch, setExactSpotifyNameMatch] = useState(null)
     const [albums, setAlbums] = useState()
-    const [spotifySearchResults, setSpotifySearchResults] = useState()
     const [selectedArtist, setSelectedArtist] = useState()
     const [spotifyAlbums, setSpotifyAlbums] = useState()
     const [searchFormData, setSearchFormData] = useState()
@@ -51,8 +50,6 @@ const Provider = ({children}) => {
         setAlbums, 
         discogsSearchResults,
         setDiscogsSearchResults,
-        spotifySearchResults,
-        setSpotifySearchResults,
         selectedArtist,
         setSelectedArtist,
         spotifyAlbums,

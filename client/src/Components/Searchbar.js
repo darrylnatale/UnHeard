@@ -6,9 +6,10 @@ import _ from 'lodash';
 const Searchbar = () => {
   
   const {
-    setSubmitted, setDiscogsSearchResults, setShowFound, searchFormData, setSearchFormData, setSpotifySearchResults, setExactSpotifyNameMatch, setDiscogsContent, setAllSpotifyTrackNames, setAllDiscogsTrackNames} = useContext(Context);
+    setSubmitted, setDiscogsSearchResults, searchFormData, setSearchFormData, setExactSpotifyNameMatch, setDiscogsContent} = useContext(Context);
 
     const debouncedHandleSubmit = _.debounce((e, searchFormData) => {
+      setDiscogsSearchResults([])
       handleSubmit(e, searchFormData);
     }, 3000);
   
@@ -30,12 +31,7 @@ const Searchbar = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        setDiscogsSearchResults([])
-        setAllDiscogsTrackNames(null)
-        setAllSpotifyTrackNames(null)
-        setShowFound(false)
         setDiscogsSearchResults([]); // resets searchResults to empty array on click (move this to later in process)
-        setSpotifySearchResults(null); // resets searchResults to null to reset (move later?)
         setDiscogsContent(null); // resets discogsContent to null to reset (move later?)
         setSubmitted(searchFormData);
         setExactSpotifyNameMatch(null);
