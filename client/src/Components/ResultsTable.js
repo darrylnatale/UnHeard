@@ -203,7 +203,7 @@ const notOnSpotifyFiltered = filter(notOnSpotify)
             </td>   
             <td>
             <button onClick={() => getYouTubeResults(track)}>find song</button>
-            {src ? <>{src}</> : <></>}
+            
               </td>
 <td>{Object.values(item)[0]
                   .map((value) => value?.albumRole)
@@ -221,7 +221,18 @@ const notOnSpotifyFiltered = filter(notOnSpotify)
         )})}
       </tbody>
     </StyledTable>
-    
+    {src ? <FrameWrapper>
+      {src.split("?v=")[1]}
+      
+      <StyledIFrame
+      width="560"
+      height="315"
+      src={`https://www.youtube.com/embed/${src.split("?v=")[1]}`}
+      title="Youtube Player"
+      frameBorder="0"
+      allowFullScreen
+      />
+    </FrameWrapper> : <></>}
     </>
   );
 };
@@ -278,3 +289,26 @@ const ButtonBorder = styled.div`
   animation-timing-function: linear;
 `;
 
+const FrameWrapper = styled.div `
+
+--border-radius: 10px;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 6px rgb(0 0 0 / 50%);
+  background-color: rgba(0, 0, 0, 0.3);
+  overflow: auto;
+`
+
+const StyledIFrame = styled.iframe`
+
+/* overflow: auto; */
+    /* position: absolute; */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    clip-path: inset(0% 0% 0% 0% round var(--border-radius));
+  
+`

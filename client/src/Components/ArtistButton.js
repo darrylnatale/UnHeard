@@ -4,7 +4,7 @@ import { Context } from "../Context";
 
 const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId, aliases, nameVariations, realName }) => {
   
-    const { setDiscogsArtistIdState, discogsArtistIdState, setDiscogsSearchResults } = useContext(Context);
+    const { setDiscogsArtistIdState, setDiscogsSearchResults } = useContext(Context);
 
     const formatProfileText = (profile) => {
       let formattedProfileText = profile;
@@ -25,6 +25,13 @@ const ArtistButton = ({ thumb, name, clickHandler, profile, discogsArtistId, ali
 
     let formattedProfileText = formatProfileText(profile)
   
+
+
+
+
+
+
+    
   return (
     <StyledArtistButton
       onClick={() => {

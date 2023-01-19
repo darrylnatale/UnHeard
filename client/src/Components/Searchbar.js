@@ -8,17 +8,21 @@ const Searchbar = () => {
   const {
     setSubmitted, setDiscogsSearchResults, searchFormData, setSearchFormData, setExactSpotifyNameMatch, setDiscogsContent} = useContext(Context);
 
-    const debouncedHandleSubmit = _.debounce((e, searchFormData) => {
+    const debouncedHandleSubmit = _.debounce((e, searchTerm) => {
+      console.log("debounce run")
       setDiscogsSearchResults([])
-      handleSubmit(e, searchFormData);
-    }, 3000);
+      setSearchFormData(e.target.value);
+      handleSubmit(e, e.target.value);
+    }, 2000);
   
   const handleChange = (e) => {
+    setDiscogsSearchResults([])
     setSearchFormData(e.target.value);
     debouncedHandleSubmit(e, e.target.value);
   };
 
   const handleSubmit = (e, searchFormData) => {
+    console.log("handlesubmit run")
     e.preventDefault();
 
     fetch(`/searchDiscogs/`, {
@@ -65,7 +69,7 @@ const Searchbar = () => {
       <StyledSearchBarInput
         type="search"
         placeholder={"Search For A Musician"}
-        onInput={handleChange}
+        onInput={debouncedHandleSubmit}
       />
     </StyledSearchForm>
   );
