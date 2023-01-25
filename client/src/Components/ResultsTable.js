@@ -145,10 +145,17 @@ const notOnSpotifyFiltered = filter(notOnSpotify)
     
   return (
     <>
+    <Overview>
     <ButtonContainer>
-        <ButtonIcon>{notOnSpotifyFiltered.length > 0 ? <>found {notOnSpotifyFiltered.length} track{notOnSpotifyFiltered.length > 1 && <>s</>}</> : <>searching</>} </ButtonIcon>
+        <ButtonIcon>{filtered.length > 0 ? <>found {filtered.length} track{filtered.length > 1 && <>s</> } total</> : <>searching</>} </ButtonIcon>
         <ButtonBorder /> 
     </ButtonContainer>
+
+    <ButtonContainer>
+        <ButtonIcon>{notOnSpotifyFiltered.length > 0 ? <>found {notOnSpotifyFiltered.length} track{notOnSpotifyFiltered.length > 1 && <>s</>} not available on Spotify</> : <>searching</>} </ButtonIcon>
+        <ButtonBorder /> 
+    </ButtonContainer>
+    </Overview>
 
 
       
@@ -261,10 +268,16 @@ const Rotate = keyframes`
   }
 `;
 
+const Overview = styled.div`
+  display: flex;
+  
+`;
+
 const ButtonContainer = styled.div`
   position: relative;
   width: 100px;
   height: 100px;
+  margin: 0 100px;
 `;
 
 const ButtonIcon = styled.i`
@@ -278,8 +291,8 @@ const ButtonIcon = styled.i`
 `;
 
 const ButtonBorder = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   background: transparent;
   border-radius: 50%;
   border: 2px dashed #000;
