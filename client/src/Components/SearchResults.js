@@ -81,27 +81,32 @@ const SearchResults = () => {
     {discogsSearchResults.length ? 
           
           <StyledDiscogsSearchResults>
-              {discogsSearchResults.map((discogsSearchResult, index) => {
-
-                if (discogsSearchResult) {
-                  // console.log("discogsSearchResult.realname",discogsSearchResult.realname)
-                  return <ArtistButton 
-                              key={index} 
-                              clickHandler={() => {
-                                checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)
-                                addSearchToUserHistory(discogsSearchResult.id)
-                              }
-                                
-                              } 
-                              thumb={discogsSearchResult.images ? discogsSearchResult.images[0].uri : ""} 
-                              profile={discogsSearchResult.profile ? discogsSearchResult.profile : ""} 
-                              name={discogsSearchResult.name}
-                              aliases={discogsSearchResult?.aliases}
-                              nameVariations={discogsSearchResult?.namevariations}
-                              realName={discogsSearchResult.realname}
-                              discogsArtistId={discogsSearchResult.id}/>}
-                          })}
-          </StyledDiscogsSearchResults>
+    {discogsSearchResults
+      .sort((a, b) => (a.images ? -1 : 1))
+      .map((discogsSearchResult, index) => {
+        const thumb = discogsSearchResult.images
+          ? discogsSearchResult.images
+            .filter(image => image.width > image.height)
+            .map(image => image.uri)[0] || ""
+          : "";
+        return (
+          <ArtistButton 
+            key={index} 
+            clickHandler={() => {
+              checkIfInMongo(discogsSearchResult.id, discogsSearchResult.name)
+              addSearchToUserHistory(discogsSearchResult.id)
+            }} 
+            thumb={thumb} 
+            profile={discogsSearchResult.profile || ""} 
+            name={discogsSearchResult.name}
+            aliases={discogsSearchResult?.aliases || []}
+            nameVariations={discogsSearchResult?.namevariations || []}
+            realName={discogsSearchResult.realname || ""}
+            discogsArtistId={discogsSearchResult.id}
+          />
+        );
+      })}
+  </StyledDiscogsSearchResults>
          
         : <>Searching Spotify... This Might Take a Second</>
         }

@@ -552,25 +552,16 @@ const startFetching = (discogsArtistId, discogsAlbumsArray) => {
 
     return ( 
         <Page>
-        {/* <CopyContainer>
-          
-          
-          
+        <CopyContainer>
           <Copy><h1>Find hidden gems by your favourite musicians</h1></Copy>
           <div>UnHeard searches through a musician's entire catalog and shows you all their songs you <span>can't</span> find on Spotify!</div>
-        </CopyContainer> */}
-        {/* <StyledBsGem /> */}
+        </CopyContainer>
+        
         
         {submitted && <SearchResults />}
         
         {exactSpotifyNameMatch && <ArtistVerification getDiscogsMasters={getDiscogsMasters} getSpotifyContent={getSpotifyContent} getDiscogsArtistReleases={getDiscogsArtistReleases}/>}     
-        {allData && <ResultsTable />}
-        {/* 
-        
-        
-        {showFound && <Found/>}
-        {releases && <Releases />} */}
-        
+        {allData ? <ResultsTable /> : <></>}
         </Page>
     );
 }

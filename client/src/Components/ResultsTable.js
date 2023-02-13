@@ -41,8 +41,6 @@ const ResultsTable = () => {
 const smushed = smush(combinedTracks);
 
 const result = [];
-console.log(smushed)
-console.log(result)
 
 smushed.forEach((element, index) => {
   let found = false;
@@ -50,6 +48,7 @@ smushed.forEach((element, index) => {
     if (group[0] === element || levenshteinDistance(group[0], element) < 3) {
       group.push(index);
       found = true;
+      console.log(group)
     }
   });
   if (!found) {
@@ -58,8 +57,10 @@ smushed.forEach((element, index) => {
   
 });
 
-result.forEach((item) => item.shift())
+
 console.log(result)
+result.forEach((item) => item.shift())
+
 
 let indexes = []
 
@@ -87,7 +88,7 @@ console.log(mergedTracks)
 // Create a new array containing only the elements that are not being removed
 const spellChecked = mergedTracks.filter((_, i) => !indexes.includes(i));
 
-
+console.log(spellChecked)
 const filtered = filter(mergedTracks)
 
 
@@ -146,15 +147,9 @@ const notOnSpotifyFiltered = filter(notOnSpotify)
   return (
     <>
     <Overview>
-    <ButtonContainer>
-        <ButtonIcon>{filtered.length > 0 ? <>found {filtered.length} track{filtered.length > 1 && <>s</> } total</> : <>searching</>} </ButtonIcon>
-        <ButtonBorder /> 
-    </ButtonContainer>
-
-    <ButtonContainer>
-        <ButtonIcon>{notOnSpotifyFiltered.length > 0 ? <>found {notOnSpotifyFiltered.length} track{notOnSpotifyFiltered.length > 1 && <>s</>} not available on Spotify</> : <>searching</>} </ButtonIcon>
-        <ButtonBorder /> 
-    </ButtonContainer>
+    <div>We found {filtered.length > 0 ? <>{filtered.length} track{filtered.length > 1 && <>s</> } by {allData.artistName}</> : <>searching</>}</div>
+    <div>We found {notOnSpotifyFiltered.length > 0 ? <>{notOnSpotifyFiltered.length} track{notOnSpotifyFiltered.length > 1 && <>s</>} not available on Spotify</> : <>searching</>} </div>
+        
     </Overview>
 
 
@@ -259,48 +254,16 @@ td, th {
 }
 `
 
-const Rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
+
 
 const Overview = styled.div`
   display: flex;
   
 `;
 
-const ButtonContainer = styled.div`
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 100px;
-`;
 
-const ButtonIcon = styled.i`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  right: 0;
-  bottom: 0;
-  margin-left: -5px;
-  margin-top: -5px;
-`;
 
-const ButtonBorder = styled.div`
-  width: 200px;
-  height: 200px;
-  background: transparent;
-  border-radius: 50%;
-  border: 2px dashed #000;
-  animation-name: ${Rotate};
-  animation-duration: 10s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-`;
+
 
 const FrameWrapper = styled.div `
 

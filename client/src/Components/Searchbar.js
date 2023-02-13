@@ -6,7 +6,7 @@ import _ from 'lodash';
 const Searchbar = () => {
   
   const {
-    setSubmitted, setDiscogsSearchResults, searchFormData, setSearchFormData, setExactSpotifyNameMatch, setDiscogsContent} = useContext(Context);
+    setSubmitted, setDiscogsSearchResults, searchFormData, setSearchFormData, setExactSpotifyNameMatch, setDiscogsContent, setAllData} = useContext(Context);
 
     const debouncedHandleSubmit = _.debounce((e, searchTerm) => {
       console.log("debounce run")
